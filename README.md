@@ -1,2 +1,4 @@
 # ZeroVerse-Wallet
-ZeroVerse Wallet Binaries
+ZeroVerse Wallet
+
+Work in progress

@@ -1,0 +1,35 @@
+[package]
+name = "sapling_rust_lib"
+version = "0.1.0"
+authors = ["cryptoforge <cryptoforge@gmail.com>"]
+description = "Cordova Sapling plugin static library project built for iOS and Android"
+publish = false
+
+[lib]
+name = "sapling_rust_lib"
+crate_type = ["staticlib","cdylib"]
+
+
+[dependencies]
+
+zcash_client_backend = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa" }
+sapling-crypto = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa" }
+pairing = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa"  }
+zcash_primitives = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa" , features = ["transparent-inputs"] }
+ff = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa"  }
+bellman = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa"  }
+zcash_proofs = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa"  }
+
+bitcoin = { git = "https://github.com/cryptoforge/rust-bitcoin.git", rev="d7092da7d90d916140feaaec0174d16520889e50"}
+secp256k1 = "0.15"
+
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+hex = "0.3"
+hex-serde = "0.1"
+
+
+
+[target.'cfg(target_os="android")'.dependencies]
+jni = { version = "0.9", default-features = false }

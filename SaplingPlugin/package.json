@@ -1,0 +1,33 @@
+{
+  "name": "cordova-plugin-sapling",
+  "version": "0.1.0",
+  "description": "Implement sapling for cordova applications",
+  "cordova": {
+    "id": "cordova-plugin-sapling",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/illiichi/Rust-PhoneGap.git"
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.4.0"
+    }
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/illiichi/Rust-PhoneGap/issues"
+  },
+  "homepage": "https://github.com/illiichi/Rust-PhoneGap#readme"
+}

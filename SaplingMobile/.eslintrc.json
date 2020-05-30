@@ -1,0 +1,22 @@
+{
+    "extends": [
+      "eslint:recommended",
+      "plugin:react/recommended"
+    ],
+    "parser": "babel-eslint",
+    "env" : {
+      "node": true,
+      "es6": true,
+      "browser": true
+    },
+    "globals": {
+        "Sapling" : true,
+        "FileError": true,
+        "downloader": true,
+        "cordova": true,
+        "md5chksum": true,
+        "LocalFileSystem": true,
+        "QRScanner": true,
+        "SQLitePlugin": true
+    }
+}
