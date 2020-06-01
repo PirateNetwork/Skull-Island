@@ -1,8 +1,12 @@
 /*global cordova, module*/
 
 module.exports = {
-    greet: function (name, successCallback, errorCallback) {
-        cordova.exec(successCallback, errorCallback, "Sapling", "greet", [name]);
+    getPassPhrase: function (successCallback, errorCallback) {
+        cordova.exec(successCallback, errorCallback, "Sapling", "getPassPhrase", []);
+    },
+
+    checkPassPhrase: function (passPhrase, successCallback, errorCallback) {
+        cordova.exec(successCallback, errorCallback, "Sapling", "checkPassPhrase", [passPhrase]);
     },
 
     getAddress: function (name, successCallback, errorCallback) {
@@ -14,6 +18,13 @@ module.exports = {
         args.push(tx)
         args.push(key)
         cordova.exec(successCallback, errorCallback, "Sapling", "decryptTransaction", args);
+    },
+
+    decryptOutgoingTransaction: function (tx, key, successCallback, errorCallback) {
+        var args = []
+        args.push(tx)
+        args.push(key)
+        cordova.exec(successCallback, errorCallback, "Sapling", "decryptOutgoingTransaction", args);
     },
 
     getNullifier: function (tx, key, witness, successCallback, errorCallback) {
@@ -32,10 +43,6 @@ module.exports = {
         //console.log(args)
         //console.log('plugin JS step')
         cordova.exec(successCallback, errorCallback, "Sapling", "buildTransaction", args);
-    },
-
-    testTransaction: function (name, successCallback, errorCallback) {
-        cordova.exec(successCallback, errorCallback, "Sapling", "testTransaction", [name]);
     },
 
     incrementWitness: function (name, successCallback, errorCallback) {

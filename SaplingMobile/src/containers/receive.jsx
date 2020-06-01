@@ -5,89 +5,134 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import { QRCode } from 'react-qrcode-logo'
-import logo from '../assets/logo-white-QR.png'
+import logo from '../assets/svg/QR_Logo.svg'
 
 import {
   setZMainPage,
-  setTMainPage,
   setReceivePage} from '../actions/MainSubPage'
 
   import {
-    ReceiveGrid,
+    ReceiveDiv,
+    ReceiveSectionOverscroll,
     ReceiveSection,
-    ReceiveAddress,
+    ReceiveTitle,
+    ReceiveAddressTitle,
+    ReceiveAddressArea,
+    ReceiveAddressInput,
+    ReceiveCopyButton,
+    ReceiveNote1,
+    ReceiveNote2,
+    ReceiveQRTitle,
+    ReceiveQRBase,
     ReceiveQR,
-    ReceiveButtonSection,
-    ReceiveGreyButton} from '../components/receive'
+    ReceiveBackButton,
+  } from '../components/receive'
 
 class Receive extends React.Component {
 
   constructor (props) {
     super(props)
 
+    this.state = {
+      flash: false
     }
 
+    this.scrollRef = React.createRef()
+    this.resetScroll = this.resetScroll.bind(this)
+
+    this.beginFlash = this.beginFlash.bind(this)
+    this.removeFlash = this.removeFlash.bind(this)
+    }
+
+    beginFlash () {
+      this.setState({flash: true})
+      this.setFlashId = setInterval(() => this.removeFlash(),125)
+    }
+
+    removeFlash () {
+      this.setState({flash: false})
+      clearInterval(this.setFlashId)
+    }
+
+    resetScroll (p) {
+      try {
+        this.scrollRef.current.scrollTop = p
+      } catch {
+        console.log('Unable to set scroll on receive page')
+      }
+    }
 
     componentDidMount() {
+
     }
 
     render () {
-        var screenDim = this.props.context.dimensions
-        var address
-        if (this.props.context.activeType == 'Z') {this.props.context.zAddress
-          address = this.props.context.zAddress
-        } else if (this.props.context.activeType == 'T') {
-          address = this.props.context.tAddress
+
+        if (this.props.mainSubPage.receivePage == 'none') {
+          this.resetScroll(0)
         }
+
+        // console.log("Render Receive")
         return (
-        <ReceiveGrid sc={screenDim} visible={this.props.mainSubPage.receivePage}>
-          <ReceiveSection sc={screenDim}>
-            <ReceiveAddress sc={screenDim}
-              value={address}
-              onChange={() => {
-                //console.log('address text area is static')
-                }
-              }
-              >
-            </ReceiveAddress>
-            <ReceiveQR sc={screenDim}>
-              <QRCode value={address}
-                 size = {(screenDim.width * 0.70) - 20}
-                 logoImage = {logo}
-                 ecLevel = "H"
-                    />
-            </ReceiveQR>
-            <ReceiveButtonSection sc={screenDim}>
-              <ReceiveGreyButton sc={screenDim}
-                onClick={() => {
-                  cordova.plugins.clipboard.copy(address)
+        <ReceiveDiv visible={this.props.mainSubPage.receivePage}>
+          <ReceiveSectionOverscroll ref = {this.scrollRef}>
+            <ReceiveSection>
+              <ReceiveTitle>
+                {'Receiving'}
+              </ReceiveTitle>
+              <ReceiveAddressTitle>
+                {'Your Pirate address:'}
+                <br/>
+              </ReceiveAddressTitle>
+              <ReceiveAddressArea>
+                <ReceiveAddressInput flash = {this.state.flash}>
+                  {this.props.context.zAddress}
+                </ReceiveAddressInput>
+              </ReceiveAddressArea>
+              <ReceiveCopyButton
+                  onClick={() => {
+                  cordova.plugins.clipboard.copy(this.props.context.zAddress)
+                  this.beginFlash()
                 }}>
-                Copy Address
-              </ReceiveGreyButton>
-              <ReceiveGreyButton sc={screenDim}
+                {'Copy'}
+              </ReceiveCopyButton>
+              <ReceiveNote1>
+                {'Others can send ARRR to your address. Copy'}
+              </ReceiveNote1>
+              <ReceiveNote2>
+                {'the text above or show the QR code below.'}
+              </ReceiveNote2>
+              <ReceiveQRTitle>
+                {'QR Code:'}
+              </ReceiveQRTitle>
+              <ReceiveQRBase>
+                <ReceiveQR>
+                  <QRCode value={this.props.context.zAddress}
+                         quietZone = {'0'}
+                         size = {(this.props.context.dimensions.width * 0.550)}
+                         bgColor = {'rgba(187,150,69,1)'}
+                         logoImage = {logo}
+                         ecLevel = "H"
+                            />
+                </ReceiveQR>
+              </ReceiveQRBase>
+              <ReceiveBackButton
                 onClick={() => {
-                  if (this.props.context.activeType == 'Z') {
                     this.props.setZMainPage('visible')
-                  } else if (this.props.context.activeType == 'T') {
-                    this.props.setTMainPage('visible')
-                  }
-                  this.props.setReceivePage('none')
+                    this.props.setReceivePage('none')
                 }}>
-                Close
-              </ReceiveGreyButton>
-            </ReceiveButtonSection>
-          </ReceiveSection>
-        </ReceiveGrid>
-
-        )
+                {'Back'}
+              </ReceiveBackButton>
+            </ReceiveSection>
+          </ReceiveSectionOverscroll>
+        </ReceiveDiv>
+      )
   }
-
 }
 
 Receive.propTypes = {
   setReceivePage: PropTypes.func.isRequired,
   setZMainPage: PropTypes.func.isRequired,
-  setTMainPage: PropTypes.func.isRequired,
   context: PropTypes.object.isRequired,
   mainSubPage: PropTypes.object.isRequired
 }
@@ -104,7 +149,6 @@ function matchDispatchToProps (dispatch) {
     {
       setReceivePage,
       setZMainPage,
-      setTMainPage
     },
     dispatch
   )

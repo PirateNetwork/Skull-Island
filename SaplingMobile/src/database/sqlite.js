@@ -1,4 +1,4 @@
-export const DATABASE_VERSION = 1
+export const DATABASE_VERSION = 5
 
 //Open Sqlite Database
 export function openDatabase(dbName) {
@@ -44,10 +44,10 @@ export function runSqlCommand (db, command) {
 
 export function runBatchCommand (db, command) {
           return new Promise((resolve, reject) => {
-            console.log(command)
+            // console.log(command)
             db.sqlBatch(command,
                () => {
-                 console.log('sql command run')
+                 // console.log('sql command run')
                  resolve()
             }, (error) => {
                 console.log('SQL error: ' + error.message);

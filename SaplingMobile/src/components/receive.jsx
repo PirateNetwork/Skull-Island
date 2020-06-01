@@ -1,84 +1,297 @@
 import styled from 'styled-components'
 
-import backgroundImage from '../assets/login.jpg'
+import backgroundImage from '../assets/svg/modal_popup.svg'
 
-export const ReceiveGrid = styled.div`
-  background-image: url(${backgroundImage});
-  background-color: #cccccc;
-  position: fixed;
-  top: 0;
+const TitleFontSize = 1.5/21
+const SectionTitleFontSize = 1.5/36
+const RedFontSize = 1.5/52
+const DashAreaSize = 1.5/18
+const InputAreaSize = 1.5/24
+const InputAreaFontSize = 1.5/36
+
+
+export const ReceiveDiv = styled.div`
+position: absolute;
+top: 0;
+left: 0;
+display: ${props => props.visible};
+transition: 500ms;
+`
+
+export const ReceiveSectionOverscroll = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * 0.125) + 'px'};
   left: 0;
-  height: ${props => props.sc.height + 'px'};
-  width: ${props => props.sc.width + 'px'};
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: repeat(10, 1fr);
-  display: ${props => props.visible};
+  height: ${props => (props.theme.height * .875) + 'px'};
+  width: ${props => props.theme.width + 'px'};
+  overflow: scroll;
+  overscroll-behavior: contain;
 `
 
 export const ReceiveSection = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: ${props => (props.theme.height * 0.4975)
+       + (props.theme.width * TitleFontSize)
+       + (props.theme.width * SectionTitleFontSize * 2)
+       + (props.theme.width * ((InputAreaSize * 3) + DashAreaSize - InputAreaSize))
+       + (props.theme.width * RedFontSize * 2)
+       + (props.theme.width * 0.80 * (894/1020))
+       + 'px'};
+  width: ${props => props.theme.width + 'px'};
+`
+
+export const ReceiveTitle = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * 0.05) + 'px'};
+  left: 0;
+  color: #bb9645;
+  height: ${props => (props.theme.width * TitleFontSize) + 'px'};
+  width: ${props => props.theme.width + 'px'};
+  font-family: 'Bai Jamjuree';
+  font-style: normal;
+  font-weight: bold;
+  font-size: ${props => (props.theme.width * TitleFontSize) + 'px'};
   text-align: center;
-  background-color: #000000;
+`
+
+export const ReceiveAddressTitle = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * 0.075)
+       + (props.theme.width * TitleFontSize)
+       + 'px'};
+  left: ${props => (props.theme.width * 0.15) + 'px'};
+  color: #bb9645;
+  height: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
+  width: ${props => (props.theme.width * 0.80) + 'px'};
+  font-size: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
+  text-align: left;
+`
+
+export const ReceiveAddressArea = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * 0.10)
+       + (props.theme.width * TitleFontSize)
+       + (props.theme.width * SectionTitleFontSize)
+       + 'px'};
+  left: ${props => (props.theme.width * 0.05) + 'px'};
+  background-color: rgba(187,150,69,0.1);
+  width: ${props => (props.theme.width * 0.90) + 'px'};
+  height: ${props => (props.theme.width * ((InputAreaSize * 3) + DashAreaSize - InputAreaSize)) + 'px'};
+`
+
+export const ReceiveAddressInput = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
   color: #ffffff;
-  border-radius: 35px;
-  border: 5px solid black;
-  height: ${props => ((props.sc.height * 0.95) - 10) + 'px'};
-  width: ${props => ((props.sc.width * 0.95) - 10) + 'px'};
-  position: absolute;
-  top: ${props => ((props.sc.height * 0.025)) + 'px'};
-  left: ${props => ((props.sc.width * 0.025)) + 'px'};
-`
-export const ReceiveAddress = styled.textarea`
-  position: absolute;
-  top: ${props => ((props.sc.height * 0.025)) + 'px'};
-  left: ${props => ((props.sc.width * 0.075) - 5) + 'px'};
-  width: ${props => (props.sc.width * 0.8) + 'px'};
-  height: ${props => (props.sc.height * 0.30) + 'px'};
-  background-color: #151515;
-  color: #ffffff;
-  font-size: 14px;
-  border: 1px solid #000000;
-  border-radius: 10px;
+  background-color: ${props => props.flash ? 'rgba(187,150,69,0.5)' : 'rgba(0,0,0,0)'};
+  width: ${props => (props.theme.width * 0.90) + 'px'};
+  height: ${props => (props.theme.width * InputAreaSize * 3) + 'px'};
+  margin: 0px;
+  border-width: 0px 0px 2px 0px;
+  border-style: dashed;
+  border-color: #bb9645;
+  font-size: ${props => (props.theme.width * InputAreaFontSize) + 'px'};
+  text-align: center;
+  word-wrap: break-word;
+  transition: 60ms;
+
+  :focus{
+    outline: none;
+  }
 `
 
-export const ReceiveQR = styled.div`
+export const ReceiveCopyButton = styled.button`
   position: absolute;
-  bottom: ${props => ((props.sc.height * 0.13)) + 'px'};
-  left: ${props => ((props.sc.width * 0.125) - 5) + 'px'};
-  width: ${props => ((props.sc.width * 0.7)) + 'px'};
-  height: ${props => ((props.sc.width * 0.7)) + 'px'};
-  border: 0px solid #000000;
+  background-color: rgba(48,49,51,1);
+  color: white;
+  font-size: ${props => (props.theme.height * 0.025) + 'px'};
+  width: ${props => (props.theme.width * 0.25) + 'px'};
+  height: ${props => (props.theme.height * 0.055) + 'px'};
+  left: ${props => (props.theme.width * 0.5 - props.theme.width * 0.25/2) + 'px'};
+  top: ${props => (props.theme.height * 0.120)
+       + (props.theme.width * TitleFontSize)
+       + (props.theme.width * SectionTitleFontSize)
+       + (props.theme.width * ((InputAreaSize * 3) + DashAreaSize - InputAreaSize))
+       + 'px'};
+  border-radius: ${props => (props.theme.height * 0.055/2) + 'px'};
+  border: 0px;
+
+  :focus{
+    outline: none;
+  }
 `
-export const ReceiveButtonSection = styled.div`
+
+export const ReceiveNote1 = styled.div`
   position: absolute;
-  bottom: ${props => ((props.sc.height * 0.05)) + 'px'};
-  left: ${props => ((props.sc.width * 0.075) - 5) + 'px'};
-  width: ${props => ((props.sc.width * 0.8)) + 'px'};
-  border: 0px solid #000000;
-  display: inline-block;
+  color: #bb9645;
+  width: ${props => (props.theme.width * 0.80) + 'px'};
+  height: ${props => (props.theme.width * RedFontSize) + 'px'};
+  font-size: ${props => (props.theme.width * RedFontSize) + 'px'};
+  left: ${props => (props.theme.width * 0.5 - props.theme.width * 0.8/2) + 'px'};
+  top: ${props => (props.theme.height * 0.200)
+       + (props.theme.width * TitleFontSize)
+       + (props.theme.width * SectionTitleFontSize)
+       + (props.theme.width * ((InputAreaSize * 3) + DashAreaSize - InputAreaSize))
+       + 'px'};
+  text-align: center;
 `
 
-export const ReceiveGreyButton = styled.button`
-  background-color: #707070;
-  color: #000000;
-  border: 0px solid #707070;
-  font-size: ${props => (props.sc.height * 0.0225) + 'px'}
-  margin-top: ${props => (props.sc.height * 0.00125) + 'px'};
-  margin-bottom: ${props => (props.sc.height * 0.00125) + 'px'};
-  margin-left: ${props => (props.sc.width * 0.0125) + 'px'};
-  margin-right: ${props => (props.sc.width * 0.0125) + 'px'};
-  height: ${props => (props.sc.height * 0.0475) + 'px'};
-  width: ${props => (props.sc.width * 0.35)+ 'px'};
-  border-radius: 3px;
+export const ReceiveNote2 = styled.div`
+  position: absolute;
+  color: #bb9645;
+  width: ${props => (props.theme.width * 0.80) + 'px'};
+  height: ${props => (props.theme.width * RedFontSize) + 'px'};
+  font-size: ${props => (props.theme.width * RedFontSize) + 'px'};
+  left: ${props => (props.theme.width * 0.5 - props.theme.width * 0.8/2) + 'px'};
+  top: ${props => (props.theme.height * 0.2025)
+       + (props.theme.width * TitleFontSize)
+       + (props.theme.width * SectionTitleFontSize)
+       + (props.theme.width * ((InputAreaSize * 3) + DashAreaSize - InputAreaSize))
+       + (props.theme.width * RedFontSize)
+       + 'px'};
+  text-align: center;
 `
 
-export const PinSection = styled.div`
-  display: ${props => props.visible};
+export const ReceiveQRTitle = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * 0.2225)
+       + (props.theme.width * TitleFontSize)
+       + (props.theme.width * SectionTitleFontSize)
+       + (props.theme.width * ((InputAreaSize * 3) + DashAreaSize - InputAreaSize))
+       + (props.theme.width * RedFontSize * 2)
+       + 'px'};
+  left: ${props => (props.theme.width * 0.10) + 'px'};
+  color: #bb9645;
+  height: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
+  width: ${props => (props.theme.width * 0.80) + 'px'};
+  font-size: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
+  text-align: center;
 `
 
-export const KeySection = styled.div`
-  display: ${props => props.visible};
+export const ReceiveQRBase = styled.div`
+  background-image: url(${backgroundImage});
+  position: absolute;
+  left: ${props => (props.theme.width * (0.5 - (0.80/2))) + 'px'};
+  top: ${props => (props.theme.height * 0.2525)
+       + (props.theme.width * TitleFontSize)
+       + (props.theme.width * SectionTitleFontSize * 2)
+       + (props.theme.width * ((InputAreaSize * 3) + DashAreaSize - InputAreaSize))
+       + (props.theme.width * RedFontSize * 2)
+       + 'px'};
+  width: ${props => (props.theme.width * 0.80) + 'px'};
+  height: ${props => (props.theme.width * 0.80 * (894/1020)) + 'px'};
 `
+
+export const ReceiveQR= styled.div`
+  position: absolute;
+  top: ${props => (props.theme.width * (((0.80 * (894/1020)) - 0.55)/2)) + 'px'};
+  left: ${props => (props.theme.width * ((0.80-0.55)/2)) + 'px'};
+  width: ${props => (props.theme.width * 0.55) + 'px'};
+  height: ${props => (props.theme.width * 0.55) + 'px'};
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+`
+
+export const ReceiveBackButton = styled.button`
+  position: absolute;
+  background-color: rgba(187,150,69,1);
+  color: white;
+  font-size: ${props => (props.theme.height * 0.025) + 'px'};
+  width: ${props => (props.theme.width * 0.325) + 'px'};
+  height: ${props => (props.theme.height * 0.075) + 'px'};
+  left: ${props => (props.theme.width * 0.50 - props.theme.width * 0.325/2) + 'px'};
+  top: ${props => (props.theme.height * 0.2725)
+       + (props.theme.width * TitleFontSize)
+       + (props.theme.width * SectionTitleFontSize * 2)
+       + (props.theme.width * ((InputAreaSize * 3) + DashAreaSize - InputAreaSize))
+       + (props.theme.width * RedFontSize * 2)
+       + (props.theme.width * 0.80 * (894/1020))
+       + 'px'};
+  border-radius: ${props => (props.theme.height * 0.075/2) + 'px'};
+  border: 0px;
+
+  :focus{
+    outline: none;
+  }
+`
+
+
+
+
+
+
+
+
+
+
+
+
+//
+//
+// export const ReceiveSection = styled.div`
+//   text-align: center;
+//   background-color: #000000;
+//   color: #ffffff;
+//   border-radius: 35px;
+//   border: 5px solid black;
+//   height: ${props => ((props.theme.height * 0.95) - 10) + 'px'};
+//   width: ${props => ((props.theme.width * 0.95) - 10) + 'px'};
+//   position: absolute;
+//   top: ${props => ((props.theme.height * 0.025)) + 'px'};
+//   left: ${props => ((props.theme.width * 0.025)) + 'px'};
+// `
+// export const ReceiveAddress = styled.textarea`
+//   position: absolute;
+//   top: ${props => ((props.theme.height * 0.025)) + 'px'};
+//   left: ${props => ((props.theme.width * 0.075) - 5) + 'px'};
+//   width: ${props => (props.theme.width * 0.8) + 'px'};
+//   height: ${props => (props.theme.height * 0.30) + 'px'};
+//   background-color: #151515;
+//   color: #ffffff;
+//   font-size: 14px;
+//   border: 1px solid #000000;
+//   border-radius: 10px;
+// `
+//
+// export const ReceiveQR = styled.div`
+//   position: absolute;
+//   bottom: ${props => ((props.theme.height * 0.13)) + 'px'};
+//   left: ${props => ((props.theme.width * 0.125) - 5) + 'px'};
+//   width: ${props => ((props.theme.width * 0.7)) + 'px'};
+//   height: ${props => ((props.theme.width * 0.7)) + 'px'};
+//   border: 0px solid #000000;
+// `
+// export const ReceiveButtonSection = styled.div`
+//   position: absolute;
+//   bottom: ${props => ((props.theme.height * 0.05)) + 'px'};
+//   left: ${props => ((props.theme.width * 0.075) - 5) + 'px'};
+//   width: ${props => ((props.theme.width * 0.8)) + 'px'};
+//   border: 0px solid #000000;
+//   display: inline-block;
+// `
+//
+// export const ReceiveGreyButton = styled.button`
+//   background-color: #707070;
+//   color: #000000;
+//   border: 0px solid #707070;
+//   font-size: ${props => (props.theme.height * 0.0225) + 'px'}
+//   margin-top: ${props => (props.theme.height * 0.00125) + 'px'};
+//   margin-bottom: ${props => (props.theme.height * 0.00125) + 'px'};
+//   margin-left: ${props => (props.theme.width * 0.0125) + 'px'};
+//   margin-right: ${props => (props.theme.width * 0.0125) + 'px'};
+//   height: ${props => (props.theme.height * 0.0475) + 'px'};
+//   width: ${props => (props.theme.width * 0.35)+ 'px'};
+//   border-radius: 3px;
+// `
+//
+// export const PinSection = styled.div`
+//   display: ${props => props.visible};
+// `
+//
+// export const KeySection = styled.div`
+//   display: ${props => props.visible};
+// `

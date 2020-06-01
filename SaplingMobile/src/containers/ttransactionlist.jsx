@@ -11,7 +11,7 @@ import axios from 'axios'
 //import { openRecordset }  from '../database/sqlite'
 
 import { ListDiv,
-         TransactionUl,
+         ZTransactionListUl,
          TransactionLi,
          Col1Div,
          Col2Div,
@@ -55,7 +55,7 @@ class TTransactionList extends React.Component {
     // Sets information about tx
     setAddressTxList () {
       const address = this.props.secrets.items[0].address
-      const txInfoURL = (this.props.settings.insightAPI + 'insight-api-zero/addrs/' + address + '/txs?from=' + this.state.selectedAddressTxFrom + '&to=' + this.state.selectedAddressTxTo)
+      const txInfoURL = (this.props.settings.insightAPI + 'addrs/' + address + '/txs?from=' + this.state.selectedAddressTxFrom + '&to=' + this.state.selectedAddressTxTo)
 
       axios.get(txInfoURL)
         .then((resp) => {
@@ -149,19 +149,19 @@ class TTransactionList extends React.Component {
 
           this.setTransactionList(
             <ListDiv sc={screenDim}>
-                <TransactionUl header={true} sc={screenDim}>
-                  <TransactionLi sc={screenDim}>
+                <ZTransactionListUl header={true} sc={screenDim}>
+                  <ZTransactionListLi sc={screenDim}>
                     <Col1Div sc={screenDim}>Txid</Col1Div>
                     <Col2Div sc={screenDim}></Col2Div>
                     <Col3Div sc={screenDim}></Col3Div>
                     <Col4Div sc={screenDim}>Value</Col4Div>
                   </TransactionLi>
-                </TransactionUl>
+                </ZTransactionListUl>
                 {transactions.map((tx) => (
-                  <TransactionUl key={tx.id} header={false} sc={screenDim}>
-                      <TransactionLi  sc={screenDim}>
+                  <ZTransactionListUl key={tx.id} header={false} sc={screenDim}>
+                      <ZTransactionListLi  sc={screenDim}>
                         <Col1Div sc={screenDim}>
-                          <TransactionListLink href={this.props.settings.explorerURL + 'tx/' + tx.txid}>
+                          <ZTransactionListListLink href={this.props.settings.explorerURL + 'tx/' + tx.txid}>
                             {tx.address}
                           </TransactionListLink>
                         </Col1Div>
@@ -172,7 +172,7 @@ class TTransactionList extends React.Component {
                         <Col4Div sc={screenDim}>{(tx.value/1e08).toFixed(8).toString()}</Col4Div>
                       </TransactionLi>
                       <Spacer sc={screenDim}/>
-                  </TransactionUl>
+                  </ZTransactionListUl>
                   ))}
             </ListDiv>
         )
@@ -189,10 +189,12 @@ class TTransactionList extends React.Component {
       // );
 
 
-      var socket = io(this.props.settings.insightZMQ)
-      socket.on('connect', function() {
-        socket.emit('subscribe', 'inv')
-      })
+      // var socket = io(this.props.settings.insightZMQ, {secure: true})
+      // socket.on('connect', function() {
+      //   socket.emit('subscribe', 'inv')
+      // })
+
+      var socket = this.props.settings.insightSocket
       socket.on('tx', this.setAddressTxList)
       socket.on('block', this.setAddressTxList)
 

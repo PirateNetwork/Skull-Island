@@ -52,6 +52,7 @@ SaplingPlugin/native/rust/target/
 #Cryptoforge Specific System
 build_release.sh
 cargo-config.toml
+Pirate_ux
 
 #Android Keystore
 *.keystore

@@ -4,13 +4,13 @@
       "plugin:react/recommended"
     ],
     "parser": "babel-eslint",
-    "env" : {
+    "env": {
       "node": true,
       "es6": true,
       "browser": true
     },
     "globals": {
-        "Sapling" : true,
+        "Sapling": true,
         "FileError": true,
         "downloader": true,
         "cordova": true,

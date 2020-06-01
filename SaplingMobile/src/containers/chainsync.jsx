@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import io from 'socket.io-client'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -13,8 +12,6 @@ import {
   KeySalt}from '../utils/hash'
 
 import {
-  //deleteDatabase,
-  //openDatabase,
   runSqlCommand,
   openRecordset,
   insertRecords,
@@ -26,24 +23,33 @@ import {
   setZPrivateKey,
   setZBalance,
   setReindex,
-  setZSynced} from '../actions/Context'
+  setZSynced,
+  setInsightSocket} from '../actions/Context'
 
-import { setMinimumBlock, setInsightAPI } from '../actions/Settings'
+import {
+  setMinimumBlock,
+  setInsightAPI,
+  setInsightExplorer,
+  setInsightZMQ,} from '../actions/Settings'
 
-import { ChainSyncGrid,
-         TitleDiv,
-         AddressDiv,
-         SyncDiv,
-         ImgDiv,
-         LogoImg,
-         BalanceDiv,
-         BalanceNumberDiv,
-         CurrencyDiv} from '../components/chainsync'
+import {
+  ChainSyncDiv,
+  ChainSyncStatus,
+  ChainSyncCurrentBalance,
+  ChainSyncBalanceLogo,
+  ChainSyncBalanceLogoImg,
+  ChainSyncUSD,
+  ChainSyncBTC,
+  ChainSyncBalance,
+  ChainSyncBalanceUnits,} from '../components/chainsync'
+
+import pirateLogo from '../assets/svg/pirate_logo.svg'
 
 import { coins } from '../utils/coins.js'
 
 import { apiGetAddress,
          apiDecryptTransaction,
+         apiDecryptOutgoingTransaction,
          apiGetNullifier,
          apiIncrementWitness } from '../utils/sapling'
 
@@ -59,7 +65,8 @@ class ChainOps extends React.Component {
       Witnessing: 0,
       Synced : 0,
       DownloadPercentage: 0,
-      rootMismatch: false
+      rootMismatch: false,
+      Socket: false
     }
 
     this.setProcessing = this.setProcessing.bind(this)
@@ -76,6 +83,9 @@ class ChainOps extends React.Component {
     this.decodeSingleTransaction = this.decodeSingleTransaction.bind(this)
     this.runSyncChain = this.runSyncChain.bind(this)
     this.setRootMismatch = this.setRootMismatch.bind(this)
+    this.setupSocket = this.setupSocket.bind(this)
+    this.setSocket = this.setSocket.bind(this)
+    this.msToTime = this.msToTime.bind(this)
   }
 
     setProcessing(n) {this.setState({Processing: n})}
@@ -83,7 +93,8 @@ class ChainOps extends React.Component {
     setWitnessing(n) {this.setState({Witnessing: n})}
     setSynced(n) {this.setState({Synced: n})}
     setDownloadPercentage(n) {this.setState({DownloadPercentage: n})}
-    setRootMismatch(n) {this.setState({rootMismatch: n})}
+    setRootMismatch(b) {this.setState({rootMismatch: b})}
+    setSocket(b) {this.setState({Socket: b})}
 
     setKeys(result) {
       var keys = JSON.parse(result)
@@ -96,39 +107,75 @@ class ChainOps extends React.Component {
       alert('Unable to set keys' + error)
     }
 
+    msToTime(duration) {
+      var milliseconds = parseInt((duration % 1000) / 100),
+          seconds = Math.floor((duration / 1000) % 60),
+          minutes = Math.floor((duration / (1000 * 60)) % 60),
+          hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+      hours = (hours < 10) ? "0" + hours : hours;
+      minutes = (minutes < 10) ? "0" + minutes : minutes;
+      seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+      return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+    }
 
 
     async syncBlocks() {
+      // console.log("Chain Sync 0")
       if (this.props.context.zPrivateKey != '' && this.state.Processing == 0) {
         this.setProcessing(1)
         const coin = this.props.settings.currentCoin
         try {
-          const status = await axios.get(this.props.settings.insightAPI + 'insight-api-zero/status')
+          const status = await axios.get(this.props.settings.insightAPI + 'status')
+          var checkWitnesses = true
+          // var checkHeight = this.props.context.zHeight + 1
+
           var maxBlock = status.data.info.blocks
           var currentBlock = 0
 
-          while (maxBlock > currentBlock + 100) {
+          while (maxBlock > currentBlock + 250) {
+            // var lTime = Date.now()
+            // console.log("Start Chain Sync Loop")
+            // console.log(currentBlock)
+            // console.log(maxBlock)
 
-            if (this.props.context.reindex == 1) {
+            // if (this.props.context.reindex == 1) {
+            //   this.props.setZSynced(false)
+            //   //Rescan from first known transaction
+            //   await runSqlCommand(this.props.context.db, 'DELETE FROM Blocks')
+            //   this.props.setReindex(0)
+            // } else if (this.props.context.reindex == 2) {
+            //   this.props.setZSynced(false)
+            //   //Full Reindex
+            //   await runSqlCommand(this.props.context.db, 'DELETE FROM Blocks')
+            //   var minBlock = this.props.settings.minimumBlock
+            //   minBlock[coin] = 0
+            //   this.props.setMinimumBlock(minBlock)
+            //   this.props.setReindex(0)
+            // }
+
+            // console.log('reindex ' + this.props.context.reindex)
+
+            if (this.props.context.reindex > 0) {
+              currentBlock = Number(Math.floor(this.props.context.reindex))
               this.props.setZSynced(false)
-              //Rescan from first known transaction
               await runSqlCommand(this.props.context.db, 'DELETE FROM Blocks')
-              this.props.setReindex(0)
-            } else if (this.props.context.reindex == 2) {
-              this.props.setZSynced(false)
-              //Full Reindex
-              await runSqlCommand(this.props.context.db, 'DELETE FROM Blocks')
+              await runSqlCommand(this.props.context.db, 'DELETE FROM Transactions')
+              await runSqlCommand(this.props.context.db, 'DELETE FROM Wallet')
+              await runSqlCommand(this.props.context.db, 'DELETE FROM Shieldedoutputs')
+              await runSqlCommand(this.props.context.db, 'DELETE FROM Shieldedspends')
+              await runSqlCommand(this.props.context.db, 'DELETE FROM Witnesses')
               var minBlock = this.props.settings.minimumBlock
               minBlock[coin] = 0
               this.props.setMinimumBlock(minBlock)
               this.props.setReindex(0)
+            } else {
+              var rs = await openRecordset(this.props.context.db, 'SELECT max(height) as height FROM Blocks')
+              currentBlock = Number(rs.rows.item(0).height) + 1
             }
 
-
-            var rs = await openRecordset(this.props.context.db, 'SELECT max(height) as height FROM Blocks')
-
             //Set starting Block
-            currentBlock = Number(rs.rows.item(0).height) + 1
             this.props.setZHeight(currentBlock - 1)
             this.setDownloadPercentage((currentBlock - 1)/maxBlock)
 
@@ -140,13 +187,18 @@ class ChainOps extends React.Component {
 
             //Re-dowload if there is a sapling root mismatch.
             if (this.state.rootMismatch == true && currentBlock > 0) {
-              currentBlock -= 125
+              currentBlock -= 1025
               this.setRootMismatch(false)
             }
 
-            if (currentBlock <= 1) {
-              currentBlock = Number(this.props.settings.minimumBlock[coin]) > coins[coin].branchHeight['sapling'] -1 ? Number(this.props.settings.minimumBlock[coin]) : coins[coin].branchHeight['sapling'] - 1
+            if (currentBlock <= this.props.settings.minimumBlock[coin] - 1) {
+              currentBlock = this.props.settings.minimumBlock[coin] - 1
             }
+
+            if (currentBlock <= coins[coin].branchHeight['sapling'] - 1) {
+              currentBlock = coins[coin].branchHeight['sapling'] - 1
+            }
+
 
             var wt = await openRecordset(this.props.context.db, 'SELECT max(height) as height, cmu '
                                                                +'FROM Witnesses '
@@ -155,14 +207,17 @@ class ChainOps extends React.Component {
 
             if (wt.rows.length > 0) {
               var currentWitnessBlock = Number(wt.rows.item(0).height)
-              //console.log('current witness block ' + currentWitnessBlock)
               if (currentWitnessBlock > 0 && currentWitnessBlock < currentBlock - 1) {
                 currentBlock == currentWitnessBlock + 1
               }
             }
+            // console.log('Current Block 4 ' + currentBlock)
 
+            // console.log("Chain Sync 2")
             //Download block from api
-            const response = await axios.get(this.props.settings.insightAPI + 'insight-api-zero/saplingblocks/' + currentBlock.toString() + '?blockQty=100')
+            // var dTime = Date.now()
+            const response = await axios.get(this.props.settings.insightAPI + 'saplingblocks/' + currentBlock.toString() + '?blockQty=1000')
+            // console.log("Download Time " + this.msToTime(Date.now() - dTime) )
 
             await runSqlCommand(this.props.context.db, 'DELETE FROM Blocks WHERE height >= ' + currentBlock)
             await runSqlCommand(this.props.context.db, 'DELETE FROM Transactions WHERE height >= ' + currentBlock)
@@ -176,7 +231,8 @@ class ChainOps extends React.Component {
             //add blocks to database
             const blocks = response.data
 
-            console.log('Load Blocks 1')
+            // console.log(blocks)
+            // console.log('Load Blocks 1')
             {
               var txArray = []
               for (var i = 0; i < blocks.length; i++) {
@@ -196,7 +252,7 @@ class ChainOps extends React.Component {
               }
             }
 
-            console.log('Load Blocks 2')
+            // console.log('Load Blocks 2')
             {
               var outArray = []
               var spendArray = []
@@ -220,7 +276,7 @@ class ChainOps extends React.Component {
                       outArray = []
                     }
                   }
-                  console.log('Load Blocks out')
+                  // console.log('Load Blocks out')
 
                   for (var si = 0; si < blocks[z].transactions[txz].vShieldedSpend.length; si++) {
                     var spendCommand =[]
@@ -241,7 +297,7 @@ class ChainOps extends React.Component {
                 await runBatchCommand(this.props.context.db, spendArray)
               }
             }
-            console.log('Load Blocks 3')
+            // console.log('Load Blocks 3')
             //Add blocks
             {
               var rootsArray = []
@@ -259,7 +315,7 @@ class ChainOps extends React.Component {
                 await runBatchCommand(this.props.context.db, rootsArray)
               }
             }
-
+            // console.log('Load Blocks 4')
             //Get Unprocessed Transactions in the database
             var unprocessedBlocks = await openRecordset(this.props.context.db, 'SELECT b.height '
                                         +', sum(case when s.height is null then 0 else 1 end) as containsSpends '
@@ -273,7 +329,9 @@ class ChainOps extends React.Component {
 
 
             var processedBlocks = 0
+            // console.log('Load Blocks 4a')
             for (var u = 0; u < unprocessedBlocks.rows.length; u++) {
+              // console.log('Load Blocks 4b')
               if (unprocessedBlocks.rows.item(u).height != null) {
 
                 await runSqlCommand(this.props.context.db, 'DELETE FROM Witnesses WHERE height >= ' + unprocessedBlocks.rows.item(u).height)
@@ -281,7 +339,7 @@ class ChainOps extends React.Component {
                 // Increment existing witnesses
                 var witnesses = await openRecordset(this.props.context.db, 'SELECT w.cmu, w.height, w.witness, w.root '
                                                        +'FROM Witnesses as w '
-                                                       +'JOIN Wallet as tx on tx.cmu = w.cmu '
+                                                       +'JOIN Wallet as tx on tx.cmu = w.cmu and type <> 2 '
                                                        +'WHERE tx.spent = 0 AND w.height = ' + (unprocessedBlocks.rows.item(u).height - 1).toString())
 
                 if (unprocessedBlocks.rows.item(u).containsOutputs == 0) {
@@ -289,7 +347,7 @@ class ChainOps extends React.Component {
                   await insertRecords(this.props.context.db, 'INSERT INTO Witnesses '
                                                             +'SELECT w.cmu, ' + unprocessedBlocks.rows.item(u).height + ' as height, w.witness, w.root '
                                                             +'FROM Witnesses as w '
-                                                            +'JOIN Wallet as tx on tx.cmu = w.cmu '
+                                                            +'JOIN Wallet as tx on tx.cmu = w.cmu and type <> 2 '
                                                             +'WHERE tx.spent = 0 AND w.height = ' + (unprocessedBlocks.rows.item(u).height - 1).toString())
                 }
 
@@ -315,28 +373,49 @@ class ChainOps extends React.Component {
                           var witjson = {
                             "cmu": ws.rows.item(w).cmu,
                             "witness": tempWitness,
-                            "root": "empty"
+                            "root": "empty",
+                            "returnroot" : checkWitnesses
                           }
 
                           var newWitness = await apiIncrementWitness(JSON.stringify(witjson))
                           var incrementedWitness = JSON.parse(newWitness)
                           tempWitness = incrementedWitness.witness
 
-                          if (w == ws.rows.length - 1 && incrementedWitness.root == ws.rows.item(w).saplingroot) {
+                          var rootCheck = false
+                          if (incrementedWitness.root == ws.rows.item(w).saplingroot) {
+                            rootCheck = true
+                            console.log('Roots checked ' + unprocessedBlocks.rows.item(u).height.toString())
+                          } else {
+                            if (!checkWitnesses) {
+                              rootCheck = true
+                            } else {
+                              if (w == ws.rows.length - 1) {
+                                this.setRootMismatch(true)
+                                console.log(incrementedWitness.root)
+                                console.log(ws.rows.item(w).saplingroot)
+                              }
+                            }
+                          }
 
+                          if (w == ws.rows.length - 1 && rootCheck) {
                             //Add New witness
                             await insertRecords(this.props.context.db, 'INSERT INTO Witnesses VALUES (?1, ?2, ?3, ?4)',
                               [witnesses.rows.item(y).cmu, ws.rows.item(w).height, incrementedWitness.witness,incrementedWitness.root])
 
-                          } else if (w == ws.rows.length - 1 && incrementedWitness.root != ws.rows.item(w).saplingroot) {
-                            this.setRootMismatch(true)
-                          }
+                          } //else if (w == ws.rows.length - 1 && incrementedWitness.root != ws.rows.item(w).saplingroot) {
+                          //   this.setRootMismatch(true)
+                          // }
                         }
                       }
                       this.props.context.db.executeSql('COMMIT')
+
                     }
                   }
 
+                  //Only check root of witness on the first block of run
+                  if (!this.state.rootMismatch) {
+                    checkWitnesses = false
+                  }
 
                   //Get Unprocessed Transactions in the database
                   var rz = await openRecordset(this.props.context.db, 'SELECT b.height, b.saplingroot, t.txid, t.txindex, s.outputindex, s.cmu, s.cv, s.ephemeralKey, s.encCiphertext, s.outCiphertext '
@@ -367,7 +446,7 @@ class ChainOps extends React.Component {
                       if (dtx.decrypted == "True") {
 
                         //Get IncrementWitness of decrypted transaction
-                        var resp = await axios.get(this.props.settings.insightAPI + 'insight-api-zero/witness/' + rz.rows.item(r).txid + '?index=' + rz.rows.item(r).outputindex)
+                        var resp = await axios.get(this.props.settings.insightAPI + 'witness/' + rz.rows.item(r).txid + '?index=' + rz.rows.item(r).outputindex)
 
                         var witness = {
                           "height": rz.rows.item(r).height,
@@ -375,7 +454,8 @@ class ChainOps extends React.Component {
                           "shieldedoutindex" : rz.rows.item(r).outputindex,
                           "value" : dtx.value,
                           "witness" : resp.data.witness,
-                          "nullifier" : ""
+                          "nullifier" : "",
+                          "memo" : ""
                         }
 
                         //update minimumBlock settings
@@ -390,13 +470,16 @@ class ChainOps extends React.Component {
                         //Calculate Nullifier
                         var ntx = await apiGetNullifier(JSON.stringify(txy),this.props.context.zPrivateKey,JSON.stringify(witness))
 
+                        // console.log(ntx)
+
                         await runSqlCommand(this.props.context.db, 'DELETE FROM Wallet '
                                                +'WHERE txid = \'' + rz.rows.item(r).txid + '\' '
-                                               +'AND outputindex = \'' + rz.rows.item(r).outputindex + '\' ')
+                                               +'AND outputindex = \'' + rz.rows.item(r).outputindex + '\' '
+                                               +'AND type in (0,1) ')
 
 
                         //Add Transaction to the Wallet
-                        await insertRecords(this.props.context.db, 'INSERT INTO Wallet VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9 , ?10, ?11, ?12, ?13, ?14)',
+                        await insertRecords(this.props.context.db, 'INSERT INTO Wallet VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)',
                           [Number(rz.rows.item(r).height),
                             rz.rows.item(r).txid,
                             rz.rows.item(r).txindex,
@@ -410,7 +493,11 @@ class ChainOps extends React.Component {
                             JSON.parse(ntx).nullifier,
                             0,
                             0,
-                            JSON.parse(ntx).value
+                            JSON.parse(ntx).value,
+                            JSON.parse(ntx).memo,
+                            this.props.context.zAddress,
+                            1,
+                            0
                           ])
 
                         //Add New witness
@@ -434,13 +521,15 @@ class ChainOps extends React.Component {
                           var witjsonz = {
                             "cmu": wz.rows.item(v).cmu,
                             "witness": inputWitness,
-                            "root": "empty"
+                            "root": "empty",
+                            "returnroot" : false
                           }
 
                           var newWitnessz = await apiIncrementWitness(JSON.stringify(witjsonz))
                           var incrementedWitnessz = JSON.parse(newWitnessz)
                           inputWitness = incrementedWitnessz.witness
-                          if (v == wz.rows.length - 1 && incrementedWitnessz.root == wz.rows.item(v).saplingroot) {
+
+                          if (v == wz.rows.length - 1 ) {
                             //Delete aany old witnesses
                             await runSqlCommand(this.props.context.db, 'DELETE FROM Witnesses '
                                                    +'WHERE cmu = \'' + (rz.rows.item(r).cmu).toString() + '\' and height >= ' + rz.rows.item(r).height)
@@ -448,8 +537,6 @@ class ChainOps extends React.Component {
                             await insertRecords(this.props.context.db, 'INSERT INTO Witnesses VALUES (?1, ?2, ?3, ?4)',
                               [rz.rows.item(r).cmu, rz.rows.item(r).height, incrementedWitnessz.witness,incrementedWitnessz.root])
 
-                          } else if (v == wz.rows.length - 1 && incrementedWitnessz.root != wz.rows.item(v).saplingroot && v != 0) {
-                            this.setRootMismatch(true)
                           }
                         }
                       }
@@ -457,6 +544,7 @@ class ChainOps extends React.Component {
                   }
                 }
 
+                // console.log('Load Blocks 5')
                 if (unprocessedBlocks.rows.item(u).containsSpends > 0) {
                   var ns = await openRecordset(this.props.context.db, 'SELECT DISTINCT txid '
                                                                      +'From Shieldedspends as s '
@@ -474,17 +562,95 @@ class ChainOps extends React.Component {
                                                                 +' AND s.txid=\'' + ns.rows.item(n).txid.toString() + '\')')
                   }
                   this.props.context.db.executeSql('COMMIT')
+
+
+
+                  //Decrypt Outgoing Transactions
+                  var os = await openRecordset(this.props.context.db, 'SELECT DISTINCT o.height, o.txid, t.txindex, o.outputindex, o.cmu, o.cv, o.encCiphertext, o.ephemeralKey, o.outCiphertext '
+                                                                     +'From Shieldedoutputs as o '
+                                                                     +'Join Transactions as t on o.height = t.height AND t.txid = o.txid '
+                                                                     +'Join Shieldedspends as s on s.height = t.height AND t.txid = s.txid '
+                                                                     +'WHERE s.nullifier in (SELECT w.nullifier '
+                                                                                           +'FROM Wallet as w '
+                                                                                           +'WHERE spent = ' + (unprocessedBlocks.rows.item(u).height).toString() + ')')
+
+                  for (var m = 0; m < os.rows.length; m++) {
+
+                    var txo = {"height": os.rows.item(m).height,
+                              "txindex" : os.rows.item(m).txindex,
+                              "shieldedoutindex" : os.rows.item(m).outputindex,
+                              "cmu" : os.rows.item(m).cmu,
+                              "ephemeralKey" : os.rows.item(m).ephemeralKey,
+                              "cv" : os.rows.item(m).cv,
+                              "encCiphertext" : os.rows.item(m).encCiphertext,
+                              "outCiphertext" : os.rows.item(m).outCiphertext}
+
+                    //Decrypt
+                    var jsontxo = await apiDecryptOutgoingTransaction(JSON.stringify(txo),this.props.context.zPrivateKey)
+
+
+
+
+                  var rtxo = JSON.parse(jsontxo)
+                  console.log(rtxo)
+
+                  if (rtxo.decrypted && rtxo.value > 0) {
+
+                    await runSqlCommand(this.props.context.db, 'DELETE FROM Wallet '
+                                           +'WHERE txid = \'' + os.rows.item(m).txid + '\' '
+                                           +'AND outputindex = \'' + os.rows.item(m).outputindex + '\' '
+                                           +'AND type in (2,3) ')
+
+                    //Add Transaction to the Wallet
+                    await insertRecords(this.props.context.db, 'INSERT INTO Wallet VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)',
+                      [Number(os.rows.item(m).height),
+                        os.rows.item(m).txid,
+                        os.rows.item(m).txindex,
+                        os.rows.item(m).outputindex,
+                        os.rows.item(m).cmu,
+                        os.rows.item(m).cv,
+                        os.rows.item(m).encCiphertext,
+                        os.rows.item(m).ephemeralKey,
+                        os.rows.item(m).outCiphertext,
+                        '',
+                        '',
+                        Number(os.rows.item(m).height),
+                        os.rows.item(m).txindex,
+                        rtxo.value,
+                        rtxo.memo,
+                        rtxo.account,
+                        3,
+                        0,
+                      ])
+                    }
+
+                  }
+
+                  //Flag Change transactions
+                  await runSqlCommand(this.props.context.db, 'UPDATE Wallet '
+                                                            +'SET change = 1 '
+                                                            +'WHERE address = \'' + this.props.context.zAddress + '\' '
+                                                            +'  AND txid in '
+                                                            +'(SELECT Distinct w.txid '
+                                                            +' FROM Wallet as w '
+                                                            +' WHERE w.height = ' + (unprocessedBlocks.rows.item(u).height).toString() + ' '
+                                                            +'   AND w.address <> \'' + this.props.context.zAddress + '\' '
+                                                            +'   AND type in (3))' )
+
+
+
                 }
               }
 
-
-              this.setDownloadPercentage((unprocessedBlocks.rows.item(u).height)/(maxBlock))
               processedBlocks = unprocessedBlocks.rows.item(u).height
-
-
+              if (processedBlocks % 100 == 0) {
+                this.setDownloadPercentage((processedBlocks)/(maxBlock))
+                this.props.setZHeight(processedBlocks)
+              }
             }
 
             if (processedBlocks != 0) {
+              this.setDownloadPercentage((processedBlocks)/(maxBlock))
               this.props.setZHeight(processedBlocks)
               if ((processedBlocks)/(maxBlock - 5) > 1) {
                 this.props.setZSynced(true)
@@ -493,7 +659,7 @@ class ChainOps extends React.Component {
               }
             }
 
-            var deleteBlocks = processedBlocks - 500
+            var deleteBlocks = processedBlocks - 1500
             if (deleteBlocks === null || isNaN(deleteBlocks)) {
               deleteBlocks = 0
             }
@@ -504,13 +670,13 @@ class ChainOps extends React.Component {
             await runSqlCommand(this.props.context.db, 'DELETE FROM Shieldedoutputs WHERE height < ' + deleteBlocks.toString())
             await runSqlCommand(this.props.context.db, 'DELETE FROM Shieldedspends WHERE height < ' + deleteBlocks.toString())
 
-
             await runSqlCommand(this.props.context.db, 'UPDATE Blocks '
                                    +'SET Processed = 1 '
                                    +'WHERE height <= ' + processedBlocks + ' AND Processed = 0 ')
 
          }
        } catch(err) {
+          console.log(err)
          if (process.env.NODE_ENV != 'production') {
            console.log(err)
          }
@@ -520,6 +686,8 @@ class ChainOps extends React.Component {
               console.log(response)
             }
         })
+
+        // console.log('Load Blocks 13')
         this.setProcessing(0)
       }
     }
@@ -527,7 +695,7 @@ class ChainOps extends React.Component {
 
 
     async getBalance () {
-      var balanceRecords = await openRecordset(this.props.context.db, 'SELECT sum(value) as value FROM Wallet WHERE spent = 0 AND height > 0 ')
+      var balanceRecords = await openRecordset(this.props.context.db, 'SELECT sum(value) as value FROM Wallet WHERE spent = 0 AND height > 0 and type <> 2 ')
 
       var balance = balanceRecords.rows.item(0).value
       if (balance === null || isNaN(balance)) {
@@ -537,19 +705,39 @@ class ChainOps extends React.Component {
     }
 
     async decodeSingleTransaction(data) {
-      //console.log(data)
       if (data.spendDescs.length > 0 || data.outputDescs.length > 0) {
         if (this.props.context.zPrivateKey != '' && this.state.Processing == 0) {
           this.setProcessing(1)
           const txid = data.txid
-          const response = await axios.get(this.props.settings.insightAPI + 'insight-api-zero/tx/' + txid)
+          const response = await axios.get(this.props.settings.insightAPI + 'tx/' + txid)
           const invtx = response.data
+
 
           var ws = await openRecordset(this.props.context.db, 'SELECT txid '
                                       +'FROM Transactions as t '
                                       +'WHERE t.txid =\'' + txid + '\'')
 
           if (ws.rows.length == 0) {
+
+            var nullifiers = []
+            for (var q = 0; q < invtx.spendDescs.length; q++) {
+
+              var nullifier = invtx.spendDescs[q].nullifier
+              nullifiers.push('\'' + invtx.spendDescs[q].nullifier + '\'')
+
+              //Process Nullifiers
+              await runSqlCommand(this.props.context.db, 'UPDATE Wallet '
+                                     +'SET spent = -1 '
+                                     +', spenttxid = \'' + txid + '\' '
+                                     +'WHERE nullifier =\'' + nullifier + '\' and type not in (2,3) ' )
+
+            }
+
+
+
+
+
+
             for (var i = 0; i < invtx.outputDescs.length; i++) {
               var tx = {"height": 0,
                         "txindex" : 0,
@@ -559,12 +747,17 @@ class ChainOps extends React.Component {
                         "encCiphertext" : invtx.outputDescs[i].encCiphertext,
                         "outCiphertext" : invtx.outputDescs[i].outCiphertext}
 
-              //Decrypt
-              var jsontx = await apiDecryptTransaction(JSON.stringify(tx),this.props.context.zPrivateKey)
 
+                await runSqlCommand(this.props.context.db, 'DELETE FROM Wallet '
+                                       +'WHERE txid = \'' + txid + '\' '
+                                       +'AND cmu = \'' + invtx.outputDescs[i].cmu + '\' ')
+
+              //Decrypt Inbound
+              var jsontx = await apiDecryptTransaction(JSON.stringify(tx),this.props.context.zPrivateKey)
               var dtx = JSON.parse(jsontx)
+
               if (dtx.decrypted == "True") {
-                await insertRecords(this.props.context.db, 'INSERT INTO Wallet VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9 , ?10, ?11, ?12, ?13, ?14)',
+                await insertRecords(this.props.context.db, 'INSERT INTO Wallet VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9 , ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)',
                 [-1,
                   txid,
                   -1,
@@ -578,33 +771,66 @@ class ChainOps extends React.Component {
                   '',
                   0,
                   0,
-                  dtx.value
+                  dtx.value,
+                  '',
+                  this.props.context.zAddress,
+                  0,
+                  0
                 ])
               }
+
+
+              //Decrypt Outbound Transaction
+              var nullifierString = nullifiers.join(',')
+              console.log(nullifierString)
+
+              var ns = await openRecordset(this.props.context.db, 'SELECT txid '
+                                          +'FROM Wallet as w '
+                                          +'WHERE w.nullifier in (' + nullifierString + ')')
+
+
+              if (ns.rows.length != 0) {
+                tx.cv = invtx.outputDescs[i].cv
+                var rjsontx = await apiDecryptOutgoingTransaction(JSON.stringify(tx),this.props.context.zPrivateKey)
+                var rdtx = JSON.parse(rjsontx)
+
+                if (rdtx.decrypted == "True") {
+                  await insertRecords(this.props.context.db, 'INSERT INTO Wallet VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9 , ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)',
+                  [-1,
+                    txid,
+                    -1,
+                    i,
+                    invtx.outputDescs[i].cmu,
+                    invtx.outputDescs[i].cv,
+                    invtx.outputDescs[i].encCiphertext,
+                    invtx.outputDescs[i].ephemeralKey,
+                    invtx.outputDescs[i].outCiphertext,
+                    '',
+                    '',
+                    0,
+                    0,
+                    rdtx.value,
+                    rdtx.memo,
+                    rdtx.account,
+                    2,
+                    0
+                  ])
+                }
+              }
+
             }
           }
 
 
-          for (var q = 0; q < invtx.spendDescs.length; q++) {
-
-            var nullifier = invtx.spendDescs[q].nullifier
-
-            //Process Nullifiers
-            await runSqlCommand(this.props.context.db, 'UPDATE Wallet '
-                                   +'SET spent = -1 '
-                                   +', spenttxid = \'' + txid + '\' '
-                                   +'WHERE nullifier =\'' + nullifier + '\'')
-
-          }
-          this.getBalance()
+          await this.getBalance()
           this.setProcessing(0)
         }
       }
     }
 
-    syncChain() {
-      this.syncBlocks()
-      this.getBalance()
+    async syncChain() {
+      await this.syncBlocks()
+      await this.getBalance()
     }
 
     runSyncChain(data) {
@@ -624,70 +850,82 @@ class ChainOps extends React.Component {
       this.syncChain()
     }
 
+    setupSocket() {
+      if (!this.state.Socket) {
+        if (this.props.context.insightSocket != false) {
+          this.setState({Socket: true})
+          var socket = this.props.context.insightSocket
+          socket.on('tx', this.decodeSingleTransaction)
+          socket.on('block', this.runSyncChain)
+          clearInterval(this.setSocketSID)
+          this.setSocketSID = setInterval(() => this.setupSocket(),120000)
+        } else {
+          console.log('Chain Sync Socket not set, waiting')
+        }
+      }
+    }
+
     componentDidMount() {
       const keyHash = saltHashPassword(this.props.context.activePassword, KeySalt)
       const decryptedPhrase = decrypt(this.props.secrets.secretPhrase, keyHash)
-      const phraseHash = saltHashPassword(decryptedPhrase, coins[this.props.settings.currentCoin].networkname)
-      this.getAddress(phraseHash)
+      // const phraseHash = saltHashPassword(decryptedPhrase, coins[this.props.settings.currentCoin].networkname)
+      // this.getAddress(phraseHash)
+      this.getAddress(decryptedPhrase)
 
-      var socket = io(this.props.settings.insightZMQ)
-      socket.on('connect', function() {
-        socket.emit('subscribe', 'inv')
-      })
-      socket.on('tx', this.decodeSingleTransaction)
-      socket.on('block', this.runSyncChain)
-
-      this.zBalanceID = setInterval(
-        () => this.getBalance(),
-        5000
-      );
-
+      this.getBalance()
+      //this.zBalanceID = setInterval(() => this.getBalance(),30000)
+      this.setSocketSID = setInterval(() => this.setupSocket(),500)
+      this.setSyncID = setInterval(() => this.runSyncChain,30000)
     }
 
     componentWillUnmount() {
-        clearInterval(this.zBalanceID)
+        //clearInterval(this.zBalanceID)
+        clearInterval(this.setSocketSID)
+        clearInterval(this.setSyncID)
     }
-
 
     render () {
 
-      if (this.props.context.reindex >= 1) {
+      if (this.props.context.reindex > 0 && this.state.Processing == 0) {
         this.syncChain()
       }
 
-      var screenDim = this.props.context.dimensions
-      var address = this.props.context.zAddress
+      var syncStatus
+      // console.log('Synced ' + this.props.context.zSynced)
+      if (this.props.context.zSynced) {
+        syncStatus =
+        <ChainSyncStatus synced = {this.props.context.zSynced}>
+          {'Wallet Synced'}
+        </ChainSyncStatus>
+      } else {
+        syncStatus =
+        <ChainSyncStatus synced = {this.props.context.zSynced}>
+          {'Syncing ' + this.props.context.zHeight + ' ' + (this.state.DownloadPercentage * 100).toFixed(2) + '%'}
+        </ChainSyncStatus>
+      }
 
-
+      // console.log("Render ChainSync")
       return (
-        <ChainSyncGrid sc={screenDim}>
-            <TitleDiv sc={screenDim}>
-              Private Address
-            </TitleDiv>
-            <AddressDiv sc={screenDim}>
-              {address.substring(0,8) + '...' + address.substring(address.length-8,address.length)}
-            </AddressDiv>
-            <SyncDiv sc={screenDim}>
-              Synced Block
-              <br/>
-              {this.props.context.zHeight + '   ' + (this.state.DownloadPercentage * 100).toFixed(2) + '%'}
-            </SyncDiv>
-            <BalanceDiv sc={screenDim}>
-              Zer Balance
-              <br/>
-              <BalanceNumberDiv sc={screenDim}>
-                {(this.props.context.zBalance / 1e08).toFixed(8)}
-              </BalanceNumberDiv>
-              <CurrencyDiv sc={screenDim}>
-                {((this.props.context.zBalance / 1e08) * this.props.context.BTCValue).toFixed(8) + ' BTC'}
-                <br/>
-                {((this.props.context.zBalance / 1e08)  * this.props.context.currencyValue).toFixed(6) + ' USD'}
-              </CurrencyDiv>
-            </BalanceDiv>
-            <ImgDiv sc={screenDim}>
-              <LogoImg src={coins[this.props.settings.currentCoin].icon} sc={screenDim} />
-            </ImgDiv>
-        </ChainSyncGrid>
+        <ChainSyncDiv>
+          {syncStatus}
+          <ChainSyncUSD>
+            {(this.props.context.currencyValue * this.props.context.zBalance / 1e08).toFixed(4) + 'USD'}
+          </ChainSyncUSD>
+          <ChainSyncCurrentBalance>
+          </ChainSyncCurrentBalance>
+          <ChainSyncBTC>
+            {(this.props.context.BTCValue * this.props.context.zBalance / 1e08).toFixed(8) + 'BTC'}
+          </ChainSyncBTC>
+          <ChainSyncBalanceLogo>
+            <ChainSyncBalanceLogoImg src={pirateLogo}/>
+          </ChainSyncBalanceLogo>
+          <ChainSyncBalance>
+            {(this.props.context.zBalance / 1e08).toFixed(8)}
+          </ChainSyncBalance>
+          <ChainSyncBalanceUnits>
+            ARRR
+          </ChainSyncBalanceUnits>
+        </ChainSyncDiv>
       )
     }
 }
@@ -695,6 +933,9 @@ class ChainOps extends React.Component {
 
 ChainOps.propTypes = {
   setInsightAPI: PropTypes.func.isRequired,
+  setInsightZMQ: PropTypes.func.isRequired,
+  setInsightSocket: PropTypes.func.isRequired,
+  setInsightExplorer: PropTypes.func.isRequired,
   setMinimumBlock: PropTypes.func.isRequired,
   setZHeight: PropTypes.func.isRequired,
   setZAddress: PropTypes.func.isRequired,
@@ -704,7 +945,7 @@ ChainOps.propTypes = {
   setReindex: PropTypes.func.isRequired,
   context: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
-  secrets: PropTypes.object.isRequired
+  secrets: PropTypes.object.isRequired,
 }
 
 
@@ -726,7 +967,10 @@ function matchDispatchToProps (dispatch) {
       setZSynced,
       setReindex,
       setMinimumBlock,
-      setInsightAPI
+      setInsightAPI,
+      setInsightZMQ,
+      setInsightSocket,
+      setInsightExplorer,
     },
     dispatch
   )

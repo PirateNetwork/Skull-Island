@@ -16,6 +16,7 @@ export const SET_ZER_IN_CURRENCY_VALUE = 'SET_ZER_IN_CURRENCY_VALUE'
 export const SET_DB = 'SET_CURRENT_DB'
 export const SET_REINDEX = 'SET_CURRENT_REINDEX'
 export const SET_QR_SCANNING = 'SET_QR_SCANNING'
+export const SET_INSIGHT_SOCKET = 'SET_INSIGHT_SOCKET'
 
 
 export function setActiveType (activeType) {
@@ -148,5 +149,12 @@ export function setQrScanning (qrScanning) {
   return {
     type: SET_QR_SCANNING,
     qrScanning
+  }
+}
+
+export function setInsightSocket (insightSocket) {
+  return {
+    type: SET_INSIGHT_SOCKET,
+    insightSocket
   }
 }

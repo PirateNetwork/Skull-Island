@@ -17,36 +17,25 @@ use ff::{PrimeField,PrimeFieldRepr};
 
 use pairing::bls12_381::{Bls12, Fr, FrRepr};
 
-use sapling_crypto::jubjub::{edwards};
-
-
 use zcash_client_backend::{
     proto::compact_formats::CompactOutput,
-    constants::mainnet::{HRP_SAPLING_EXTENDED_SPENDING_KEY,HRP_SAPLING_PAYMENT_ADDRESS,B58_PUBKEY_ADDRESS_PREFIX, B58_SCRIPT_ADDRESS_PREFIX},
+    constants::mainnet::{HRP_SAPLING_EXTENDED_SPENDING_KEY,HRP_SAPLING_PAYMENT_ADDRESS},
     encoding::decode_extended_spending_key,
     encoding::encode_payment_address,
-    encoding::decode_payment_address,
-    encoding::decode_transparent_address
+    encoding::decode_payment_address
 };
 
 use zcash_primitives::{
+    jubjub::{edwards},
     merkle_tree::{IncrementalWitness},
     zip32::ExtendedFullViewingKey,
-    transaction::components::{Amount, TxOut, OutPoint},
+    transaction::components::{Amount},
     sapling::Node,
     merkle_tree::Hashable,
-    note_encryption::try_sapling_compact_note_decryption,
+    note_encryption::{try_sapling_compact_note_decryption, try_sapling_note_decryption, try_sapling_output_recovery, Memo},
     transaction::builder::Builder,
     JUBJUB,
 };
-
-//use bitcoin_zcash::util::privkey::PrivKey;
-use bitcoin::util::key::PrivateKey;
-//use bitcoin::util::address::Address;
-//use bitcoin::network::constants::Network::{Bitcoin};
-use secp256k1::{Secp256k1};
-use std::str::FromStr;
-
 
 #[derive(Debug, Clone, Copy)]
 pub struct BitcoinUint256([u8; 32]);
@@ -114,6 +103,21 @@ pub struct ShieldedOutputResult {
     pub outCiphertext: Vec<u8>,
 }
 
+#[allow(non_snake_case)]
+#[derive(Deserialize, Clone)]
+pub struct ShieldedOutputOutgoing {
+    pub height: u32,
+    pub txindex: u32,
+    pub shieldedoutindex: u32,
+    pub cmu: BitcoinUint256,
+    pub ephemeralKey: BitcoinUint256,
+    pub cv: BitcoinUint256,
+    #[serde(with = "hex_serde")]
+    pub encCiphertext: Vec<u8>,
+    #[serde(with = "hex_serde")]
+    pub outCiphertext: Vec<u8>,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ReturnOutputs {
     pub height: u32,
@@ -122,11 +126,12 @@ pub struct ReturnOutputs {
     pub decrypted: String,
     pub account: String,
     pub value: String,
+    pub memo: String,
 }
 
 impl ReturnOutputs {
     fn new() -> ReturnOutputs {
-        ReturnOutputs {height: 0, txindex: 0, shieldedoutindex: 0, decrypted: "False".to_string(), account: "".to_string(), value: "".to_string()}
+        ReturnOutputs {height: 0, txindex: 0, shieldedoutindex: 0, decrypted: "False".to_string(), account: "".to_string(), value: "".to_string(), memo: "".to_string()}
     }
 }
 
@@ -138,6 +143,7 @@ pub struct WitnessReturn {
     pub value: String,
     pub witness: String,
     pub nullifier: String,
+    pub memo: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -145,6 +151,7 @@ pub struct IncrementWitness {
     pub cmu: BitcoinUint256,
     pub witness: String,
     pub root: String,
+    pub returnroot: bool,
 }
 
 #[allow(non_snake_case)]
@@ -160,6 +167,7 @@ pub struct TransactionInputs {
     pub height: String,
     pub PrivateKey: String,
     pub extended_spending_key: String,
+    pub memo: String
 }
 
 #[allow(non_snake_case)]
@@ -222,7 +230,6 @@ pub fn read_file(filepath: &str) -> String {
         Ok(number_of_bytes) => number_of_bytes,
         Err(_err) => 0
     };
-
     contents
 }
 
@@ -252,20 +259,111 @@ pub fn increment_witness (str_data: &str) -> String {
     witness.write(&mut new_witness).unwrap();
 
     let mut root = [0u8; 32];
-    witness.root()
-        .write(&mut root[..])
-        .expect("length is 32 bytes");
-    root.reverse();
+
+    if data.returnroot == true {
+        witness.root()
+            .write(&mut root[..])
+            .expect("length is 32 bytes");
+        root.reverse();
+    }
 
     let ret = json!({
         "cmu": "",
         "witness": hex::encode(&new_witness[..]),
         "root": hex::encode(root),
+        "returnroot": data.returnroot
     });
 
     serde_json::to_string(&ret).unwrap()
 
 }
+
+pub fn decrypt_note_ovk (str_tx: &str, priv_key: &str)  -> String {
+
+    //new return string
+    let mut rt = ReturnOutputs::new();
+
+    //Convert String to ExtendedSpendingKey
+    let extsk = decode_extended_spending_key(HRP_SAPLING_EXTENDED_SPENDING_KEY, priv_key).ok().unwrap().unwrap();
+
+    //Derive Outgoing Viweing key
+    let extfvk = ExtendedFullViewingKey::from(&extsk);
+    let ovk = extfvk.fvk.ovk;
+
+    //Convert String to encrypted outgoing note
+    let tx: ShieldedOutputOutgoing = serde_json::from_str(&str_tx).unwrap();
+
+    //cmu
+    let cmu_vec = tx.cmu.0.to_vec();
+    let mut repr = FrRepr::default();
+    if repr.read_le(&cmu_vec[..]).is_err() {
+        return serde_json::to_string(&rt).unwrap();
+    }
+    let cmu = match Fr::from_repr(repr) {
+        Ok(cmu) => cmu,
+        Err(_) => {
+            rt.decrypted = "CMU ERROR".to_string();
+            return serde_json::to_string(&rt).unwrap()
+        },
+    };
+
+    //epk
+    let epk_vec = tx.ephemeralKey.0.to_vec();
+    let epk = match edwards::Point::<Bls12, _>::read(&epk_vec[..], &JUBJUB) {
+        Ok(p) => match p.as_prime_order(&JUBJUB) {
+            Some(epk) => epk,
+            None => {
+                rt.decrypted = "EPK ERROR".to_string();
+                return serde_json::to_string(&rt).unwrap()
+            },
+        },
+        Err(_) => {
+            rt.decrypted = "EPK ERROR".to_string();
+            return serde_json::to_string(&rt).unwrap()
+        },
+    };
+
+    //cv
+    let cv_vec = tx.cv.0.to_vec();
+    let cv = match edwards::Point::<Bls12, _>::read(&cv_vec[..], &JUBJUB) {
+        Ok(cv) => cv,
+        Err(_) => {
+            rt.decrypted = "CV ERROR".to_string();
+            return serde_json::to_string(&rt).unwrap()
+        },
+    };
+
+    let enc_ciphertext = tx.encCiphertext[..].to_vec();
+    let out_ciphertext = tx.outCiphertext[..].to_vec();
+
+
+    //Decrypt Note
+
+    let (note, to, memo) = match try_sapling_output_recovery(&ovk, &cv, &cmu, &epk, &enc_ciphertext, &out_ciphertext) {
+        Some(ret) => ret,
+        None => return serde_json::to_string(&rt).unwrap(),
+    };
+
+    rt.height = tx.height;
+    rt.txindex = tx.txindex;
+    rt.shieldedoutindex = tx.shieldedoutindex;
+    rt.decrypted = "True".to_string();
+    rt.account = encode_payment_address(HRP_SAPLING_PAYMENT_ADDRESS,&to);
+    rt.value = format!("{}", note.value);
+
+    match memo.to_utf8() {
+        Some(m) => match m {
+                Ok(d) => rt.memo = d,
+                Err(_) => rt.memo = "".to_string(),
+            },
+        None => rt.memo = "".to_string(),
+    };
+
+    return serde_json::to_string(&rt).unwrap()
+
+}
+
+
 
 pub fn decrypt_note_ivk (str_tx: &str, priv_key: &str) -> String {
     //new return string
@@ -328,7 +426,7 @@ pub fn decrypt_note_nullifier (str_tx: &str, priv_key: &str, str_wit: &str) -> S
     let mut cout = CompactOutput::new();
     cout.set_cmu(tx.cmu.0.to_vec());
     cout.set_epk(tx.ephemeralKey.0.to_vec());
-    cout.set_ciphertext(tx.encCiphertext[..52].to_vec());
+    cout.set_ciphertext(tx.encCiphertext[..].to_vec());
 
     //Convert String to ExtendedSpendingKey
     let extsk = decode_extended_spending_key(HRP_SAPLING_EXTENDED_SPENDING_KEY, priv_key).ok().unwrap().unwrap();
@@ -356,7 +454,8 @@ pub fn decrypt_note_nullifier (str_tx: &str, priv_key: &str, str_wit: &str) -> S
     };
 
     let ct = cout.ciphertext;
-    let (note, _to) = match try_sapling_compact_note_decryption(&ivk, &epk, &cmu, &ct) {
+
+    let (note, _to, memo) = match try_sapling_note_decryption(&ivk, &epk, &cmu, &ct) {
         Some(ret) => ret,
         None => return serde_json::to_string(&wt).unwrap(),
     };
@@ -380,26 +479,30 @@ pub fn decrypt_note_nullifier (str_tx: &str, priv_key: &str, str_wit: &str) -> S
     wt.shieldedoutindex = tx.shieldedoutindex;
     wt.nullifier = format!("{}",hex::encode(&n[..]));
 
+    match memo.to_utf8() {
+        Some(m) => match m {
+                Ok(d) => wt.memo = d,
+                Err(_) => wt.memo = "".to_string(),
+            },
+        None => wt.memo = "".to_string(),
+    };
+
     return serde_json::to_string(&wt).unwrap()
 }
 
-pub fn test_transaction(raw_data: &str) -> String {
-    let data: TransactionInputs = serde_json::from_str(&raw_data).unwrap();
-
-    let sk = PrivateKey::from_str(&data.PrivateKey).unwrap();
-    let secp = Secp256k1::new();
-    let addr = sk.to_legacy_address(&secp);
-    return addr.to_string()
-}
-
-pub fn build_transaction(raw_data: &str, t_in: &str, z_in: &str) -> String {
+pub fn build_transaction(raw_data: &str, _t_in: &str, z_in: &str) -> String {
 
     let mut rtx = TransactionResults::new();
+
+    if cfg!(target_os="android") {
+        debug!("this is a debug # {}", 1);
+    }
 
     //Convert JSON to TransactionInputs
     let data: TransactionInputs = serde_json::from_str(&raw_data).unwrap();
     let int_amount: i64 = data.amount.trim().parse().unwrap();
     let int_height: u32 = data.height.trim().parse().unwrap();
+    let memo =  Memo::from_bytes(&data.memo.as_bytes());
 
     //Create New Transaction
     let mut trans = Builder::new(int_height);
@@ -409,11 +512,6 @@ pub fn build_transaction(raw_data: &str, t_in: &str, z_in: &str) -> String {
     let fee: Amount = Amount::from_i64(int_fee).unwrap();
     trans.set_fee(fee);
 
-    //T Address Keys
-    let sk = PrivateKey::from_str(&data.PrivateKey).unwrap();
-    let secp = Secp256k1::new();
-    let pk = sk.to_legacy_address(&secp).to_string();
-    let t_origin_address = decode_transparent_address(&B58_PUBKEY_ADDRESS_PREFIX, &B58_SCRIPT_ADDRESS_PREFIX, &pk.as_str());
 
     //Zaddress Keys
     let extsk = match decode_extended_spending_key(HRP_SAPLING_EXTENDED_SPENDING_KEY, data.extended_spending_key.clone().as_str()) {
@@ -428,10 +526,10 @@ pub fn build_transaction(raw_data: &str, t_in: &str, z_in: &str) -> String {
 
     //Payment Addresses
     let z_payment_address = decode_payment_address(HRP_SAPLING_PAYMENT_ADDRESS, data.payment_address.clone().as_str());
-    let t_payment_address = decode_transparent_address(&B58_PUBKEY_ADDRESS_PREFIX, &B58_SCRIPT_ADDRESS_PREFIX, &data.payment_address.as_str());
+    // let t_payment_address = decode_transparent_address(&B58_PUBKEY_ADDRESS_PREFIX, &B58_SCRIPT_ADDRESS_PREFIX, &data.payment_address.as_str());
 
     //Must have a valid payment address
-    if z_payment_address.is_err() && t_payment_address.is_err() {
+    if z_payment_address.is_err() {
         return serde_json::to_string(&json!({"result":"Invalid payment address", "error":"true"})).unwrap()
     }
 
@@ -439,58 +537,6 @@ pub fn build_transaction(raw_data: &str, t_in: &str, z_in: &str) -> String {
     let mut total = 0;
     let tran_type: u32 = data.input_type.trim().parse().unwrap();
 
-    //T inputs
-    let mut outpoints: Vec<OutPoint> = Vec::new();
-    let mut txouts: Vec<TxOut> = Vec::new();
-    if tran_type == 0 {
-
-        let t_data: TransactionFiles= serde_json::from_str(&t_in).unwrap();
-        let t_files = t_data.filename;
-        let mut t_inputs: Vec<Utxo> = Vec::new();
-
-        for i in 0..t_files.len() {
-            let file_path = data.data_path.clone() + &t_files[i].as_str();
-            let file_content: String = read_file(file_path.as_str());
-            let utxos: TransactionTInputs = serde_json::from_str(&file_content).unwrap();
-            for i in 0..utxos.t_inputs.len() {
-                t_inputs.push(utxos.t_inputs[i].clone());
-            }
-        }
-
-
-        for i in 0..t_inputs.len() {
-
-            let mut utxout = TxOut::new();
-
-            //Utxo Value
-            let utxo_value: i64 = t_inputs[i].satoshis.trim().parse().unwrap();
-            total +=utxo_value;
-            utxout.value = Amount::from_i64(utxo_value).unwrap();
-            utxout.script_pubkey = t_origin_address.clone().unwrap().unwrap().script();
-            txouts.push(utxout);
-
-            //Outpoint
-            let s = &t_inputs[i].txid;
-            let mut data = hex::decode(s).unwrap();
-            data.reverse();
-            let mut hash = [0u8; 32];
-            hash.copy_from_slice(&data);
-
-            let n: u32 = t_inputs[i].vout.trim().parse().unwrap();
-            let uoutpoint = OutPoint::new(hash,n);
-            outpoints.push(uoutpoint);
-        }
-
-        //Add t inputs to transaction
-        for i in 0..txouts.len() {
-            trans
-                .add_transparent_input(
-                    sk.clone().into_secret_key(),
-                    outpoints[i].clone(),
-                    txouts[i].clone()
-                ).unwrap();
-        }
-    }
 
     //Z inputs
     let mut notes = Vec::new();
@@ -561,13 +607,6 @@ pub fn build_transaction(raw_data: &str, t_in: &str, z_in: &str) -> String {
     }
 
     if total >= int_amount + int_fee {
-    //Add T output
-        if t_payment_address.is_ok() {
-            trans.add_transparent_output(
-                &t_payment_address.unwrap().unwrap(),
-                Amount::from_i64(int_amount).unwrap())
-            .unwrap();
-        }
 
         //Add Z Output
         if z_payment_address.is_ok() {
@@ -575,11 +614,10 @@ pub fn build_transaction(raw_data: &str, t_in: &str, z_in: &str) -> String {
                 ovk.clone(),
                 z_payment_address.unwrap().unwrap().clone(),
                 Amount::from_i64(int_amount).unwrap(),
-                None)
+                memo)
             .unwrap();
         }
     }
-
 
     if total - int_amount - int_fee > 0 {
     //Z Change if spending from Z address
@@ -593,19 +631,12 @@ pub fn build_transaction(raw_data: &str, t_in: &str, z_in: &str) -> String {
             .unwrap();
         }
 
-        //T Change if sending from T Address
-        if txouts.len() > 0 {
-            trans.add_transparent_output(
-                &t_origin_address.unwrap().unwrap(),
-                Amount::from_i64(total-int_amount-int_fee).unwrap())
-            .unwrap();
-        }
     }
 
     let spend_param_path = Path::new(&data.spend_path);
     let output_param_path = Path::new(&data.output_path);
     let tx_prover = LocalTxProver::new(&spend_param_path, &output_param_path);
-    let (tx, _tx_metadata) = trans.build(1935765626, tx_prover).ok().unwrap();
+    let (tx, _tx_metadata) = trans.build(1991772603, tx_prover).ok().unwrap();
     let mut tmp = Vec::new();
     match tx.write(&mut tmp) {
         Ok(ret) => ret,

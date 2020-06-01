@@ -22,14 +22,15 @@ import {
 import { coins } from '../utils/coins.js'
 
 const initialSettings = {
-  insightAPI: coins['zero'].api[0],
-  insightZMQ: coins['zero'].zmq[0],
-  explorerURL: coins['zero'].explorer[0],
+  currentCoin: 'pirate',
+  insightAPI: coins['pirate'].api[0],
+  insightZMQ: coins['pirate'].zmq[0],
+  explorerURL: coins['pirate'].explorer[0],
   language: LANG_ENGLISH,
   currency: CURRENCY_USD,
-  currentCoin: 'zero',
   minimumBlock:  {
     zero: 0,
+    pirate: 0,
     },
   password: null,
   saveData: false,

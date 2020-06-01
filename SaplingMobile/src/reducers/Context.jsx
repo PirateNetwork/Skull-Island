@@ -21,6 +21,7 @@ import {
   SET_DB,
   SET_REINDEX,
   SET_QR_SCANNING,
+  SET_INSIGHT_SOCKET,
 
 } from '../actions/Context'
 
@@ -45,6 +46,7 @@ const initialContext = {
   db: null,
   reindex: 0,
   qrScanning: false,
+  insightSocket: false,
 }
 
 export default function ContextReducer (state = initialContext, action) {
@@ -137,6 +139,11 @@ export default function ContextReducer (state = initialContext, action) {
     case SET_QR_SCANNING:
       return Object.assign({}, state, {
         qrScanning: action.qrScanning
+      })
+
+    case SET_INSIGHT_SOCKET:
+      return Object.assign({}, state, {
+        insightSocket: action.insightSocket
       })
 
     default:

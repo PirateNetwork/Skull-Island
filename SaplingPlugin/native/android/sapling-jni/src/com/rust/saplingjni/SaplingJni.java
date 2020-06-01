@@ -21,12 +21,14 @@ public class SaplingJni
      * 'hello-jni' native library, which is packaged
      * with this application.
      */
-    public static native String stringFromJNI();
+
+    public static native String getPassPhraseJNI();
+    public static native String checkPassPhraseJNI(final String input);
     public static native String getAddressJNI(final String input);
     public static native String decryptTransactionJNI(final String tx,final String priv_key);
+    public static native String decryptOutgoingTransactionJNI(final String tx,final String priv_key);
     public static native String getNullifierJNI(final String tx,final String priv_key, final String witness);
     public static native String buildTransactionJNI(final String input, final String tinput, final String zinput);
-    public static native String testTransactionJNI(final String input);
     public static native String incrementWitnessJNI(final String input);
 
     static {

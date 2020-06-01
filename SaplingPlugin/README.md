@@ -1,4 +1,4 @@
-# Cordova Sapling Plugin
+# Cordova Hello World Plugin
 
 Simple plugin that demonstrate how to call native rust functions from javascript
 
@@ -51,7 +51,7 @@ Create a new Cordova Project
 Copy the prebuilt demo code to the newly created hello demo
 
 	$ cp cordova-plugin-hello/demo/js/index.js hello/www/js/index.js
-
+    
 Install the plugin
 
     $ cd hello
@@ -61,7 +61,7 @@ Install iOS or Android platform
 
     $ cordova platform add ios
     $ cordova platform add android
-
+    
 Run the code
 
     $ cordova run ios [--emulator]

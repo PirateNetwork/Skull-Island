@@ -12,16 +12,18 @@ crate_type = ["staticlib","cdylib"]
 
 [dependencies]
 
-zcash_client_backend = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa" }
-sapling-crypto = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa" }
-pairing = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa"  }
-zcash_primitives = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa" , features = ["transparent-inputs"] }
-ff = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa"  }
-bellman = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa"  }
-zcash_proofs = { git = "https://github.com/cryptoforge/librustzcash.git", rev= "a3afac0ccc9f86ca4d28e59a9a75afd9dd94d2fa"  }
+zcash_client_backend = { git = "https://github.com/cryptoforge-alt/librustzcash.git", rev= "be134fbea344183fd8766e8c0a42e3ff10e0ad28" }
+pairing = { git = "https://github.com/cryptoforge-alt/librustzcash.git", rev= "be134fbea344183fd8766e8c0a42e3ff10e0ad28" }
+zcash_primitives = { git = "https://github.com/cryptoforge-alt/librustzcash.git", rev= "be134fbea344183fd8766e8c0a42e3ff10e0ad28", features = ["transparent-inputs"] }
+ff = { git = "https://github.com/cryptoforge-alt/librustzcash.git", rev= "be134fbea344183fd8766e8c0a42e3ff10e0ad28" }
+bellman = { git = "https://github.com/cryptoforge-alt/librustzcash.git", rev= "be134fbea344183fd8766e8c0a42e3ff10e0ad28" }
+zcash_proofs = { git = "https://github.com/cryptoforge-alt/librustzcash.git", rev= "be134fbea344183fd8766e8c0a42e3ff10e0ad28" }
 
-bitcoin = { git = "https://github.com/cryptoforge/rust-bitcoin.git", rev="d7092da7d90d916140feaaec0174d16520889e50"}
-secp256k1 = "0.15"
+# bitcoin = { path = "../../../rust-bitcoin"}
+# secp256k1 = "0.15"
+
+tiny-bip39 = "0.6.2"
+rand = "0.7.2"
 
 serde = "1.0"
 serde_derive = "1.0"
@@ -31,5 +33,8 @@ hex-serde = "0.1"
 
 
 
+
 [target.'cfg(target_os="android")'.dependencies]
 jni = { version = "0.9", default-features = false }
+android_logger = "0.8.6"
+log = "0.4.1"

@@ -17,8 +17,14 @@ public class Sapling extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
 
-        if (action.equals("greet")) {
-            String jniMessage = SaplingJni.stringFromJNI();
+        if (action.equals("getPassPhrase")) {
+            String jniMessage = SaplingJni.getPassPhraseJNI();
+            callbackContext.success(jniMessage);
+
+            return true;
+
+        } else if (action.equals("checkPassPhrase")) {
+            String jniMessage = SaplingJni.checkPassPhraseJNI(data.getString(0));
             callbackContext.success(jniMessage);
 
             return true;
@@ -31,6 +37,12 @@ public class Sapling extends CordovaPlugin {
 
         } else if (action.equals("decryptTransaction")) {
             String jniMessage = SaplingJni.decryptTransactionJNI(data.getString(0), data.getString(1));
+            callbackContext.success(jniMessage);
+
+            return true;
+
+        } else if (action.equals("decryptOutgoingTransaction")) {
+            String jniMessage = SaplingJni.decryptOutgoingTransactionJNI(data.getString(0), data.getString(1));
             callbackContext.success(jniMessage);
 
             return true;
@@ -51,12 +63,6 @@ public class Sapling extends CordovaPlugin {
                     callbackContext.success(SaplingJni.buildTransactionJNI(arg1, arg2, arg3)); // Thread-safe.
                 }
             });
-
-            return true;
-
-        } else if (action.equals("testTransaction")) {
-            String jniMessage = SaplingJni.testTransactionJNI(data.getString(0));
-            callbackContext.success(jniMessage);
 
             return true;
 

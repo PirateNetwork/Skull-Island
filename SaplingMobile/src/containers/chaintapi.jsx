@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import io from 'socket.io-client'
+//import io from 'socket.io-client'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -47,7 +47,7 @@ class ChainTApi extends React.Component {
     async getBalance() {
       try {
         const address = this.props.secrets.items[0].address
-        const response = await axios.get(this.props.settings.insightAPI + 'insight-api-zero/addr/' + address + '/' )
+        const response = await axios.get(this.props.settings.insightAPI + 'addr/' + address + '/' )
         const balance = parseFloat(response.data.balance) * 1e08
         this.props.setTBalance(balance)
       } catch (err) {
@@ -59,7 +59,7 @@ class ChainTApi extends React.Component {
 
     async getBlockHeight() {
       try {
-        const response = await axios.get(this.props.settings.insightAPI + 'insight-api-zero/status')
+        const response = await axios.get(this.props.settings.insightAPI + 'status')
         this.setBlockHeight(response.data.info.blocks)
       } catch (err) {
         if (process.env.NODE_ENV != 'production') {
@@ -75,23 +75,23 @@ class ChainTApi extends React.Component {
 
     componentDidMount() {
 
-      this.getChainInfo()
-
-      this.props.setTAddress(this.props.secrets.items[0].address)
-      this.props.setTPrivateKey(this.props.secrets.items[0].privateKey)
-
-      // this.ChainApiID = setInterval(
-      //   () => this.getChainInfo(),
-      //   120000
-      // )
-
-      var socket = io(this.props.settings.insightZMQ)
-      socket.on('connect', function() {
-        // Join the room.
-        socket.emit('subscribe', 'inv')
-      })
-      socket.on('tx', this.getChainInfo)
-      socket.on('block', this.getChainInfo)
+      // this.getChainInfo()
+      //
+      // this.props.setTAddress(this.props.secrets.items[0].address)
+      // this.props.setTPrivateKey(this.props.secrets.items[0].privateKey)
+      //
+      // // this.ChainApiID = setInterval(
+      // //   () => this.getChainInfo(),
+      // //   120000
+      // // )
+      //
+      // var socket = io(this.props.settings.insightZMQ, {secure: true})
+      // socket.on('connect', function() {
+      //   // Join the room.
+      //   socket.emit('subscribe', 'inv')
+      // })
+      // socket.on('tx', this.getChainInfo)
+      // socket.on('block', this.getChainInfo)
 
     }
 

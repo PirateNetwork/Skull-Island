@@ -65,24 +65,24 @@ class TMain extends React.Component {
     }
 
     getZerPrice() {
-      if (this.props.mainSubPage.tmainPage != 'none') {
-        const cmcZerInfoURL = 'https://api.coinmarketcap.com/v1/ticker/zero/?convert=USD'
-        axios.get(cmcZerInfoURL)
-          .then((resp) => {
-            try {
-              const coinmarketcapData = resp.data
-              const priceBtc = parseFloat(coinmarketcapData[0]['price_btc'])
-              const priceCurrency = parseFloat(coinmarketcapData[0]['price_usd'])
-
-              this.props.setZerInBtcValue(priceBtc)
-              this.props.setZerInCurrencyValue(priceCurrency)
-            } catch (err) {
-              if (process.env.NODE_ENV != 'production') {
-                console.log(err)
-              }
-            }
-        })
-      }
+      // if (this.props.mainSubPage.tmainPage != 'none') {
+      //   const cmcZerInfoURL = 'https://api.coinmarketcap.com/v1/ticker/zero/?convert=USD'
+      //   axios.get(cmcZerInfoURL)
+      //     .then((resp) => {
+      //       try {
+      //         const coinmarketcapData = resp.data
+      //         const priceBtc = parseFloat(coinmarketcapData[0]['price_btc'])
+      //         const priceCurrency = parseFloat(coinmarketcapData[0]['price_usd'])
+      //
+      //         this.props.setZerInBtcValue(priceBtc)
+      //         this.props.setZerInCurrencyValue(priceCurrency)
+      //       } catch (err) {
+      //         if (process.env.NODE_ENV != 'production') {
+      //           console.log(err)
+      //         }
+      //       }
+      //   })
+      // }
     }
 
     componentDidMount() {
@@ -108,7 +108,7 @@ class TMain extends React.Component {
 
           <Menu sc={screenDim}>
             <MenuTitle sc={screenDim}>
-              ZeroVerse Wallet
+              Skull Island
             </MenuTitle>
             <MenuButton sc={screenDim}
               onClick={ e => {

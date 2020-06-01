@@ -1,5 +1,5 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+// import PropTypes from 'prop-types'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -17,7 +17,7 @@ const override = css`
 
 class RingSpinner extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       loading: true
     }
@@ -38,9 +38,9 @@ class RingSpinner extends React.Component {
   }
 }
 
-RingSpinner.propTypes = {
-  context: PropTypes.object.isRequire
-}
+// RingSpinner.propTypes = {
+//   // context: PropTypes.object.isRequire
+// }
 
 function mapStateToProps (state) {
   return {

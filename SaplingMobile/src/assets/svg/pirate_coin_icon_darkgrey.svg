@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="52" height="52" viewBox="0 0 52 52">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.442" y1="0.396" x2="1" y2="0.5" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#303030"/>
+      <stop offset="1" stop-color="#4a4a4a"/>
+    </linearGradient>
+  </defs>
+  <path id="Pirate_Logo_Coin_Gold" d="M37.3,11.3a26,26,0,1,0,26,26A26,26,0,0,0,37.3,11.3ZM25.564,30.58a5.807,5.807,0,0,1,5.839-5.8H44.726A5.828,5.828,0,0,1,48.8,26.445l-6.818,3.429H32.6a1.8,1.8,0,0,0-1.9,1.685v4.173L25.583,38.4V30.58Zm24.942,8.68a5.8,5.8,0,0,1-5.8,5.8H30.678v4.957a1.786,1.786,0,0,1-1.372,1.7l-1.744.039h-2V43.139l6.681-3.488H43.472a1.843,1.843,0,0,0,1.94-1.7V32.852l5.094-2.567v8.974Z" transform="translate(-11.3 -11.3)" fill="url(#linear-gradient)"/>
+</svg>

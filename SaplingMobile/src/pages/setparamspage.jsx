@@ -1,19 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-
-import { setSecretItems } from '../actions/Secrets'
-import { phraseToSecretItems } from '../utils/wallet'
-
-import {
-  decrypt,
-  saltHashPassword,
-  KeySalt}from '../utils/hash'
-
-import { coins } from '../utils/coins.js'
 
 import {
   getOutputFileEntry,
@@ -31,21 +20,17 @@ import {
   setSaplingOutputVerified } from '../actions/Context'
 
 import {
-  LoginGrid,
-  LoginForm,
-  LoginFormOpaque,
-  LoginHeading,
-  LoginHeadingImg,
-  LoginInfo,
-  LoginSocialContainer,
-  LoginSocial,} from '../components/login'
+  BlackBackground,
+  SkullImg,
+  SkullCenteredDiv,} from '../pagecomponents/PirateShared'
 
-import zerologo from '../assets/logo-white.png'
-import github from '../assets/github-white.png'
-import twitter from '../assets/twitter-white.png'
-import telegram from '../assets/telegram-white.png'
-import discord from '../assets/discord-white.png'
-import heading from '../assets/zero-logo-white.png'
+import {
+  ParamTitle,
+  ParamHeaderFade,
+  ParamFade,
+  ParamInfo,} from '../pagecomponents/PirateParams'
+
+import heading from '../assets/Pirate_Logo_Skull_Gold@2x.png'
 
 class SetParamsPage extends React.Component {
 
@@ -57,7 +42,6 @@ class SetParamsPage extends React.Component {
       outputDownloadPercentage: 0,
     }
 
-    this.createTransparentKeys = this.createTransparentKeys.bind(this)
     this.setSpendingDownloadPercentage = this.setSpendingDownloadPercentage.bind(this)
     this.setOutputDownloadPercentage = this.setOutputDownloadPercentage.bind(this)
     this.checkOutputFileEntry = this.checkOutputFileEntry.bind(this)
@@ -66,19 +50,8 @@ class SetParamsPage extends React.Component {
     this.update = this.update.bind(this)
   }
 
-
     setSpendingDownloadPercentage (result) {this.setState({spendingDownloadPercentage: result})}
     setOutputDownloadPercentage (result) {this.setState({outputDownloadPercentage: result})}
-
-
-    createTransparentKeys () {
-      const keyHash = saltHashPassword(this.props.context.activePassword, KeySalt)
-      const decryptedPhrase = decrypt(this.props.secrets.secretPhrase, keyHash)
-      const phraseHash = saltHashPassword(decryptedPhrase, coins[this.props.settings.currentCoin].networkname)
-      const secretItems = phraseToSecretItems(phraseHash, coins[this.props.settings.currentCoin] )
-      this.props.setSecretItems(secretItems)
-    }
-
 
     async checkOutputFileEntry() {
       try {
@@ -90,12 +63,10 @@ class SetParamsPage extends React.Component {
         } else {
           this.setOutputDownloadPercentage(0)
           getOutputParam()
-          //document.addEventListener("DOWNLOADER_downloadProgress", this.setDownloadProgress)
         }
       } catch (err) {
         this.setOutputDownloadPercentage(0)
           getOutputParam()
-          //document.addEventListener("DOWNLOADER_downloadProgress", this.setDownloadProgress)
       }
     }
 
@@ -109,15 +80,12 @@ class SetParamsPage extends React.Component {
         } else {
           this.setSpendingDownloadPercentage(0)
           getSpendingParam()
-
         }
       } catch (err) {
           this.setSpendingDownloadPercentage(0)
           getSpendingParam()
-          //document.addEventListener("DOWNLOADER_downloadProgress", this.setDownloadProgress)
       }
     }
-
 
     setDownloadProgress (event) {
       var data = event.data
@@ -149,78 +117,44 @@ class SetParamsPage extends React.Component {
     }
 
     render () {
-
-      var screenDim = this.props.context.dimensions
-
-      if (this.props.context.saplingspendverified && this.props.context.saplingoutputverified && this.props.secrets.items.length == 0) {
-        this.createTransparentKeys()
-      }
-
+        // console.log("Render Params")
         return (
-          <LoginGrid sc={screenDim}>
-            <LoginForm sc={screenDim}>
-            </LoginForm>
-            <LoginFormOpaque sc={screenDim} visible={'visible'}>
-              <br/>
-              <LoginHeading>
-                <LoginHeadingImg src={heading} sc={screenDim}/>
-              </LoginHeading>
-              <br/>
-              <LoginInfo sc={screenDim}>
-                {'Spending Verified: ' + this.props.context.saplingspendverified}
-              </LoginInfo>
-              <LoginInfo sc={screenDim}>
-                {'Download spend %' + this.state.spendingDownloadPercentage}
-              </LoginInfo>
-              <br/>
-              <LoginInfo sc={screenDim}>
-                {'Output Verified: ' + this.props.context.saplingoutputverified}
-              </LoginInfo>
-              <LoginInfo sc={screenDim}>
-                {'Download output %' + this.state.outputDownloadPercentage}
-              </LoginInfo>
-              <br/>
-              <LoginInfo sc={screenDim}>
-                {this.props.secrets.items.length > 0 ? 'Private Keys Generated.' : 'Generating Private Keys.'}
-              </LoginInfo>
-              <LoginSocialContainer sc={screenDim}>
-                <a href="https://www.zerocurrency.io">
-                  <LoginSocial src={zerologo} sc={screenDim}/>
-                </a>
-                <a href="https://github.com/zerocurrency">
-                  <LoginSocial src={github} sc={screenDim}/>
-                </a>
-                <a href="https://twitter.com/ZeroCurrencies">
-                  <LoginSocial src={twitter} sc={screenDim}/>
-                </a>
-                <a href="https://t.me/zerocurrency">
-                  <LoginSocial src={telegram} sc={screenDim}/>
-                </a>
-                <a href="https://discordapp.com/invite/Jq5knn5">
-                  <LoginSocial src={discord} sc={screenDim}/>
-                </a>
-              </LoginSocialContainer>
-            </LoginFormOpaque>
-          </LoginGrid>
+          <BlackBackground>
+            <ParamHeaderFade>
+              <ParamTitle>
+                <SkullCenteredDiv>
+                  <SkullImg src={heading}/>
+                </SkullCenteredDiv>
+              </ParamTitle>
+            </ParamHeaderFade>
+            <ParamFade>
+            </ParamFade>
+            <ParamInfo vPosition={0.35}>
+             {'Spending Param Verified: ' + this.props.context.saplingspendverified}
+           </ParamInfo>
+           <ParamInfo vPosition={0.40}>
+             {'Downloading Spending Param %' + this.state.spendingDownloadPercentage}
+           </ParamInfo>
+           <ParamInfo vPosition={0.50}>
+             {'Output Param Verified: ' + this.props.context.saplingoutputverified}
+           </ParamInfo>
+           <ParamInfo vPosition={0.55}>
+             {'Downloading Output Param %' + this.state.outputDownloadPercentage}
+           </ParamInfo>
+        </BlackBackground>
         )
     }
   }
 
-
 SetParamsPage.propTypes = {
-  setSecretItems:  PropTypes.func.isRequired,
   setSaplingSpendVerified: PropTypes.func.isRequired,
   setSaplingOutputVerified: PropTypes.func.isRequired,
-  settings: PropTypes.object.isRequired,
   context: PropTypes.object.isRequired,
-  secrets: PropTypes.object.isRequired
 }
 
 function mapStateToProps (state) {
   return {
-    settings: state.settings,
     context: state.context,
-    secrets: state.secrets
   }
 }
 
@@ -229,7 +163,6 @@ function matchDispatchToProps (dispatch) {
     {
       setSaplingSpendVerified,
       setSaplingOutputVerified,
-      setSecretItems,
     },
     dispatch
   )

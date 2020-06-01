@@ -1,10 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types'
 
+import { ThemeProvider } from 'styled-components';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { setDimensions, setDB } from './actions/Context'
+import io from 'socket.io-client'
+
+import { setDimensions, setDB, setInsightSocket } from './actions/Context'
 
 //import { setContacts } from './actions/Contacts'
 import { setSecretPhrase, setSecretItems } from './actions/Secrets'
@@ -36,31 +39,25 @@ import {
 import { coins } from './utils/coins.js'
 
 import { ZERO_MOBILE_SAVE_PATH, readFromFile } from './utils/persistentStorage'
-//import ZERO_LOGO from './assets/zero-logo-white.png'
 
-import {
-  LoginGrid,
-  LoginForm,
-  LoginFormOpaque,
-  LoginHeading,
-  LoginHeadingImg,
-  //LoginPassword,
-  //LoginInput,
-  LoginSocialContainer,
-  LoginSocial} from './components/login'
+// import { SplashSection,
+//          SplashFooter,
+//          PirateSvg,
+//          PiratePath,
+//          Copyright,
+//          CenteredDiv } from './components/splash'
 
-import zerologo from './assets/logo-white.png'
-import github from './assets/github-white.png'
-import twitter from './assets/twitter-white.png'
-import telegram from './assets/telegram-white.png'
-import discord from './assets/discord-white.png'
-import heading from './assets/zero-logo-white.png'
+import { GlobalDiv } from './pagecomponents/PirateShared'
 
+// import pirateLogo from './assets/Pirate_Logo_Skull_Gold.png'
+
+import SplashPage from './containers/splash'
 import LoginPage from './pages/loginpage'
 import MainPage from './pages/mainpage'
 import SetPasswordPage from './pages/setpasswordpage'
 import SetWalletPage from './pages/setwalletpage'
 import SetParamsPage from './pages/setparamspage'
+
 
 import { deleteDatabase,
          openDatabase,
@@ -68,8 +65,6 @@ import { deleteDatabase,
          insertRecords,
          runSqlCommand,
          DATABASE_VERSION}  from './database/sqlite'
-
-
 
 class App extends React.Component {
   constructor (props) {
@@ -87,6 +82,9 @@ class App extends React.Component {
     this.initalize = this.initalize.bind(this)
     this.setScreenSize = this.setScreenSize.bind(this)
     this.setRotate = this.setRotate.bind(this)
+    this.setSocket = this.setSocket.bind(this)
+    this.connectSocket = this.connectSocket.bind(this)
+    this.backButtonHandler = this.backButtonHandler.bind(this)
   }
 
   setScreenSize() {
@@ -119,7 +117,7 @@ class App extends React.Component {
     //
   }
 
-  async initalize() {
+  async initalize(firstRun) {
     this.setScreenSize()
     //window.addEventListener("orientationchange", this.setRotate)
     window.plugins.insomnia.keepAwake()
@@ -139,14 +137,18 @@ class App extends React.Component {
     await runSqlCommand(db,'CREATE TABLE IF NOT EXISTS Transactions (height INTEGER, txid TEXT, txindex INTEGER, PRIMARY KEY(height, txid))')
     await runSqlCommand(db,'CREATE TABLE IF NOT EXISTS Shieldedoutputs (height INTEGER, txid TEXT, outputindex INTEGER, cmu TEXT, cv TEXT, encCiphertext TEXT, ephemeralKey TEXT, outCiphertext TEXT, PRIMARY KEY(height, txid, outputindex))')
     await runSqlCommand(db,'CREATE TABLE IF NOT EXISTS Shieldedspends (height INTEGER, txid TEXT, spendindex INTEGER, nullifier TEXT, PRIMARY KEY(height, txid, spendindex))')
-    await runSqlCommand(db,'CREATE TABLE IF NOT EXISTS Wallet (height INTEGER, txid TEXT, txindex INTEGER, outputindex INTEGER, cmu TEXT, cv TEXT, encCiphertext TEXT, ephemeralKey TEXT, outCiphertext TEXT, witness TEXT, nullifier TEXT, spent INTEGER, spenttxid TEXT, value INTEGER, PRIMARY KEY(height, txid, outputindex))')
+    await runSqlCommand(db,'CREATE TABLE IF NOT EXISTS Wallet (height INTEGER, txid TEXT, txindex INTEGER, outputindex INTEGER, cmu TEXT, cv TEXT, encCiphertext TEXT, ephemeralKey TEXT, outCiphertext TEXT, witness TEXT, nullifier TEXT, spent INTEGER, spenttxid TEXT, value INTEGER, memo TEXT, address text, type INTEGER, change INTEGER, PRIMARY KEY(height, txid, outputindex, address, type))')
     await runSqlCommand(db,'CREATE TABLE IF NOT EXISTS Witnesses (cmu TEXT, height INTEGER, witness TEXT, root TEXT, PRIMARY KEY(height, cmu))')
     await runSqlCommand(db,'CREATE TABLE IF NOT EXISTS Version (version INTEGER)')
 
     await runSqlCommand(db,'CREATE INDEX IF NOT EXISTS IDX_BLOCKS_PROCESSED ON Blocks(Processed)')
+    if (firstRun) {
+      await insertRecords(db, 'INSERT INTO Version VALUES (?1)',[DATABASE_VERSION])
+    }
 
     var version = await openRecordset(db, 'SELECT version FROM Version ORDER BY 1 DESC')
     if (version.rows.length > 0) {
+      console.log("Database Version " + Number(version.rows.item(0).version) + " found.")
       if (DATABASE_VERSION != Number(version.rows.item(0).version)) {
         try {
           await deleteDatabase(dbName)
@@ -154,16 +156,56 @@ class App extends React.Component {
         } catch {
           console.log(dbName +' not present')
         }
-        this.initalize()
-      } else {
-        await insertRecords(db, 'INSERT INTO Version VALUES (?1)',[DATABASE_VERSION])
+        this.initalize(true)
       }
+    } else {
+      await deleteDatabase(dbName)
+      console.log(dbName +' deleted')
+      this.initalize(true)
+    }
+  }
+
+  backButtonHandler () {
+    if (this.props.mainSubPage.zmainPage != 'visible') {
+      this.props.setZMainPage('visible')
+      this.props.setTMainPage('none')
+      this.props.setSendPage('none')
+      this.props.setReceivePage('none')
+      this.props.setPrivateKeyPage('none')
+      this.props.setPassPhrasePage('none')
+      this.props.setReindexPage('none')
+    } else {
+      if (confirm("Exit App?")) {
+        navigator.app.exitApp()
+      }
+    }
+  }
+
+  setSocket(s) {
+    this.props.setInsightSocket(s)
+  }
+
+  connectSocket() {
+    if (this.props.context.insightSocket == false) {
+      var socket = io(this.props.settings.insightZMQ, {secure: true})
+
+      socket.on('connect', function() {
+        socket.emit('subscribe', 'inv')
+        this.setSocket(socket)
+      }.bind(this))
+
+
+      socket.on('disconnect', function() {
+        this.setSocket(false)
+      }.bind(this))
     }
   }
 
   componentDidMount() {
 
-    this.initalize()
+    document.addEventListener('backbutton', this.backButtonHandler, false)
+
+    this.initalize(false)
 
     readFromFile(ZERO_MOBILE_SAVE_PATH, (data) => {
       // If errors while we're reading the JSOn
@@ -217,6 +259,9 @@ class App extends React.Component {
         this.props.setInsightAPI(coins[coin].api[apiSelection])
         this.props.setInsightExplorer(coins[coin].explorer[apiSelection])
         this.props.setInsightZMQ(coins[coin].zmq[apiSelection])
+
+        this.connectSocket()
+        this.setSocketConnectID = setInterval(() => this.connectSocket(),15000)
 
         if (data.settings.minimumBlock !== undefined) {
           this.props.setMinimumBlock(data.settings.minimumBlock)
@@ -288,7 +333,7 @@ class App extends React.Component {
     var paramsAvailable = <div />
     var mainAvailable = <div />
 
-    if (this.props.secrets.items.length > 0) {
+    if (this.props.context.saplingoutputverified && this.props.context.saplingspendverified) {
       mainAvailable = <MainPage />
     }
     if (this.state.hasExistingWallet && this.state.hasInputPin) {
@@ -307,7 +352,7 @@ class App extends React.Component {
           if(!this.state.hasExistingWallet) {
             walletDisplay = {}
           } else {
-            if(!this.props.context.saplingoutputverified || !this.props.context.saplingspendverified || this.props.secrets.items.length == 0) {
+            if(!this.props.context.saplingoutputverified || !this.props.context.saplingspendverified) {
               paramsDisplay ={}
             } else {
               mainDisplay = {}
@@ -316,57 +361,32 @@ class App extends React.Component {
         }
       }
     }
-
+        // console.log("Render App")
         return (
-          <div>
-            <div style = {startDisplay}>
-              <LoginGrid sc={screenDim}>
-                <LoginForm sc={screenDim}>
-                </LoginForm>
-                <LoginFormOpaque sc={screenDim} visible={'visible'}>
-                  <br/>
-                  <LoginHeading>
-                    <LoginHeadingImg src={heading} sc={screenDim}/>
-                  </LoginHeading>
-                  <br/>
-                  <br/><br/>
-                  <LoginSocialContainer sc={screenDim}>
-                    <a href="https://www.zerocurrency.io">
-                      <LoginSocial src={zerologo} sc={screenDim}/>
-                    </a>
-                    <a href="https://github.com/zerocurrency">
-                      <LoginSocial src={github} sc={screenDim}/>
-                    </a>
-                    <a href="https://twitter.com/ZeroCurrencies">
-                      <LoginSocial src={twitter} sc={screenDim}/>
-                    </a>
-                    <a href="https://t.me/zerocurrency">
-                      <LoginSocial src={telegram} sc={screenDim}/>
-                    </a>
-                    <a href="https://discordapp.com/invite/Jq5knn5">
-                      <LoginSocial src={discord} sc={screenDim}/>
-                    </a>
-                  </LoginSocialContainer>
-                </LoginFormOpaque>
-              </LoginGrid>
-            </div>
-            <div style = {mainDisplay}>
-              {mainAvailable}
-            </div>
-            <div style = {loginDisplay}>
-              <LoginPage onComplete={() => this.setState({ hasInputPin: true })} />
-            </div>
-            <div style = {walletDisplay}>
-              <SetWalletPage setHasExistingWallet={(v) => this.setState({ hasExistingWallet: v })}/>
-            </div>
-            <div style = {passwordDisplay}>
-              <SetPasswordPage onComplete={() => this.setState({ hasExistingPin: true, hasInputPin: true })} />
-            </div>
-            <div style = {paramsDisplay}>
-              {paramsAvailable}
-            </div>
-          </div>
-
+          <ThemeProvider theme={screenDim}>
+            <GlobalDiv>
+              <div>
+                <div style = {startDisplay}>
+                  <SplashPage />
+                </div>
+                <div style = {mainDisplay}>
+                  {mainAvailable}
+                </div>
+                <div style = {loginDisplay}>
+                  <LoginPage onComplete={() => this.setState({ hasInputPin: true })} />
+                </div>
+                <div style = {walletDisplay}>
+                  <SetWalletPage setHasExistingWallet={(v) => this.setState({ hasExistingWallet: v })}/>
+                </div>
+                <div style = {passwordDisplay}>
+                  <SetPasswordPage onComplete={() => this.setState({ hasExistingPin: true, hasInputPin: true })} />
+                </div>
+                <div style = {paramsDisplay}>
+                  {paramsAvailable}
+                </div>
+              </div>
+            </GlobalDiv>
+          </ThemeProvider>
         )
     }
 }
@@ -389,6 +409,7 @@ App.propTypes = {
   setInsightAPI: PropTypes.func.isRequired,
   setInsightExplorer: PropTypes.func.isRequired,
   setInsightZMQ: PropTypes.func.isRequired,
+  setInsightSocket: PropTypes.func.isRequired,
   setMinimumBlock: PropTypes.func.isRequired,
   setDisplayDimensions: PropTypes.func.isRequired,
   setSaveData: PropTypes.func.isRequired,
@@ -398,14 +419,16 @@ App.propTypes = {
   setDB: PropTypes.func.isRequired,
   context: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
-  secrets: PropTypes.object.isRequired
+  secrets: PropTypes.object.isRequired,
+  mainSubPage: PropTypes.object.isRequired
 }
 
 function mapStateToProps (state) {
   return {
     context: state.context,
     settings: state.settings,
-    secrets: state.secrets
+    secrets: state.secrets,
+    mainSubPage: state.mainSubPage
   }
 }
 
@@ -428,6 +451,7 @@ function matchDispatchToProps (dispatch) {
       setInsightAPI,
       setInsightExplorer,
       setInsightZMQ,
+      setInsightSocket,
       setMinimumBlock,
       setDisplayDimensions,
       setSaveData,

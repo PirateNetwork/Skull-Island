@@ -5,7 +5,7 @@ var path = require('path');
 
 module.exports = {
   optimization: {
-    minimize: true,
+    minimize: false,
     minimizer: [
       new TerserPlugin({
         test: /\.(js|jsx)$/,
@@ -52,6 +52,7 @@ module.exports = {
               'cordova-plugin-insomnia',
               'cordova-plugin-screen-orientation',
               'cordova-clipboard',
+              'cordova-plugin-splashscreen'
             ],
         }),
         new webpack.DefinePlugin({

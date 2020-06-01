@@ -1,36 +1,44 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-
-//import axios from 'axios'
 
 import {saltHashPassword,
         PwSalt}from '../utils/hash'
 
-import { LoginGrid,
-         LoginForm,
-         LoginFormOpaque,
-         LoginHeading,
-         LoginHeadingImg,
-         LoginPassword,
-         LoginInput,
-         LoginSocialContainer,
-         LoginSocial,
-         LoginButton} from '../components/login'
+import {
+    BlackBackground,
+  }  from '../pagecomponents/PirateShared'
+
+import {
+    LoginSectionOverscroll,
+    LoginSection,
+    LoginHeaderFade,
+    LoginFade,
+    LoginTitle,
+    LoginPWTitle,
+    LoginPWArea,
+    LoginPWInput,
+    LoginPWGradientCapLeft,
+    LoginPWGradientCapRight,
+    LoginPWRedText,
+    LoginConfirmTitle,
+    LoginConfirmArea,
+    LoginConfirmInput,
+    LoginConfirmGradientCapLeft,
+    LoginConfirmGradientCapRight,
+    LoginConfirmRedText,
+    LoginEyeButton,
+    LoginEyeImg,
+    LoginSetPWButton,
+    getLoginConfirmAreaScroll,
+  }  from '../pagecomponents/PirateLogin'
+
+import eye from '../assets/svg/eye.svg'
 
 import { setWalletPassword } from '../actions/Settings'
 import { setActivePassword } from '../actions/Context'
-
-import zerologo from '../assets/logo-white.png'
-import github from '../assets/github-white.png'
-import twitter from '../assets/twitter-white.png'
-import telegram from '../assets/telegram-white.png'
-import discord from '../assets/discord-white.png'
-import heading from '../assets/zero-logo-white.png'
-
 
 class SetPasswordPage extends React.Component {
 
@@ -40,57 +48,65 @@ class SetPasswordPage extends React.Component {
     this.state = {
       newPassword: '',
       newPasswordValid: false,
+      newPasswordText:'Must be at least 8 digits',
       confirmPassword: '',
       confirmPasswordValid: false,
-      noteVisible: 'visible',
-      loginVisible: 'none'
+      confirmPasswordText: '',
+      type: 'password'
     }
+
+    this.scrollRef = React.createRef()
 
     this.setNewPassword = this.setNewPassword.bind(this)
     this.setConfirmPassword = this.setConfirmPassword.bind(this)
     this.handleSetPassword = this.handleSetPassword.bind(this)
-    this.confirmNote = this.confirmNote.bind(this)
+    this.toggleType = this.toggleType.bind(this)
+    this.resetScroll = this.resetScroll.bind(this)
   }
 
-  confirmNote () {
-    this.setState({
-      noteVisible: 'none',
-      loginVisible: 'visible'
-    })
-  }
-
-    setNewPassword (p) {
-      if (p.length >= 8) {
-        p = p.substring(0,8)
-      }
-      this.setState({
-        newPassword: p
-      })
-      if (p.length == 8) {
+    toggleType () {
+      if (this.state.type == 'password') {
         this.setState({
-          newPasswordValid: true
+          type: 'text'
         })
       } else {
         this.setState({
-          newPasswordValid: false
+          type: 'password'
+        })
+      }
+    }
+
+    setNewPassword (p) {
+      this.setState({
+        newPassword: p
+      })
+
+      if (p.length >= 8) {
+        this.setState({
+          newPasswordValid: true,
+          newPasswordText:''
+        })
+      } else {
+        this.setState({
+          newPasswordValid: false,
+          newPasswordText:'Must be at least 8 digits'
         })
       }
     }
 
     setConfirmPassword (p) {
-      if (p.length >= 8) {
-        p = p.substring(0,8)
-      }
       this.setState({
         confirmPassword: p
       })
       if (this.state.newPasswordValid == true && this.state.newPassword == p) {
         this.setState({
-          confirmPasswordValid: true
+          confirmPasswordValid: true,
+          confirmPasswordText: ''
         })
       } else {
         this.setState({
-          confirmPasswordValid: false
+          confirmPasswordValid: false,
+          confirmPasswordText: 'Confirmation invalid'
         })
       }
     }
@@ -99,101 +115,137 @@ class SetPasswordPage extends React.Component {
       var pwHash = saltHashPassword(this.state.newPassword, PwSalt)
       this.props.setWalletPassword(pwHash)
       this.props.setActivePassword(this.state.newPassword)
+      this.setState({
+        newPassword: '',
+        confirmPassword: '',
+      })
       this.props.onComplete()
+    }
+
+    resetScroll (p) {
+      this.scrollRef.current.scrollTop = p
     }
 
     componentDidMount() {
     }
 
     render () {
-      var screenDim = this.props.context.dimensions
+      var height = this.props.context.dimensions.height
+      var width = this.props.context.dimensions.width
 
-      var loginbutton = this.state.confirmPasswordValid == true ? <LoginButton sc={screenDim}
+      var loginbutton = this.state.confirmPasswordValid == true ? <LoginSetPWButton
                                                                   onClick={() => this.handleSetPassword()}>
-                                                                  Set Password
-                                                                  </LoginButton>
-                                                                  : ''
-
+                                                                    {'Set Password'}
+                                                                  </LoginSetPWButton>
+                                                    : ''
+      // console.log("Render Password")
       return (
-        <LoginGrid sc={screenDim}>
-          <LoginForm sc={screenDim}>
-          </LoginForm>
-          <LoginFormOpaque sc={screenDim} visible= {this.state.noteVisible}>
-            <br/>
-            <LoginHeading>
-              <LoginHeadingImg src={heading} sc={screenDim}/>
-            </LoginHeading>
-            <LoginPassword>
-              Beta
-              <div>
-                <p>This is a Beta release.</p>
-                <p>DO NOT MINE TO THIS WALLET!!!</p>
-                <p> This wallet may contain bugs and is intented for evaluation and testing purposes only. </p>
-                <p> Team Zero is not responsible for any Zero you may lose by using this wallet. </p>
-              </div>
-              <LoginButton sc={screenDim}
-                onClick={() => this.confirmNote()}>
-                Ok
-              </LoginButton>
-            </LoginPassword>
-          </LoginFormOpaque>
-          <LoginFormOpaque sc={screenDim} visible={this.state.loginVisible}>
-            <br/>
-            <LoginHeading>
-              <LoginHeadingImg src={heading} sc={screenDim}/>
-            </LoginHeading>
-            <br/>
-            <LoginPassword>
-              Set New 8-Digit Password
-              <br/>
-              <LoginInput
-                sc={screenDim}
-                type="password"
-                value={this.state.newPassword}
-                onChange={e => {
-                  this.setConfirmPassword('')
-                  this.setNewPassword(e.target.value)
-                  this.setState({
-                    confirmPasswordValid: false
-                  })
-                }} />
-              <br/><br/>
-              Confirm Password
-              <br/>
-              <LoginInput
-                sc={screenDim}
-                type="password"
-                value={this.state.confirmPassword}
-                onChange={e => this.setConfirmPassword(e.target.value)} />
-              <br/><br/>
+
+        <BlackBackground>
+          <LoginHeaderFade>
+            <LoginTitle>
+              {'Set Wallet Password'}
+            </LoginTitle>
+          </LoginHeaderFade>
+          <LoginFade>
+          </LoginFade>
+          <LoginSectionOverscroll ref = {this.scrollRef}>
+            <LoginSection>
+              <LoginPWTitle>
+                New Password:
+              </LoginPWTitle>
+              <LoginPWArea>
+                <LoginPWGradientCapLeft/>
+                <LoginPWInput
+                  type={this.state.type}
+                  value={this.state.newPassword}
+                  onChange={e => {
+                    this.setConfirmPassword('')
+                    this.setNewPassword(e.target.value)
+                    this.setState({
+                      confirmPasswordValid: false
+                    })
+                  }}
+                  onClick = {() => {
+                    this.resetScroll(0)
+                  }} />
+                  <LoginPWGradientCapRight/>
+                  <LoginEyeButton
+                    onClick = {() => {
+                      this.toggleType()
+                    }} >
+                    <LoginEyeImg src = {eye}/>
+                  </LoginEyeButton>
+              </LoginPWArea>
+              <LoginPWRedText>
+                {this.state.newPasswordText}
+              </LoginPWRedText>
+
+              <LoginConfirmTitle>
+                Confirm Password:
+              </LoginConfirmTitle>
+              <LoginConfirmArea>
+                <LoginConfirmGradientCapLeft/>
+                <LoginConfirmInput
+                  type={this.state.type}
+                  value={this.state.confirmPassword}
+                  onChange={e => {
+                    this.setConfirmPassword(e.target.value)
+                  }}
+                  onClick = {() => {
+                    var scrollPos = getLoginConfirmAreaScroll(height,width)
+                    this.resetScroll(scrollPos)
+                  }} />
+                  <LoginConfirmGradientCapRight/>
+              </LoginConfirmArea>
+              <LoginConfirmRedText>
+                {this.state.confirmPasswordText}
+              </LoginConfirmRedText>
+
               {loginbutton}
-            </LoginPassword>
-            <br/><br/>
-            <LoginSocialContainer sc={screenDim}>
-              <a href="https://www.zerocurrency.io">
-                <LoginSocial src={zerologo} sc={screenDim}/>
-              </a>
-              <a href="https://github.com/zerocurrency">
-                <LoginSocial src={github} sc={screenDim}/>
-              </a>
-              <a href="https://twitter.com/ZeroCurrencies">
-                <LoginSocial src={twitter} sc={screenDim}/>
-              </a>
-              <a href="https://t.me/zerocurrency">
-                <LoginSocial src={telegram} sc={screenDim}/>
-              </a>
-              <a href="https://discordapp.com/invite/Jq5knn5">
-                <LoginSocial src={discord} sc={screenDim}/>
-              </a>
-            </LoginSocialContainer>
-          </LoginFormOpaque>
-        </LoginGrid>
+            </LoginSection>
+          </LoginSectionOverscroll>
+        </BlackBackground>
 
       )
     }
 
   }
 
+  // <LoginGrid sc={screenDim}>
+  //   <LoginFormOpaque sc={screenDim} visible={'visible'}>
+  //     <br/>
+  //     <LoginHeading>
+  //       <LoginHeadingImg src={heading} sc={screenDim}/>
+  //     </LoginHeading>
+  //     <br/>
+  //     <LoginPassword>
+  //       Set New Password
+  //       <br/>
+  //       <LoginInput
+  //         sc={screenDim}
+  //         type="password"
+  //         value={this.state.newPassword}
+  //         onChange={e => {
+  //           this.setConfirmPassword('')
+  //           this.setNewPassword(e.target.value)
+  //           this.setState({
+  //             confirmPasswordValid: false
+  //           })
+  //         }} />
+  //       <br/><br/>
+  //       Confirm Password
+  //       <br/>
+  //       <LoginInput
+  //         sc={screenDim}
+  //         type="password"
+  //         value={this.state.confirmPassword}
+  //         onChange={e => this.setConfirmPassword(e.target.value)} />
+  //       <br/><br/>
+  //       {loginbutton}
+  //     </LoginPassword>
+  //   </LoginFormOpaque>
+  // </LoginGrid>
 
 SetPasswordPage.propTypes = {
   setWalletPassword: PropTypes.func.isRequired,

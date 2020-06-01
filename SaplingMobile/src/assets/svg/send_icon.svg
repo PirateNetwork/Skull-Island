@@ -1,0 +1,19 @@
+<svg id="_029-parchment-1" data-name="029-parchment-1" xmlns="http://www.w3.org/2000/svg" width="23.749" height="23.749" viewBox="0 0 23.749 23.749">
+  <g id="Group_112" data-name="Group 112" transform="translate(4.384 8.082)">
+    <rect id="Rectangle_9" data-name="Rectangle 9" width="14" height="8" transform="translate(0.365 0.386)" fill="#797979"/>
+  </g>
+  <g id="Group_113" data-name="Group 113" transform="translate(0 0)">
+    <path id="Path_400" data-name="Path 400" d="M24.749,3.3V2.915a1.915,1.915,0,1,0-3.83,0V3.3h.766v.766h-.766V4.83H19.227l-.608.608-.608-.608H12.638l-.529,1.059L11.579,4.83H8.5l-.608.608L7.287,4.83H4.83V4.064H4.064V3.3H4.83V2.915a1.915,1.915,0,0,0-3.83,0V3.3h.766v.766H1v17.62h.766v.766H1v.383a1.915,1.915,0,0,0,3.83,0V22.45H4.064v-.766H4.83v-.766H6.521l.608-.608.608.608h7.29l.529-1.059.529,1.059h1.161l.608-.608.608.608h2.457v.766h.766v.766h-.766v.383a1.915,1.915,0,0,0,3.83,0V22.45h-.766v-.766h.766V4.064h-.766V3.3ZM22.833,1.766a1.151,1.151,0,0,1,1.084.766H21.75A1.15,1.15,0,0,1,22.833,1.766Zm-19.918,0A1.151,1.151,0,0,1,4,2.532H1.832A1.151,1.151,0,0,1,2.915,1.766ZM2.532,3.3H3.3v.766H2.532Zm.383,20.684a1.151,1.151,0,0,1-1.084-.766H4A1.15,1.15,0,0,1,2.915,23.982ZM3.3,22.45H2.532v-.766H3.3Zm.766-1.532h-2.3V4.83h2.3Zm14.714-.766-.925-.925-.925.925h-.371l-1-2.006-1,2.006h-6.5l-.925-.925-.925.925H4.83V5.6H6.97l.925.925L8.819,5.6h2.286l1,2.006,1-2.006H17.7l.925.925.925-.925h1.374V20.152Zm4.055,3.83a1.151,1.151,0,0,1-1.084-.766h2.167A1.15,1.15,0,0,1,22.833,23.982Zm.383-1.532H22.45v-.766h.766Zm.766-1.532h-2.3V4.83h2.3ZM23.216,4.064H22.45V3.3h.766Z" transform="translate(-1 -1)" fill="#797979"/>
+    <rect id="Rectangle_10" data-name="Rectangle 10" width="14" transform="translate(4.749 8.468)"/>
+    <rect id="Rectangle_11" data-name="Rectangle 11" width="14" height="1" transform="translate(4.749 8.468)"/>
+    <rect id="Rectangle_12" data-name="Rectangle 12" height="1" transform="translate(18.749 15.468)"/>
+    <rect id="Rectangle_13" data-name="Rectangle 13" width="14" height="1" transform="translate(4.749 15.468)"/>
+    <rect id="Rectangle_14" data-name="Rectangle 14" width="4" transform="translate(6.749 10.468)"/>
+    <rect id="Rectangle_15" data-name="Rectangle 15" width="1" transform="translate(4.749 10.468)"/>
+    <rect id="Rectangle_16" data-name="Rectangle 16" width="6" height="1" transform="translate(4.749 12.468)"/>
+    <rect id="Rectangle_17" data-name="Rectangle 17" width="6" transform="translate(4.749 13.468)"/>
+    <rect id="Rectangle_18" data-name="Rectangle 18" width="6" transform="translate(12.749 10.468)"/>
+    <rect id="Rectangle_19" data-name="Rectangle 19" width="6" height="1" transform="translate(12.749 12.468)"/>
+    <rect id="Rectangle_20" data-name="Rectangle 20" width="6" transform="translate(12.749 13.468)"/>
+  </g>
+</svg>

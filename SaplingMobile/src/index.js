@@ -32,12 +32,7 @@ store.subscribe(() => {
 const rootElement = document.getElementById('app')
 
 ons.ready(() => {
-  ons.disableDeviceBackButtonHandler()
-  document.addEventListener('backbutton', function () {
-    if (confirm("Exit App?")) {
-      navigator.app.exitApp()
-    }
-  }, false)
+  ons.disableDeviceBackButtonHandler()  
   render(
     <AppContainer>
       <Provider store={store}>
