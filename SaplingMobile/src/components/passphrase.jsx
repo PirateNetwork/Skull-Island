@@ -183,7 +183,7 @@ export const PassPhraseInnerInput = styled.div`
   left: ${props => (props.theme.width * 0.10) + 'px'};
   top: 0;
   color: #ffffff;
-  background-color: rgba(0,0,0,0);
+  background-color: ${props => props.flash ? 'rgba(187,150,69,0.5)' : 'rgba(0,0,0,0)'};
   width: ${props => (props.theme.width * 0.70) + 'px'};
   height: ${props => (props.theme.width * InputAreaSize * 6.25) + 'px'};
   margin: 0px;

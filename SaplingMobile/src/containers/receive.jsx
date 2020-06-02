@@ -46,12 +46,12 @@ class Receive extends React.Component {
 
     beginFlash () {
       this.setState({flash: true})
-      this.setFlashId = setInterval(() => this.removeFlash(),125)
+      this.setFlashReceiveId = setInterval(() => this.removeFlash(),125)
     }
 
     removeFlash () {
       this.setState({flash: false})
-      clearInterval(this.setFlashId)
+      clearInterval(this.setFlashReceiveId)
     }
 
     resetScroll (p) {

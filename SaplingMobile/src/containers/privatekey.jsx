@@ -42,7 +42,8 @@ class PrivateKey extends React.Component {
         pin: 'visible',
         key: 'none',
         password: '',
-        reset: true
+        reset: true,
+        flash: false
       }
 
       this.scrollRef = React.createRef()
@@ -51,7 +52,18 @@ class PrivateKey extends React.Component {
       this.setPassword = this.setPassword.bind(this)
       this.setReset = this.setReset.bind(this)
       this.resetScroll = this.resetScroll.bind(this)
+      this.beginFlash = this.beginFlash.bind(this)
+      this.removeFlash = this.removeFlash.bind(this)
+    }
 
+    beginFlash () {
+      this.setState({flash: true})
+      this.setFlashPrivateKeyId = setInterval(() => this.removeFlash(),125)
+    }
+
+    removeFlash () {
+      this.setState({flash: false})
+      clearInterval(this.setFlashPrivateKeyId)
     }
 
     setPassword (p) {
@@ -145,7 +157,7 @@ class PrivateKey extends React.Component {
                   {'Key:'}
                 </PrivateKeyPWTitle>
                 <PrivateKeyArea>
-                  <PrivateKeyInput>
+                  <PrivateKeyInput flash = {this.state.flash}>
                     {this.props.context.zPrivateKey}
                   </PrivateKeyInput>
                 </PrivateKeyArea>
@@ -153,6 +165,7 @@ class PrivateKey extends React.Component {
 
                     onClick={() => {
                     cordova.plugins.clipboard.copy(this.props.context.zPrivateKey)
+                    this.beginFlash()
                   }}>
                   {'Copy'}
                 </PrivateKeyCopyButton>

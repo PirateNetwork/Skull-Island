@@ -162,7 +162,7 @@ export const PrivateKeyInput = styled.div`
   left: 0;
   top: 0;
   color: #ffffff;
-  background-color: rgba(0,0,0,0);
+  background-color: ${props => props.flash ? 'rgba(187,150,69,0.5)' : 'rgba(0,0,0,0)'};
   width: ${props => (props.theme.width * 0.90) + 'px'};
   height: ${props => (props.theme.width * InputAreaSize * 8.25) + 'px'};
   margin: 0px;

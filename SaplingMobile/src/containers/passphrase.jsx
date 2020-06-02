@@ -59,8 +59,8 @@ class PassPhrase extends React.Component {
         password: '',
         passphrase: '',
         reset: true,
-        bip39Compatible: true
-
+        bip39Compatible: true,
+        flash: false
       }
 
       this.scrollRef = React.createRef()
@@ -69,7 +69,18 @@ class PassPhrase extends React.Component {
       this.setPassword = this.setPassword.bind(this)
       this.setReset = this.setReset.bind(this)
       this.resetScroll = this.resetScroll.bind(this)
+      this.beginFlash = this.beginFlash.bind(this)
+      this.removeFlash = this.removeFlash.bind(this)
+    }
 
+    beginFlash () {
+      this.setState({flash: true})
+      this.setFlashPassPhraseId = setInterval(() => this.removeFlash(),125)
+    }
+
+    removeFlash () {
+      this.setState({flash: false})
+      clearInterval(this.setFlashPassPhraseId)
     }
 
     async setPassword (p) {
@@ -186,7 +197,7 @@ class PassPhrase extends React.Component {
                 <PassPhraseArea>
                   <PassPhraseGradientCapLeft />
                   <PassPhraseInput>
-                    <PassPhraseInnerInput>
+                    <PassPhraseInnerInput flash = {this.state.flash}>
                       {this.state.passphrase}
                     </PassPhraseInnerInput>
                   </PassPhraseInput>
@@ -211,6 +222,7 @@ class PassPhrase extends React.Component {
 
                     onClick={() => {
                     cordova.plugins.clipboard.copy(qrData)
+                    this.beginFlash()
                   }}>
                   {'Copy'}
                 </PassPhraseCopyButton>
