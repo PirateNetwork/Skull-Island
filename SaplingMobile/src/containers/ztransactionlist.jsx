@@ -48,27 +48,29 @@ class ZTransactionList extends React.Component {
 
     this.state = {
       transactionList: null,
+      address: '',
       memo: '',
       displayMemo: false
-      // localScroll: false,
     }
 
-    // this.scrollRef = React.createRef()
-    // this.localScrollPosition = 0
+    this.scrollRef = React.createRef()
+    this.resetScroll = this.resetScroll.bind(this)
 
     this.setTransactionList= this.setTransactionList.bind(this)
     this.createTransactionList = this.createTransactionList.bind(this)
     this.setupSocket = this.setupSocket.bind(this)
     this.setMemo = this.setMemo.bind(this)
     this.setDisplayMemo = this.setDisplayMemo.bind(this)
-    // this.checkScroll = this.checkScroll.bind(this)
-    // this.setLocalScroll = this.setLocalScroll.bind(this)
   }
 
     setTransactionList (b) {this.setState({transactionList: b})}
+    setAddress (b) {this.setState({address: b})}
     setMemo (b) {this.setState({memo: b})}
     setDisplayMemo (b) {this.setState({displayMemo: b})}
-    // setLocalScroll (b) {this.setLocalScroll({localScroll: b})}
+
+    resetScroll (p) {
+      this.scrollRef.current.scrollTop = p
+    }
 
      async createTransactionList () {
 
@@ -99,7 +101,8 @@ class ZTransactionList extends React.Component {
             value: rs.rows.item(r).value,
             block: rs.rows.item(r).block,
             type: rs.rows.item(r).type,
-            memo: rs.rows.item(r).memo
+            memo: rs.rows.item(r).memo,
+            address: rs.rows.item(r).address
           }
           transactions.push(transaction)
         }
@@ -120,8 +123,9 @@ class ZTransactionList extends React.Component {
               <Col3Div>
                 <Col3Top>
                   {tx.type==0 ? 'Incoming' : 'Outgoing'}
-                  <ZTransactionMemoButton display = {tx.memo.length}
+                  <ZTransactionMemoButton display = {tx.memo.length + tx.type}
                     onClick = {() => {
+                      this.setAddress(tx.address)
                       this.setMemo(tx.memo)
                       this.setDisplayMemo(true)
                     }}>
@@ -206,21 +210,28 @@ class ZTransactionList extends React.Component {
 
         return (
           <ZTransactionListMain>
-            <ZTransactionListOverScroll visible = {displayMemoSection}>
+            <ZTransactionListOverScroll ref = {this.scrollRef} visible = {displayMemoSection}>
               <ZTransactionMemo>
                 <br/>
-                {'Memo:'}
+                {'Pirate Address:'}
+                <br/>
+                {this.state.address}
                 <br/><br/>
+                {'Memo:'}
+                <br/>
                 {this.state.memo}
                 <br/><br/><br/>
                 <ZTransactionMemoCloseButton
                   onClick = {() => {
+                    this.resetScroll(0)
+                    this.setAddress('')
                     this.setMemo('')
                     this.setDisplayMemo(false)
                   }}>
-                  {'Close Memo'}
+                  {'Close'}
                 </ZTransactionMemoCloseButton>
                 <br/>
+                <ZTransactionListBottomSpacer />
                 <ZTransactionListBottomSpacer />
               </ZTransactionMemo>
             </ZTransactionListOverScroll>

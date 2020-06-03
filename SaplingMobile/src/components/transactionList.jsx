@@ -6,8 +6,6 @@ export const ZTransactionListMain = styled.div`
   left: 0;
   width: ${props => (props.theme.width) + 'px'};
   height: ${props => (props.theme.height * 0.6) + 'px'};
-  overflow: scroll;
-  overscroll-behavior: contain;
 `
   // overscroll-behavior: contain;
 
@@ -16,7 +14,10 @@ export const ZTransactionListOverScroll = styled.div`
   top: 0;
   left: 0;
   width: ${props => (props.theme.width) + 'px'};
+  height: ${props => (props.theme.height * 0.6) + 'px'};
   display: ${props => props.visible};
+  overflow: scroll;
+  overscroll-behavior: contain;
 `
 
   // overflow: hidden;
