@@ -1,4 +1,4 @@
-# ZeroVerse-Wallet
-ZeroVerse Wallet
+# Pirate Chain Mobile Wallet
+Pirate Wallet
 
 Work in progress
