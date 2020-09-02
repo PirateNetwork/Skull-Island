@@ -1,7 +1,7 @@
 {
   "name": "Zero_Sapling",
   "displayName": "Zero Sapling Wallet",
-  "version": "0.0.1",
+  "version": "1.0.6",
   "description": "Sapling Zero Mobile Wallet.",
   "main": "index.js",
   "scripts": {
