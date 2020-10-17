@@ -4,7 +4,8 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { openRecordset }  from '../database/sqlite'
+import {list} from '../utils/litewallet'
+import {setWalletInUse} from '../actions/Context'
 
 import {
   setTransactionScrollPos} from '../actions/MainSubPage'
@@ -58,7 +59,6 @@ class ZTransactionList extends React.Component {
 
     this.setTransactionList= this.setTransactionList.bind(this)
     this.createTransactionList = this.createTransactionList.bind(this)
-    this.setupSocket = this.setupSocket.bind(this)
     this.setMemo = this.setMemo.bind(this)
     this.setDisplayMemo = this.setDisplayMemo.bind(this)
   }
@@ -74,41 +74,102 @@ class ZTransactionList extends React.Component {
 
      async createTransactionList () {
 
+
       var transactions = []
+      var index = 0
 
-      const rs =  await openRecordset(this.props.context.db, 'SELECT address, txid, outputindex, spent, value, block, type, height, memo '
-                                                            +'FROM ('
-                                                            +'SELECT address, txid, outputindex, spent, value, height as block, 0 as type, memo, '
-                                                            +'case when height = -1 then 9999999 else height end as height '
-                                                            +'FROM Wallet '
-                                                            +'Where type in (0,1  and change = 0) '
-                                                            +'Union All '
-                                                            +'SELECT address, txid, outputindex, spent, value, height as block, 1 as type, memo, '
-                                                            +'case when height = -1 then 9999999 else height end as height '
-                                                            +'FROM Wallet '
-                                                            +'Where type in (2,3) and change = 0) x '
-                                                            +'Where value <> 0 '
-                                                            +'ORDER BY height DESC, type ASC, outputindex DESC'  )
+      this.props.setWalletInUse(true)
+      var transactionList = await list()
+      this.props.setWalletInUse(false)
+
+      try {
+          transactionList = JSON.parse(transactionList)
+          transactionList.reverse()
+
+          for (var t = 0; t < transactionList.length; t++) {
+              var md
+              var meta
+              if (transactionList[t].incoming_metadata != null) {
+                  meta = transactionList[t].incoming_metadata
+                  for (md = 0; md < meta.length; md++) {
+                      var itransaction = {
+                            id: transactionList[t].txid + '-imd' + '-' + md,
+                            txid: transactionList[t].txid,
+                            address: meta[md].address,
+                            value: meta[md].value,
+                            memo: meta[md].memo == null ? '' : meta[md].memo,
+                            block: transactionList[t].block_height == null ? -1 : transactionList[t].block_height,
+                            type: 0,
+                            index: index
+                      }
+                      index++
+                      transactions.push(itransaction)
+                  }
+              }
+
+              // if (transactionList[t].incoming_metadata_change != null) {
+              //     meta = transactionList[t].incoming_metadata_change
+              //     for (md = 0; md < meta.length; md++) {
+              //         var ictransaction = {
+              //               id: transactionList[t].txid + '-icmd' + '-' + md,
+              //               txid: transactionList[t].txid,
+              //               address: meta[md].address,
+              //               value: meta[md].value,
+              //               memo: meta[md].memo == null ? '' : meta[md].memo,
+              //               block: transactionList[t].block_height == null ? 0 : transactionList[t].block_height,
+              //               type: 0,
+              //               index: index
+              //         }
+              //         index++
+              //         transactions.push(ictransaction)
+              //     }
+              // }
+
+              if (transactionList[t].outgoing_metadata != null) {
+                  meta = transactionList[t].outgoing_metadata
+                  for (md = 0; md < meta.length; md++) {
+                      var otransaction = {
+                            id: transactionList[t].txid + '-omd' + '-' + md,
+                            txid: transactionList[t].txid,
+                            address: meta[md].address,
+                            value: meta[md].value * (-1),
+                            memo: meta[md].memo == null ? '' : meta[md].memo,
+                            block: transactionList[t].block_height == null ? -1 : transactionList[t].block_height,
+                            type: 1,
+                            index: index
+                      }
+                      index++
+                      transactions.push(otransaction)
+                  }
+              }
+
+              // if (transactionList[t].outgoing_metadata_change != null) {
+              //     meta = transactionList[t].outgoing_metadata_change
+              //     for (md = 0; md < meta.length; md++) {
+              //         var octransaction = {
+              //               id: transactionList[t].txid + '-ocmd' + '-' + md,
+              //               txid: transactionList[t].txid,
+              //               address: meta[md].address,
+              //               value: meta[md].value * (-1),
+              //               memo: meta[md].memo == null ? '' : meta[md].memo,
+              //               block: transactionList[t].block_height == null ? 0 : transactionList[t].block_height,
+              //               type: 1,
+              //               index: index
+              //         }
+              //         index++
+              //         transactions.push(octransaction)
+              //     }
+              // }
 
 
-
-      for (var r = 0; r < rs.rows.length; r++) {
-        if (rs.rows.item(r).txid != null) {
-          var transaction = {
-            id: rs.rows.item(r).txid + '-' + rs.rows.item(r).outputindex + '-' + rs.rows.item(r).type,
-            txid: rs.rows.item(r).txid,
-            spent: rs.rows.item(r).spent,
-            value: rs.rows.item(r).value,
-            block: rs.rows.item(r).block,
-            type: rs.rows.item(r).type,
-            memo: rs.rows.item(r).memo,
-            address: rs.rows.item(r).address
           }
-          transactions.push(transaction)
+        } catch (err) {
+          if (process.env.NODE_ENV != 'production') {
+            console.log(err)
+          }
         }
-      }
 
-      var transactionList = transactions.map((tx) => (
+      var transactionDisplay = transactions.map((tx) => (
         <ZTransactionListUl key={tx.id} header={false}>
             <ZTransactionListLi>
               <Col1Div>
@@ -133,7 +194,7 @@ class ZTransactionList extends React.Component {
                   </ZTransactionMemoButton>
                 </Col3Top>
                 <Col3Bottom inbound = {tx.type==0 ? true : false}>
-                  {(tx.type==0 ? '+' : '-') + (tx.value/1e08).toFixed(8).toString()}
+                  {(tx.type==0 ? '+' : '') + (tx.value/1e08).toFixed(8).toString()}
                 </Col3Bottom>
               </Col3Div>
               <Col4Div>
@@ -156,44 +217,26 @@ class ZTransactionList extends React.Component {
         </ZTransactionListUl>
         ))
 
-        if (this.state.transactionList != transactionList) {
-          this.setTransactionList(transactionList)
+        if (this.state.transactionList != transactionDisplay) {
+          this.setTransactionList(transactionDisplay)
         }
 
     }
-
-    setupSocket() {
-      if (!this.state.Socket) {
-        if (this.props.context.insightSocket != false) {
-          if (this.props.context.zSynced) {
-            this.setState({Socket: true})
-            var socket = this.props.context.insightSocket
-            socket.on('tx', this.createTransactionList)
-            socket.on('block', this.createTransactionList)
-            clearInterval(this.setSocketTID)
-            this.setSocketTID = setInterval(() => this.setupSocket(),120000)
-          } else {
-            this.createTransactionList()
-            clearInterval(this.setSocketTID)
-            this.setSocketTID = setInterval(() => this.setupSocket(),120000)
-          }
-        } else {0
-          console.log('Transaction List Socket not set, waiting')
-        }
-      }
-    }
-
 
     componentDidMount() {
       this.createTransactionList()
-      this.setSocketTID = setInterval(() => this.setupSocket(),500)
-      this.setTransactionID = setInterval(() => this.createTransactionList,30000)
+
+      this.ProcessID = setInterval(
+        () => this.createTransactionList(),
+        5000
+      );
+
     }
 
     componentWillUnmount() {
-        clearInterval(this.setSocketTID)
-        clearInterval(this.setTransactionID)
+      clearInterval(this.ProcessID)
     }
+
 
     render () {
 
@@ -251,6 +294,7 @@ class ZTransactionList extends React.Component {
 
 
 ZTransactionList.propTypes = {
+  setWalletInUse: PropTypes.func.isRequired,
   setTransactionScrollPos: PropTypes.func.isRequired,
   settings: PropTypes.object.isRequired,
   context: PropTypes.object.isRequired,
@@ -268,6 +312,7 @@ function mapStateToProps (state) {
 function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
+      setWalletInUse,
       setTransactionScrollPos,
     },
     dispatch

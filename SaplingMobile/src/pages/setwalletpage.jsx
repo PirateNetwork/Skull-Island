@@ -4,28 +4,19 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import Qr from '../containers/qr'
-
-import axios from 'axios'
-
 import { coins } from '../utils/coins.js'
-import { setSecretPhrase, setSecretItems } from '../actions/Secrets'
-import {
-  encrypt,
-  saltHashPassword,
-  KeySalt}from '../utils/hash'
+import { encrypt, saltHashPassword, KeySalt } from '../utils/hash.js'
+import { setSeedPhrase, setBirthday } from '../actions/Secrets'
+import { setMinimumBlock, setWalletPassPhrase } from '../actions/Settings'
+import { setQrScanning, setWalletLoaded } from '../actions/Context'
 
-import { setMinimumBlock } from '../actions/Settings'
+import Qr from '../containers/qr'
+import RingSpinner from '../containers/spinner'
 
-import {
-  setQrScanning,
-  setReindex} from '../actions/Context'
-
-// import RandomWords from 'random-words'
-
-import {
-  apiGetPassPhrase,
-  apiCheckPassPhrase} from '../utils/sapling'
+import { restoreWallet,
+         checkSeedPhrase,
+         getSeedPhrase,
+         save} from '../utils/litewallet'
 
 import {
     BlackBackgroundQR,
@@ -54,9 +45,9 @@ import {
    WalletHeightInput,
    WalletGradientCapLeft,
    WalletGradientCapRight,
+   WalletSpinner
   } from '../components/wallet'
 
-// import heading from '../assets/zero-logo-white.png'
 
 class SetWalletPage extends React.Component {
 
@@ -64,116 +55,64 @@ class SetWalletPage extends React.Component {
     super(props)
 
     this.state = {
-      tempSecretPhrase: '',
-      bip39Compatible: true,
-      currentHeight: 0,
-      options: 'visible',
-      newWallet: 'none',
-      recoverWallet: 'none',
-      recoveryHeight: coins[this.props.settings.currentCoin].branchHeight['sapling'] - 1
+      openSection: 1,
+      tempSeedPhrase: '',
+      tempBirthday: 0,
+      tempSeedPhraseInvalid: '',
+      createWallet: false
     }
 
-    this.setNewWallet = this.setNewWallet.bind(this)
-    this.setRecoverWallet = this.setRecoverWallet.bind(this)
-    this.setRecoveryHeight = this.setRecoveryHeight.bind(this)
-    this.handleLoadWallet = this.handleLoadWallet.bind(this)
-    this.handleNewWallet = this.handleNewWallet.bind(this)
-    this.setTempSecretPhrase = this.setTempSecretPhrase.bind(this)
-    this.setCurrentHeight = this.setCurrentHeight.bind(this)
-    this.setWalletToCurrentBlock = this.setWalletToCurrentBlock.bind(this)
-    this.setWalletToRecoveryBlock = this.setWalletToRecoveryBlock.bind(this)
-    this.getCurrentBlock = this.getCurrentBlock.bind(this)
+    this.setTempSeedPhraseInvalid = this.setTempSeedPhraseInvalid.bind(this)
+    this.setTempSeedPhrase = this.setTempSeedPhrase.bind(this)
+    this.setTempBirthday = this.setTempBirthday.bind(this)
     this.safeReleaseCamera = this.safeReleaseCamera.bind(this)
     this.handleQRScan = this.handleQRScan.bind(this)
+    this.restoreWallet = this.restoreWallet.bind(this)
+    this.setWallet = this.setWallet.bind(this)
+    this.getNewPhrase = this.getNewPhrase.bind(this)
   }
 
-  async setTempSecretPhrase (p) {
-    this.setState({tempSecretPhrase: p})
-    var validPhrase = await apiCheckPassPhrase(p)
-    validPhrase = JSON.parse(validPhrase)
-    if (validPhrase.passPhraseCheck == "Ok") {
-      this.setState({bip39Compatible: true})
+  setSection (p) {
+    if (p == 1) {
+      this.setState({
+        openSection: p,
+        tempBirthday: this.props.secrets.birthday,
+        tempSeedPhrase: this.props.secrets.seedPhrase
+      })
     } else {
-      this.setState({bip39Compatible: false})
+      this.setState({
+        openSection: p
+      })
     }
-
   }
-  setCurrentHeight(p) {this.setState({currentHeight: p})}
-  setRecoveryHeight(p) {
+
+  setTempSeedPhraseInvalid(b) {
+    if (b) {
+      this.setState({
+        tempSeedPhraseInvalid: 'Seed Phrase Invalid!!!',
+        createWallet: false
+      })
+    } else {
+      this.setState({
+        tempSeedPhraseInvalid: '',
+        createWallet: true
+      })
+    }
+  }
+  setTempSeedPhrase (p) {
+    this.setState({tempSeedPhrase: p})
+    this.checkSeed(p)
+  }
+
+  setTempBirthday (p) {
+
     try {
       p = Math.floor(+p)
     } catch {
-      p = coins[this.props.settings.currentCoin].branchHeight['sapling'] - 1
+      p = coins[this.props.settings.currentCoin].branchHeight['sapling']
     }
 
-    this.setState({recoveryHeight: Number(p).toString()})
-  }
-
-  setNewWallet() {
-    this.handleNewWallet()
-    this.setState({
-      options: 'none',
-      newWallet: 'visible'
-    })
-  }
-
-  setRecoverWallet() {
-    this.setState({
-      options: 'none',
-      recoverWallet: 'visible'
-    })
-  }
-
-  setOptions() {
-    this.setState({
-      options: 'visible',
-      recoverWallet: 'none',
-      newWallet: 'none',
-      tempSecretPhrase: ''
-    })
-  }
-
-  setWalletToCurrentBlock () {
-    var minBlock = this.props.settings.minimumBlock
-    minBlock[this.props.settings.currentCoin] = this.state.currentHeight
-    this.props.setMinimumBlock(minBlock)
-    this.props.setReindex(this.state.currentHeight)
-    this.handleLoadWallet(this.state.tempSecretPhrase)
-  }
-
-  setWalletToRecoveryBlock () {
-    var minBlock = this.props.settings.minimumBlock
-    minBlock[this.props.settings.currentCoin] = this.state.recoveryHeight
-    this.props.setMinimumBlock(minBlock)
-    this.props.setReindex(this.state.recoveryHeight)
-    this.handleLoadWallet(this.state.tempSecretPhrase)
-  }
-
-  async getCurrentBlock () {
-    if (this.state.currentHeight == 0) {
-      try {
-        var response = await axios.get(this.props.settings.insightAPI + 'status')
-        this.setCurrentHeight(Number(response.data.info.blocks))
-      } catch (err) {
-        if (process.env.NODE_ENV != 'production') {
-          console.log(err)
-        }
-      }
-    }
-  }
-
-  async handleNewWallet () {
-    var randomPhrase = await apiGetPassPhrase()
-    randomPhrase = JSON.parse(randomPhrase)
-    this.setTempSecretPhrase(randomPhrase.pass_phrase)
-  }
-
-  handleLoadWallet (phrase) {
-    //console.log(this.props.context.activePassword)
-    var keyHash = saltHashPassword(this.props.context.activePassword, KeySalt)
-    var encryptedPhrase = encrypt(phrase, keyHash)
-    this.props.setSecretPhrase(encryptedPhrase)
-    this.props.setHasExistingWallet(true)
+    this.setState({tempBirthday: p})
   }
 
   handleQRScan () {
@@ -196,8 +135,8 @@ class SetWalletPage extends React.Component {
             // The scan completed, display the contents of the QR code
             const qrReadData = JSON.parse(data)
             this.setState({
-              tempSecretPhrase: qrReadData.passphrase,
-              recoveryHeight: qrReadData.height
+              tempSeedPhrase: qrReadData.passphrase,
+              tempBirthday: qrReadData.height
             })
           }
 
@@ -232,8 +171,86 @@ class SetWalletPage extends React.Component {
     }
   }
 
+  async restoreWallet(s) {
+    const currentCoin = this.props.settings.currentCoin
+    var minHeight = coins[currentCoin].branchHeight['sapling']
+    var args = [coins[currentCoin].litewallet[0]]
+    args.push(coins[currentCoin].addressParams)
+    var seedCheck = await checkSeedPhrase(this.state.tempSeedPhrase)
+    seedCheck = JSON.parse(seedCheck)
+
+    if (seedCheck.checkSeedPhrase == 'Ok') {
+      args.push(this.state.tempSeedPhrase)
+      try {
+
+        if (this.state.tempBirthday > minHeight) {
+          if (this.state.tempBirthday <= this.props.secrets.birthday) {
+              args.push(this.state.tempBirthday.toString())
+          } else {
+              args.push(this.props.secrets.birthday.toString())
+          }
+        } else {
+          args.push(minHeight.toString())
+        }
+        var seed = await restoreWallet(args)
+        seed = JSON.parse(seed)
+        if (seed.seed != null) {
+          const keyHash = saltHashPassword(this.props.context.activePassword, KeySalt)
+          const pass = encrypt(seed.seed, keyHash)
+          this.props.setWalletPassPhrase(pass)
+          this.setWallet(seed, currentCoin)
+          this.props.setWalletLoaded(true)
+        }
+
+      } catch (err) {
+        if (process.env.NODE_ENV != 'production') {
+          console.log(err)
+        }
+      }
+    } else {
+      this.setSection(s)
+      this.setTempSeedPhraseInvalid(true)
+    }
+  }
+
+  async getNewPhrase() {
+    var seed
+    try {
+      seed = await getSeedPhrase()
+    } catch (err) {
+      if (process.env.NODE_ENV != 'production') {
+        console.log(err)
+      }
+    }
+    seed = JSON.parse(seed)
+    this.setTempSeedPhrase(seed.seedPhrase)
+    this.setTempBirthday(this.props.secrets.birthday)
+    this.setTempSeedPhraseInvalid(false)
+  }
+
+  async checkSeed(seed) {
+    var seedCheck = await checkSeedPhrase(seed)
+    seedCheck = JSON.parse(seedCheck)
+    if (seedCheck.checkSeedPhrase == 'Ok') {
+      this.setTempSeedPhraseInvalid(false)
+    } else {
+      this.setTempSeedPhraseInvalid(true)
+    }
+  }
+
+  async setWallet(seed, currentCoin) {
+    var walletFile = await save(coins[currentCoin].networkname)
+    walletFile = JSON.parse(walletFile)
+    if(walletFile.saved) {
+      this.props.setHasExistingWallet(true)
+      this.props.setSeedPhrase(seed.seed)
+      this.props.setBirthday(seed.birthday)
+    }
+  }
+
   componentDidMount () {
-    this.getCurrentBlock()
+    this.setTempSeedPhrase(this.props.secrets.seedPhrase)
+    this.setTempBirthday(this.props.secrets.birthday)
   }
 
   componentWillUnmount () {
@@ -244,18 +261,135 @@ class SetWalletPage extends React.Component {
       const scanning =  this.props.context.qrScanning ? {opacity: '0.0', display: 'none'} : {opacity: '1.0', display: 'visible'}
 
       var buttonDisplay = 'none'
-      if (this.state.tempSecretPhrase.length >= 64 && this.state.currentHeight != 0) {
+      if (this.state.createWallet) {
         buttonDisplay = 'visible'
       }
 
-      var bip39Message
-      if (this.state.bip39Compatible) {
-        bip39Message = ''
-      } else {
-        bip39Message = 'Phrase incompatible with Lite Wallet!!!'
+      var walletSection
+      switch (this.state.openSection) {
+        case 1:
+          walletSection =
+          <WalletSubSection visible = {'visible'}>
+            <WalletNewButton
+              onClick={() => {
+                this.setSection(2)
+            }}>
+              {'New Wallet'}
+            </WalletNewButton>
+            <WalletRecoverButton
+              onClick={() => {
+                this.setSection(3)
+            }}>
+              {'Recover Wallet'}
+            </WalletRecoverButton>
+          </WalletSubSection>
+          break
+
+
+        case 2: //Create New Wallet
+          walletSection =
+          <WalletSubSection visible = {'visible'}>
+            <WalletPassPhraseTitle>
+              {'New Passphrase:'}
+            </WalletPassPhraseTitle>
+            <WalletPassPhraseArea>
+              <WalletPassPhraseGradientCapLeft />
+              <WalletPassPhraseInput>
+                <WalletPassPhraseInnerInput value={this.state.tempSeedPhrase}/>
+              </WalletPassPhraseInput>
+              <WalletPassPhraseGradientCapRight />
+            </WalletPassPhraseArea>
+            <WalletPassPhraseRedText>
+              {this.state.tempSeedPhraseInvalid}
+            </WalletPassPhraseRedText>
+
+
+            <WalletNewPhraseButton
+              onClick={() => this.getNewPhrase()}>
+              {'New Phrase'}
+            </WalletNewPhraseButton>
+            <WalletBackButton
+              onClick={() => this.setSection(1)}>
+              {'Back'}
+            </WalletBackButton>
+            <WalletCreateButton visible = {buttonDisplay}
+                onClick={() => {
+                  this.setSection(4)
+                  this.restoreWallet(3)
+                }}>
+              {'Create Wallet'}
+            </WalletCreateButton>
+          </WalletSubSection>
+          break
+
+        case 3: //Recover Wallet
+          walletSection =
+          <WalletSubSection visible = {'visible'}>
+            <WalletPassPhraseTitle>
+              {'Enter Passphrase:'}
+            </WalletPassPhraseTitle>
+            <WalletPassPhraseArea>
+              <WalletPassPhraseGradientCapLeft />
+              <WalletPassPhraseInput>
+                <WalletPassPhraseInnerInput
+                value={this.state.tempSeedPhrase}
+                onChange = { (e) => {
+                  this.setTempSeedPhrase(e.target.value)
+                }}/>
+              </WalletPassPhraseInput>
+              <WalletPassPhraseGradientCapRight />
+            </WalletPassPhraseArea>
+            <WalletPassPhraseRedText>
+              {this.state.tempSeedPhraseInvalid}
+            </WalletPassPhraseRedText>
+
+            <WalletHeightTitle>
+             {'Recovery Height:'}
+            </WalletHeightTitle>
+            <WalletHeightArea>
+              <WalletGradientCapLeft />
+              <WalletHeightInput
+                type = "number"
+                value={this.state.tempBirthday}
+                onChange={e => this.setTempBirthday(e.target.value)} />
+              <WalletGradientCapRight />
+            </WalletHeightArea>
+
+            <WalletNewPhraseButton
+              onClick={() => this.handleQRScan()}>
+              {'Scan QR'}
+            </WalletNewPhraseButton>
+            <WalletBackButton
+              onClick={() => this.setSection(1)}>
+              {'Back'}
+            </WalletBackButton>
+            <WalletCreateButton visible = {buttonDisplay}
+                onClick={() => {
+                  this.setSection(4)
+                  this.restoreWallet(3)
+                }}>
+              {'Recover Wallet'}
+            </WalletCreateButton>
+          </WalletSubSection>
+
+          break
+        case 4:
+          walletSection =
+            <WalletSubSection visible = {'visible'}>
+              <WalletPassPhraseTitle alignment = {'center'}>
+                {'Initalizing'}
+              </WalletPassPhraseTitle>
+              <WalletSpinner>
+                <RingSpinner/>
+              </WalletSpinner>
+            </WalletSubSection>
+            break
+
+        default:
+            walletSection = <div></div>
       }
 
-      // console.log("Render Wallet")
+
       return (
         <div>
           <BlackBackgroundQR qrScanning = {scanning}>
@@ -267,96 +401,7 @@ class SetWalletPage extends React.Component {
               </WalletHeaderFade>
               <WalletFade>
               </WalletFade>
-
-              <WalletSubSection visible = {this.state.options}>
-                <WalletNewButton
-                  onClick={() => {
-                  this.setNewWallet()
-                }}>
-                  {'New Wallet'}
-                </WalletNewButton>
-                <WalletRecoverButton
-                  onClick={() => {
-                  this.setRecoverWallet()
-                }}>
-                  {'Recover Wallet'}
-                </WalletRecoverButton>
-              </WalletSubSection>
-
-              <WalletSubSection visible = {this.state.newWallet}>
-                <WalletPassPhraseTitle>
-                  {'New Passphrase:'}
-                </WalletPassPhraseTitle>
-                <WalletPassPhraseArea>
-                  <WalletPassPhraseGradientCapLeft />
-                  <WalletPassPhraseInput>
-                    <WalletPassPhraseInnerInput
-                      value={this.state.tempSecretPhrase}
-                      onChange={e => this.setTempSecretPhrase(e.target.value)}/>
-                  </WalletPassPhraseInput>
-                  <WalletPassPhraseGradientCapRight />
-                </WalletPassPhraseArea>
-                <WalletPassPhraseRedText>
-                  {bip39Message}
-                </WalletPassPhraseRedText>
-
-
-                <WalletNewPhraseButton
-                  onClick={() => this.handleNewWallet()}>
-                  {'New Phrase'}
-                </WalletNewPhraseButton>
-                <WalletBackButton
-                  onClick={() => this.setOptions()}>
-                  {'Back'}
-                </WalletBackButton>
-                <WalletCreateButton visible = {buttonDisplay}
-                  onClick={() => this.setWalletToCurrentBlock()}>
-                  {'Create Wallet'}
-                </WalletCreateButton>
-              </WalletSubSection>
-
-              <WalletSubSection visible = {this.state.recoverWallet}>
-                <WalletPassPhraseTitle>
-                  {'Enter Passphrase:'}
-                </WalletPassPhraseTitle>
-                <WalletPassPhraseArea>
-                  <WalletPassPhraseGradientCapLeft />
-                  <WalletPassPhraseInput>
-                    <WalletPassPhraseInnerInput
-                      value={this.state.tempSecretPhrase}
-                      onChange={e => this.setTempSecretPhrase(e.target.value)}/>
-                  </WalletPassPhraseInput>
-                  <WalletPassPhraseGradientCapRight />
-                </WalletPassPhraseArea>
-                <WalletPassPhraseRedText>
-                  {bip39Message}
-                </WalletPassPhraseRedText>
-
-                <WalletHeightTitle>
-                 {'Recovery Height:'}
-                </WalletHeightTitle>
-                <WalletHeightArea>
-                  <WalletGradientCapLeft />
-                  <WalletHeightInput
-                    type = "number"
-                    value={this.state.recoveryHeight}
-                    onChange={e => this.setRecoveryHeight(e.target.value)} />
-                  <WalletGradientCapRight />
-                </WalletHeightArea>
-
-                <WalletNewPhraseButton
-                  onClick={() => this.handleQRScan()}>
-                  {'Scan QR'}
-                </WalletNewPhraseButton>
-                <WalletBackButton
-                  onClick={() => this.setOptions()}>
-                  {'Back'}
-                </WalletBackButton>
-                <WalletCreateButton visible = {buttonDisplay}
-                  onClick={() => this.setWalletToRecoveryBlock()}>
-                  {'Recover Wallet'}
-                </WalletCreateButton>
-              </WalletSubSection>
+              {walletSection}
             </WalletMainSection>
           </BlackBackgroundQR>
           <Qr/>
@@ -367,83 +412,36 @@ class SetWalletPage extends React.Component {
 
 
 
-  // <div style={mainStyle}>
-  //   <LoginGrid sc={screenDim}>
-  //     <LoginForm sc={screenDim}>
-  //     </LoginForm>
-  //     <LoginFormOpaque sc={screenDim} visible={'visible'}>
-  //       <br/>
-  //       <LoginHeading>
-  //         <LoginHeadingImg src={heading} sc={screenDim}/>
-  //       </LoginHeading>
-  //       <br/>
-  //       <LoginPassword>
-  //         Set Wallet Key Phrase
-  //         <br/>
-  //         <WalletKey sc={screenDim}
-  //           value={this.state.tempSecretPhrase}
-  //           onChange={e => this.setTempSecretPhrase(e.target.value)}>
-  //         </WalletKey>
-  //         <br/><br/>
-  //         <WalletButtonContainer sc={screenDim}>
-  //           <WalletPhraseButton sc={screenDim}
-  //             onClick={() => this.handleNewWallet()}>
-  //             New Phrase
-  //           </WalletPhraseButton>
-  //           <WalletQRButton sc={screenDim}
-  //             onClick={() => {this.handleQRScan()}}>
-  //             Scan Phrase
-  //           </WalletQRButton>
-  //         </WalletButtonContainer>
-  //         <br/><br/>
-  //         <WalletButtonContainer sc={screenDim}>
-  //           <WalletSetButton sc={screenDim} display={buttonDisplay}
-  //              onClick={() => this.setWalletToCurrentBlock()}>
-  //              Create New Wallet
-  //           </WalletSetButton>
-  //         </WalletButtonContainer>
-  //         <br/><br/>
-  //         <WalletButtonContainer sc={screenDim}>
-  //           <WalletSetButton sc={screenDim} display={buttonDisplay}
-  //             onClick={() => this.handleLoadWallet(this.state.tempSecretPhrase)}>
-  //             Recover Wallet
-  //          </WalletSetButton>
-  //         </WalletButtonContainer>
-  //       </LoginPassword>
-  //     </LoginFormOpaque>
-  //   </LoginGrid>
-  // </div>
-
-
-
-
-
 SetWalletPage.propTypes = {
+  setWalletPassPhrase: PropTypes.func.isRequired,
+  setWalletLoaded: PropTypes.func.isRequired,
   setQrScanning: PropTypes.func.isRequired,
-  setSecretPhrase: PropTypes.func.isRequired,
-  setSecretItems: PropTypes.func.isRequired,
+  setSeedPhrase: PropTypes.func.isRequired,
+  setBirthday: PropTypes.func.isRequired,
   setMinimumBlock: PropTypes.func.isRequired,
   setHasExistingWallet: PropTypes.func.isRequired,
-  setReindex: PropTypes.func.isRequired,
   context: PropTypes.object.isRequired,
-  settings: PropTypes.object.isRequired
+  settings: PropTypes.object.isRequired,
+  secrets: PropTypes.object.isRequired
 }
 
 function mapStateToProps (state) {
   return {
     context: state.context,
-    settings: state.settings
+    settings: state.settings,
+    secrets: state.secrets
   }
 }
 
 function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
+      setWalletPassPhrase,
+      setWalletLoaded,
       setQrScanning,
-      setSecretPhrase,
-      setSecretItems,
+      setSeedPhrase,
+      setBirthday,
       setMinimumBlock,
-      setReindex,
     },
     dispatch
   )

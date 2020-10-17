@@ -1,5 +1,4 @@
-export const SET_SUB_PAGE_ZMAIN = 'SET_CURRENT_SUB_PAGE_ZMAIN'
-export const SET_SUB_PAGE_TMAIN = 'SET_CURRENT_SUB_PAGE_TMAIN'
+export const SET_SUB_PAGE_MAIN = 'SET_CURRENT_SUB_PAGE_MAIN'
 export const SET_SUB_PAGE_SEND = 'SET_CURRENT_SUB_PAGE_SEND'
 export const SET_SUB_PAGE_RECEIVE = 'SET_CURRENT_SUB_PAGE_RECEIVE'
 export const SET_SUB_PAGE_PRIVATE_KEY = 'SET_CURRENT_SUB_PAGE_PRIVATE_KEY'
@@ -9,17 +8,10 @@ export const SET_SUB_PAGE_GRAPH_OPEN = 'SET_CURRENT_SUB_PAGE_GRAPH_OPEN'
 export const SET_SUB_PAGE_TRANSACTION_SCOLL = 'SET_CURRENT_SUB_PAGE_TRANSACTION_SCOLL'
 export const SET_SUB_PAGE_TRANSACTION_SCOLL_POS = 'SET_CURRENT_SUB_PAGE_TRANSACTION_SCOLL_POS'
 
-export function setZMainPage (zmainPage) {
+export function setMainPage (mainPage) {
   return {
-    type: SET_SUB_PAGE_ZMAIN,
-    zmainPage
-  }
-}
-
-export function setTMainPage (tmainPage) {
-  return {
-    type: SET_SUB_PAGE_TMAIN,
-    tmainPage
+    type: SET_SUB_PAGE_MAIN,
+    mainPage
   }
 }
 

@@ -138,7 +138,7 @@ class SetPasswordPage extends React.Component {
                                                                     {'Set Password'}
                                                                   </LoginSetPWButton>
                                                     : ''
-      // console.log("Render Password")
+                                                    
       return (
 
         <BlackBackground>

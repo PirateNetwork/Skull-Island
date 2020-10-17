@@ -1,16 +1,16 @@
-export const SET_SECRET_ITEMS = 'SET_SECRET_ITEMS'
-export const SET_SECRET_PHRASE = 'SET_SECRET_PHRASE'
+export const SET_SEED_PHRASE = 'SET_SEED_PHRASE'
+export const SET_BIRTHDAY = 'SET_BIRTHDAY'
 
-export function setSecretItems (items) {
+export function setSeedPhrase (seedPhrase) {
   return {
-    type: SET_SECRET_ITEMS,
-    items
+    type: SET_SEED_PHRASE,
+    seedPhrase
   }
 }
 
-export function setSecretPhrase (secretPhrase) {
+export function setBirthday (birthday) {
   return {
-    type: SET_SECRET_PHRASE,
-    secretPhrase
+    type: SET_BIRTHDAY,
+    birthday
   }
 }

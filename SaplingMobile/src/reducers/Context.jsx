@@ -3,57 +3,56 @@
 import '@babel/polyfill'
 
 import {
-  SET_ACTIVE_TYPE,
+  SET_FIREBASE,
   SET_ACTIVE_PASSWORD,
-  SET_T_ADDRESS,
-  SET_T_PRIVATE_KEY,
-  SET_T_BALANCE,
-  SET_Z_ADDRESS,
-  SET_Z_PRIVATE_KEY,
-  SET_Z_HEIGHT,
-  SET_Z_SYNCED,
-  SET_Z_BALANCE,
-  SET_SAPLING_SPEND_VERIFIED,
-  SET_SAPLING_OUTPUT_VERIFIED,
+  SET_ADDRESS,
+  SET_PRIVATE_KEY,
+  SET_HEIGHT,
+  SET_SYNCED,
+  SET_BALANCE,
   SET_DIMENSIONS,
   SET_ZER_IN_BTC_VALUE,
   SET_ZER_IN_CURRENCY_VALUE,
-  SET_DB,
-  SET_REINDEX,
   SET_QR_SCANNING,
-  SET_INSIGHT_SOCKET,
+  SET_SAVING,
+  SET_WALLET_INUSE,
+  SET_WALLET_LOADED,
+  SET_REFRESH_ADDRESS,
+  SET_TADDRESSES,
+  SET_ZADDRESSES,
+  SET_TX,
+  SET_MENU_READY
 
 } from '../actions/Context'
 
 const initialContext = {
-  activeType: 'Z',
+  firebase: false,
   activePassword: '',
-  tAddress: '',
-  tPrivateKey: '',
-  tBalance: 0,
-  zAddress: '',
-  zPrivateKey: '',
-  zHeight: 0,
-  zSynced: false,
-  zBalance: 0,
-  saplingspend: null,
-  saplingoutput: null,
-  saplingspendverified: false,
-  saplingoutputverified: false,
+  address: '',
+  privateKey: '',
+  height: 0,
+  synced: false,
+  balance: 0,
   dimensions: {"height" : window.outerHeight, "width" : window.outerWidth},
   BTCValue: 0,
   currencyValue: 0,
-  db: null,
-  reindex: 0,
   qrScanning: false,
-  insightSocket: false,
+  saving: false,
+  walletInUse: false,
+  walletLoaded: false,
+  refreshAddresses: false,
+  zAddresses: [],
+  tAddresses: [],
+  tx: null,
+  menuReady: false
 }
 
 export default function ContextReducer (state = initialContext, action) {
   switch (action.type) {
-    case SET_ACTIVE_TYPE:
+
+    case SET_FIREBASE:
       return Object.assign({}, state, {
-        activeType: action.activeType
+        firebase: action.firebase
       })
 
     case SET_ACTIVE_PASSWORD:
@@ -61,54 +60,29 @@ export default function ContextReducer (state = initialContext, action) {
         activePassword: action.activePassword
       })
 
-    case SET_T_ADDRESS:
+    case SET_ADDRESS:
       return Object.assign({}, state, {
-        tAddress: action.tAddress
+        address: action.address
       })
 
-    case SET_T_PRIVATE_KEY:
+    case SET_PRIVATE_KEY:
       return Object.assign({}, state, {
-        tPrivateKey: action.tPrivateKey
+        privateKey: action.privateKey
       })
 
-    case SET_T_BALANCE:
+    case SET_HEIGHT:
       return Object.assign({}, state, {
-        tBalance: action.tBalance
+        height: action.height
       })
 
-    case SET_Z_ADDRESS:
+    case SET_SYNCED:
       return Object.assign({}, state, {
-        zAddress: action.zAddress
+        synced: action.synced
       })
 
-    case SET_Z_PRIVATE_KEY:
+    case SET_BALANCE:
       return Object.assign({}, state, {
-        zPrivateKey: action.zPrivateKey
-      })
-
-    case SET_Z_HEIGHT:
-      return Object.assign({}, state, {
-        zHeight: action.zHeight
-      })
-
-    case SET_Z_SYNCED:
-      return Object.assign({}, state, {
-        zSynced: action.zSynced
-      })
-
-    case SET_Z_BALANCE:
-      return Object.assign({}, state, {
-        zBalance: action.zBalance
-      })
-
-    case SET_SAPLING_OUTPUT_VERIFIED:
-      return Object.assign({}, state, {
-        saplingoutputverified: action.saplingoutputverified
-      })
-
-    case SET_SAPLING_SPEND_VERIFIED:
-      return Object.assign({}, state, {
-        saplingspendverified: action.saplingspendverified
+        balance: action.balance
       })
 
     case SET_DIMENSIONS:
@@ -126,24 +100,49 @@ export default function ContextReducer (state = initialContext, action) {
         currencyValue: action.currencyValue
       })
 
-    case SET_DB:
-      return Object.assign({}, state, {
-        db: action.db
-      })
-
-    case SET_REINDEX:
-      return Object.assign({}, state, {
-        reindex: action.reindex
-      })
-
     case SET_QR_SCANNING:
       return Object.assign({}, state, {
         qrScanning: action.qrScanning
       })
 
-    case SET_INSIGHT_SOCKET:
+    case SET_SAVING:
       return Object.assign({}, state, {
-        insightSocket: action.insightSocket
+        saving: action.saving
+      })
+
+    case SET_WALLET_INUSE:
+      return Object.assign({}, state, {
+        walletInUse: action.walletInUse
+      })
+
+    case SET_WALLET_LOADED:
+      return Object.assign({}, state, {
+        walletLoaded: action.walletLoaded
+      })
+
+    case SET_REFRESH_ADDRESS:
+      return Object.assign({}, state, {
+        refreshAddresses: action.refreshAddresses
+      })
+
+    case SET_TADDRESSES:
+      return Object.assign({}, state, {
+        tAddresses: action.tAddresses
+      })
+
+    case SET_ZADDRESSES:
+      return Object.assign({}, state, {
+        zAddresses: action.zAddresses
+      })
+
+    case SET_TX:
+      return Object.assign({}, state, {
+        tx: action.tx
+      })
+
+    case SET_MENU_READY:
+      return Object.assign({}, state, {
+        menuReady: action.menuReady
       })
 
     default:

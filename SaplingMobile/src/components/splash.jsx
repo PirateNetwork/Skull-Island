@@ -47,6 +47,15 @@ export const SplashPirateImg = styled.img`
   height: ${props => (props.theme.height * 0.045) + 'px'};
 `
 
+export const SplashLoader = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * 0.425)
+      + (props.theme.width * 0.25)
+      + 'px'};
+  left: ${props => ((props.theme.width * 0.5)) + 'px'};
+  text-align: center;
+`
+
 export const SplashMobileImg = styled.img`
   position: absolute;
   top: ${props => (props.theme.height * 0.32)

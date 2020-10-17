@@ -8,16 +8,13 @@ import { QRCode } from 'react-qrcode-logo'
 import logo from '../assets/svg/QR_Logo.svg'
 
 import {
-  setZMainPage,
+  setMainPage,
   setPassPhrasePage,} from '../actions/MainSubPage'
 
 import {
   decrypt,
   saltHashPassword,
   KeySalt}from '../utils/hash'
-
-import {
-  apiCheckPassPhrase} from '../utils/sapling'
 
 import {
   PassPhraseDiv,
@@ -91,15 +88,15 @@ class PassPhrase extends React.Component {
       if (p.length >= 8) {
         if (p == this.props.context.activePassword) {
           const keyHash = saltHashPassword(this.props.context.activePassword, KeySalt)
-          const decryptedPhrase = decrypt(this.props.secrets.secretPhrase, keyHash)
+          const decryptedPhrase = decrypt(this.props.settings.passPhrase, keyHash)
 
-          var validPhrase = await apiCheckPassPhrase(decryptedPhrase)
-          validPhrase = JSON.parse(validPhrase)
-          if (validPhrase.passPhraseCheck == "Ok") {
-            this.setState({bip39Compatible: true})
-          } else {
-            this.setState({bip39Compatible: false})
-          }
+          // var validPhrase = await apiCheckPassPhrase(decryptedPhrase)
+          // validPhrase = JSON.parse(validPhrase)
+          // if (validPhrase.passPhraseCheck == "Ok") {
+          //   this.setState({bip39Compatible: true})
+          // } else {
+          //   this.setState({bip39Compatible: false})
+          // }
 
           this.setState({
             pin: 'none',
@@ -145,7 +142,7 @@ class PassPhrase extends React.Component {
 
     render () {
 
-        var qrData = JSON.stringify({passphrase: this.state.passphrase, height: this.props.settings.minimumBlock[this.props.settings.currentCoin]})
+        var qrData = JSON.stringify({passphrase: this.state.passphrase, height: this.props.secrets.birthday})
 
         if (this.props.mainSubPage.passPhrasePage == 'none' && !this.state.reset) {
           this.resetScroll(0)
@@ -213,7 +210,7 @@ class PassPhrase extends React.Component {
                 <PassPhraseHeightArea>
                   <PassPhrasePWGradientCapLeft/>
                   <PassPhraseHeightInput>
-                    {this.props.settings.minimumBlock[this.props.settings.currentCoin]}
+                    {this.props.secrets.birthday}
                   </PassPhraseHeightInput>
                   <PassPhrasePWGradientCapRight/>
                 </PassPhraseHeightArea>
@@ -248,7 +245,7 @@ class PassPhrase extends React.Component {
                 </PassPhraseQRBase>
                 <PassPhraseBackButton
                   onClick={() => {
-                      this.props.setZMainPage('visible')
+                      this.props.setMainPage('visible')
                       this.props.setPassPhrasePage('none')
                   }}>
                   {'Back'}
@@ -262,75 +259,10 @@ class PassPhrase extends React.Component {
 }
 
 
-// <ReceiveGrid sc={screenDim} visible={this.props.mainSubPage.passPhrasePage}>
-//   <PinSection visible={this.state.pin}>
-//     <ReceiveSection sc={screenDim}>
-//       <ConfirmPassword>
-//         <br/><br/><br/><br/>
-//         Enter 8-Digit Pin to Unlock Passphrase
-//         <br/><br/>
-//         <ConfirmPin
-//           sc={screenDim}
-//           type="password"
-//           value={this.state.password}
-//           onChange={e => this.setPassword(e.target.value)} />
-//       </ConfirmPassword>
-//       <br/>
-//       <ReceiveGreyButton sc={screenDim}
-//         onClick={() => {
-//           this.props.setZMainPage('visible')
-//           this.setState({pin: 'visible',key: 'none',password: ''})
-//           this.props.setPassPhrasePage('none')
-//         }}>
-//         Close
-//       </ReceiveGreyButton>
-//     </ReceiveSection>
-//   </PinSection>
-//
-//   <KeySection visible={this.state.key}>
-//     <ReceiveSection sc={screenDim}>
-//       <ReceiveAddress sc={screenDim}
-//         value={decryptedPhrase}
-//         onChange={() => {
-//           //console.log('address text area is static')
-//         }}
-//         >
-//       </ReceiveAddress>
-//       <ReceiveQR sc={screenDim}>
-//         <QRCode value={decryptedPhrase}
-//            size = {(screenDim.width * 0.70) - 20}
-//            logoImage = {logo}
-//            ecLevel = "H"
-//               />
-//       </ReceiveQR>
-//       <ReceiveButtonSection sc={screenDim}>
-//         <ReceiveGreyButton sc={screenDim}
-//           onClick={() => {
-//             cordova.plugins.clipboard.copy(decryptedPhrase)
-//           }}>
-//           Copy Phrase
-//         </ReceiveGreyButton>
-//         <ReceiveGreyButton sc={screenDim}
-//           onClick={() => {
-//             if (this.props.context.activeType == 'Z') {
-//               this.props.setZMainPage('visible')
-//             } else if (this.props.context.activeType == 'T') {
-//               this.props.setTMainPage('visible')
-//             }
-//             this.setState({pin: 'visible',key: 'none',password: ''})
-//             this.props.setPassPhrasePage('none')
-//           }}>
-//           Close
-//         </ReceiveGreyButton>
-//       </ReceiveButtonSection>
-//     </ReceiveSection>
-//   </KeySection>
-// </ReceiveGrid>
-
 
 PassPhrase.propTypes = {
   setPassPhrasePage: PropTypes.func.isRequired,
-  setZMainPage: PropTypes.func.isRequired,
+  setMainPage: PropTypes.func.isRequired,
   context: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
   secrets: PropTypes.object.isRequired,
@@ -350,7 +282,7 @@ function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
       setPassPhrasePage,
-      setZMainPage,
+      setMainPage,
     },
     dispatch
   )
