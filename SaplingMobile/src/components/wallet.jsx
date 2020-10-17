@@ -71,12 +71,12 @@ export const WalletSubSection = styled.div`
 export const WalletPassPhraseTitle = styled.div`
   position: absolute;
   top: ${props => (props.theme.height * 0.01) + 'px'};
-  left: ${props => (props.theme.width * 0.15) + 'px'};
+  left: ${props => (props.theme.width * (props.alignment == 'center' ? 0.1 : 0.15)) + 'px'};
   color: #bb9645;
   height: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
   width: ${props => (props.theme.width * 0.80) + 'px'};
   font-size: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
-  text-align: left;
+  text-align: ${props => props.alignment == 'center' ? 'center' : 'left'};
 `
 
 export const WalletPassPhraseArea = styled.div`
@@ -326,61 +326,11 @@ export const WalletCreateButton = styled.button`
   }
 `
 
-
-
-
-
-
-
-
-
-// export const WalletKey = styled.textarea`
-//   width: ${props => ((props.theme.width * 0.6) - 10) + 'px'};
-//   height: ${props => ((props.theme.height * 0.2) - 10)+ 'px'};
-//   background-color: #151515;
-//   color: #ffffff;
-//   font-size: 14px;
-//   border: 5px solid #000000;
-//   border-radius: 10px;
-// `
-//
-// export const WalletButtonContainer = styled.div`
-//   position: relative;
-//   display: inline-block;
-//   margin: 0 auto;
-//   text-align: center;
-//   width: ${props => ((props.theme.width * 0.7 ) + 20) +'px'};
-// `
-//
-// export const WalletPhraseButton = styled.button`
-//   background-color: #ffd700;
-//   color: #000000;
-//   font-size: 14px;
-//   width: ${props => (props.theme.width * 0.3 ) +'px'};
-//   height: ${props => (props.theme.height * 0.06) +'px'};
-//   border-radius: 10px;
-//   border: 5px solid #ffd700;
-//   margin: 5px;
-// `
-//
-// export const WalletQRButton = styled.button`
-//   background-color: #ffd700;
-//   color: #000000;
-//   font-size: 14px;
-//   width: ${props => (props.theme.width * 0.3 ) +'px'};
-//   height: ${props => (props.theme.height * 0.06) +'px'};
-//   border-radius: 10px;
-//   border: 5px solid #ffd700;
-//   margin: 5px;
-// `
-//
-// export const WalletSetButton = styled.button`
-//   background-color: #00cc00;
-//   color: #000000;
-//   font-size: 14px;
-//   width: ${props => (props.theme.width * 0.6 ) + 10 +'px'};
-//   height: ${props => (props.theme.height * 0.06) +'px'};
-//   border-radius: 10px;
-//   border: 5px solid #00cc00;
-//   display: ${props => props.visible};
-// `
+export const WalletSpinner = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * 0.5) - 50 + 'px'};
+  left: ${props => (props.theme.width * 0.5) - 50 + 'px'};
+  color: rbga(0,0,0,0);
+  border: 0px solid black};
+  text-align: center;
+`

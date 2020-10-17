@@ -8,11 +8,27 @@ import { coins } from '../utils/coins.js'
 import logo from '../assets/svg/QR_Logo.svg'
 
 import {
-  setZMainPage,
+  setMainPage,
   setReindexPage} from '../actions/MainSubPage'
 
-import {
-  setReindex,} from '../actions/Context'
+import { setSeedPhrase, setBirthday } from '../actions/Secrets'
+
+import { setSynced,
+         setSaving,
+         setAddress,
+         setBalance,
+         setPrivateKey,
+         setMenuReady,
+         setRefreshAddresses } from '../actions/Context'
+
+import { decrypt, saltHashPassword, KeySalt } from '../utils/hash.js'
+
+import Loader from '../containers/loader'
+
+import { sync,
+         syncStatus,
+         initalizeWallet,
+         restoreWallet} from '../utils/litewallet'
 
 import {
     ReindexDiv,
@@ -46,7 +62,8 @@ class ReindexPage extends React.Component {
         pin: 'visible',
         key: 'none',
         password: '',
-        height: this.props.settings.minimumBlock[this.props.settings.currentCoin],
+        birthday: 0,
+        spinnerMsg: 'Completing Operations...',
         reset: true
       }
 
@@ -56,27 +73,38 @@ class ReindexPage extends React.Component {
       this.setPassword = this.setPassword.bind(this)
       this.setReset = this.setReset.bind(this)
       this.resetScroll = this.resetScroll.bind(this)
-      this.setHeight = this.setHeight.bind(this)
+
+      this.setTempBirthday = this.setTempBirthday.bind(this)
+      this.reInitalize = this.reInitalize.bind(this)
     }
 
-    setHeight (n) {
+    setMsg(m) {
       this.setState({
-        height: n
+        spinnerMsg: m
       })
     }
 
-    setPassword (p) {
-      // if (p.length >= 8) {
-      //   p = p.substring(0,8)
-      // }
+    setTempBirthday (p) {
 
+      try {
+        p = Math.floor(p)
+      } catch {
+        p = coins[this.props.settings.currentCoin].branchHeight['sapling']
+      }
+
+      this.setState({birthday: p})
+
+    }
+
+    setPassword (p) {
       if (p.length >= 8) {
         if (p == this.props.context.activePassword) {
           this.setState({
             pin: 'none',
             key: 'visible',
             password: '',
-            reset: false
+            reset: false,
+            birthday: this.props.secrets.birthday
           })
         } else {
           this.setState({
@@ -99,7 +127,6 @@ class ReindexPage extends React.Component {
         pin: 'visible',
         key: 'none',
         password: '',
-        passphrase: '',
         reset: true
       })
     }
@@ -108,17 +135,187 @@ class ReindexPage extends React.Component {
       this.scrollRef.current.scrollTop = p
     }
 
+    async reInitalize () {
+        this.props.setSaving(true)
+        this.setMsg('Re-Initalizing Wallet...')
+        const key = this.props.settings.currentCoin
+        var seed
+        var args
+        var passPhrase
+
+        if (this.props.settings.passPhrase == null) {
+          this.setMsg('Master seed not set, Restart App!!!')
+        } else {
+          try {
+            const keyHash = saltHashPassword(this.props.context.activePassword, KeySalt)
+            passPhrase = decrypt(this.props.settings.passPhrase,keyHash)
+          } catch {
+            passPhrase = null
+          }
+        }
+
+        if (passPhrase == null) {
+          this.setMsg('Master seed not set, Restart App!!!')
+        } else {
+
+            try {
+              args = [coins[key].litewallet[0]]
+              args.push(coins[key].addressParams)
+              args.push(passPhrase)
+              args.push(this.state.birthday.toString())
+              seed = await restoreWallet(args)
+
+              seed = JSON.parse(seed)
+              if (seed.seed != null) {
+                sync()
+                await syncStatus()
+                this.props.setSynced(false)
+                this.props.setSeedPhrase(seed.seed)
+                this.props.setBirthday(seed.birthday)
+
+                //Clear address list
+                this.props.setAddress('')
+                this.props.setBalance(0)
+                this.props.setPrivateKey('')
+                this.props.setRefreshAddresses(true)
+
+                this.props.setMenuReady(false)
+                this.props.setSaving(false)
+                this.setCancelEnabled(true)
+                this.props.setReindexPage('none')
+                this.props.setMainPage('visible')
+              } else {
+                this.setMsg('Failed, Reverting to Previous State...')
+                args = [coins[key].networkname]
+                args.push(coins[key].litewallet[0])
+                args.push(coins[key].addressParams)
+                seed = await initalizeWallet(args)
+                seed = JSON.parse(seed)
+                if (seed.seed != null) {
+                  sync()
+                  await syncStatus()
+                  this.props.setSynced(false)
+                  this.props.setSeedPhrase(seed.seed)
+                  this.props.setBirthday(seed.birthday)
+
+                  //Clear address list
+                  this.props.setAddress('')
+                  this.props.setBalance(0)
+                  this.props.setPrivateKey('')
+                  this.props.setRefreshAddresses(true)
+
+                  this.props.setMenuReady(false)
+                  this.props.setSaving(false)
+                  this.setCancelEnabled(true)
+                  this.props.setReindexPage('none')
+                  this.props.setMainPage('visible')
+                } else {
+                  this.setMsg('Catastrophic Error, Restart App!!!')
+                }
+              }
+            } catch {
+              this.setMsg('Catastrophic Error, Restart App!!!')
+            }
+          }
+        }
+
+
     componentDidMount() {
 
     }
 
 
     render () {
+      console.log(this.props)
 
       if (this.props.mainSubPage.reindexPage == 'none' && !this.state.reset) {
         this.resetScroll(0)
         this.setReset()
       }
+
+
+      var reindexBody
+
+      if (this.props.context.saving) {
+        reindexBody =
+            <div>
+              <ReindexTitle>
+                {this.state.spinnerMsg}
+                <br/><br/><br/>
+                <Loader />
+              </ReindexTitle>
+            </div>
+      } else {
+        reindexBody =
+            <div>
+              <ReindexTitle>
+                {'Rescan Wallet'}
+              </ReindexTitle>
+              <ReindexPWTitle>
+                {'Rescan from height:'}
+              </ReindexPWTitle>
+              <ReindexPWArea>
+                <ReindexPWGradientCapLeft/>
+                <ReindexPWInput
+                  value={this.state.birthday}
+                  onChange={e => this.setTempBirthday(e.target.value)}
+                  onClick = {() => {
+                    this.resetScroll(0)
+                  }} />
+                <ReindexPWGradientCapRight/>
+
+              </ReindexPWArea>
+
+              <ReindexNote1>
+                {'Enter a custom rescan height or'}
+                <br/>
+                {'use one of the prefixed heights below'}
+              </ReindexNote1>
+              <ReindexNote2>
+                <br/>
+                {'This scans the blockchain from the given'}
+                <br/>
+                {'height for all transactions of the wallet'}
+                <br/>
+                {'and can be used if historic transactions'}
+                <br/>
+                {'are missing in the transaction history.'}
+              </ReindexNote2>
+              <ReindexFirstKnownButton
+                onClick = {() => {
+                  this.setTempBirthday(this.props.secrets.birthday)
+                }}>
+                <ReindexButtonImg src = {logo}/>
+              </ReindexFirstKnownButton>
+              <ReindexFirstNote>
+                {'Wallet Birthday'}
+              </ReindexFirstNote>
+              <ReindexFullButton
+                onClick = {() => {
+                  this.setTempBirthday(coins[this.props.settings.currentCoin].branchHeight['sapling'])
+                }}>
+                <ReindexButtonImg src = {logo}/>
+              </ReindexFullButton>
+              <ReindexFullNote>
+                {'Full Sapling Rescan'}
+              </ReindexFullNote>
+              <ReindexButton
+              onClick = {() => {
+                this.reInitalize()
+              }}>
+                {'Rescan'}
+              </ReindexButton>
+              <ReindexBackButton
+                onClick = {() => {
+                  this.props.setReindexPage('none')
+                  this.props.setMainPage('visible')
+                }}>
+                {'Back'}
+              </ReindexBackButton>
+            </div>
+      }
+
+
 
       return (
         <ReindexDiv visible={this.props.mainSubPage.reindexPage}>
@@ -149,145 +346,30 @@ class ReindexPage extends React.Component {
             </ReindexSection>
 
             <ReindexSection visible={this.state.key}>
-              <ReindexTitle>
-                {'Rescan Wallet'}
-              </ReindexTitle>
-              <ReindexPWTitle>
-                {'Rescan from height:'}
-              </ReindexPWTitle>
-              <ReindexPWArea>
-                <ReindexPWGradientCapLeft/>
-                <ReindexPWInput
-                  value={this.state.height}
-                  onChange={e => this.setHeight(e.target.value)}
-                  onClick = {() => {
-                    this.resetScroll(0)
-                  }} />
-                <ReindexPWGradientCapRight/>
-
-              </ReindexPWArea>
-
-              <ReindexNote1>
-                {'Enter a custom rescan height or'}
-                <br/>
-                {'use one of the prefixed heights below'}
-              </ReindexNote1>
-              <ReindexNote2>
-                <br/>
-                {'This scans the blockchain from the given'}
-                <br/>
-                {'height for all transactions of the wallet'}
-                <br/>
-                {'and can be used if historic transactions'}
-                <br/>
-                {'are missing in the transaction history.'}
-              </ReindexNote2>
-              <ReindexFirstKnownButton
-                onClick = {() => {
-                  this.setHeight(this.props.settings.minimumBlock[this.props.settings.currentCoin] - 1)
-                }}>
-                <ReindexButtonImg src = {logo}/>
-              </ReindexFirstKnownButton>
-              <ReindexFirstNote>
-                {'First known transaction'}
-              </ReindexFirstNote>
-              <ReindexFullButton
-                onClick = {() => {
-                  this.setHeight(coins[this.props.settings.currentCoin].branchHeight['sapling'] - 1)
-                }}>
-                <ReindexButtonImg src = {logo}/>
-              </ReindexFullButton>
-              <ReindexFullNote>
-                {'Full sapling rescan'}
-              </ReindexFullNote>
-              <ReindexButton
-              onClick = {() => {
-                this.props.setReindex(Number(this.state.height))
-                this.props.setReindexPage('none')
-                this.props.setZMainPage('visible')
-              }}>
-                {'Rescan'}
-              </ReindexButton>
-              <ReindexBackButton
-                onClick = {() => {
-                  this.props.setReindexPage('none')
-                  this.props.setZMainPage('visible')
-                }}>
-                {'Back'}
-              </ReindexBackButton>
+              {reindexBody}
             </ReindexSection>
 
           </ReindexSectionOverscroll>
         </ReindexDiv>
       )
     }
-
   }
 
-  // var reindexbutton = this.state.confirmPasswordValid == true ? <LoginButton sc={screenDim}
-  //                                                             onClick={() => {
-  //                                                               this.props.setReindex(2)
-  //                                                               this.closePage()
-  //                                                             }}>
-  //                                                             Rescan
-  //                                                             </LoginButton>
-  //                                                             : ''
-  //
-  // var rescanbutton = this.state.confirmPasswordValid == true ? <LoginButton sc={screenDim}
-  //                                                             onClick={() => {
-  //                                                               this.props.setReindex(1)
-  //                                                               this.closePage()
-  //                                                             }}>
-  //                                                             Rescan
-  //                                                             </LoginButton>
-  //                                                             : ''
 
-  // <ReindexSection visible={this.props.mainSubPage.reindexPage}>
-  //   <LoginGrid sc={screenDim}>
-  //     <LoginForm sc={screenDim}>
-  //     </LoginForm>
-  //     <LoginFormOpaque sc={screenDim} visible={'visible'}>
-  //       <br/><br/>
-  //       <LoginPassword>
-  //         Enter 8-Digit Pin to Enable Reindex
-  //         <br/>
-  //         <LoginInput
-  //           sc={screenDim}
-  //           type="password"
-  //           value={this.state.password}
-  //           onChange={e => this.setPassword(e.target.value)} />
-  //       </LoginPassword>
-  //       <br/><br/>
-  //       <LoginPassword>
-  //         Re-Scan chain from
-  //         <br/>
-  //         first known transaction
-  //         <br/>
-  //         {rescanbutton}
-  //       </LoginPassword>
-  //       <br/><br/>
-  //       <LoginPassword>
-  //         Re-Scan chain from
-  //         <br/>
-  //         first Sapling block
-  //         <br/>
-  //         {reindexbutton}
-  //       </LoginPassword>
-  //       <br/><br/>
-  //       <LoginPassword>
-  //         <LoginButton sc={screenDim}
-  //           onClick={() => this.closePage()}>
-  //           Cancel
-  //           </LoginButton>
-  //       </LoginPassword>
-  //     </LoginFormOpaque>
-  //   </LoginGrid>
-  // </ReindexSection>
 
 ReindexPage.propTypes = {
-  setReindex: PropTypes.func.isRequired,
+  setMenuReady: PropTypes.func.isRequired,
+  setSynced: PropTypes.func.isRequired,
+  setRefreshAddresses: PropTypes.func.isRequired,
+  setAddress: PropTypes.func.isRequired,
+  setBalance:  PropTypes.func.isRequired,
+  setPrivateKey:  PropTypes.func.isRequired,
+  setSeedPhrase: PropTypes.func.isRequired,
+  setSaving: PropTypes.func.isRequired,
+  setBirthday: PropTypes.func.isRequired,
   setReindexPage: PropTypes.func.isRequired,
-  setZMainPage: PropTypes.func.isRequired,
+  setMainPage: PropTypes.func.isRequired,
+  secrets: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
   context: PropTypes.object.isRequired,
   mainSubPage: PropTypes.object.isRequired
@@ -295,6 +377,7 @@ ReindexPage.propTypes = {
 
 function mapStateToProps (state) {
   return {
+    secrets: state.secrets,
     settings: state.settings,
     context: state.context,
     mainSubPage: state.mainSubPage
@@ -304,9 +387,17 @@ function mapStateToProps (state) {
 function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
-      setReindex,
+      setMenuReady,
+      setSynced,
+      setRefreshAddresses,
+      setAddress,
+      setBalance,
+      setPrivateKey,
+      setSeedPhrase,
+      setSaving,
+      setBirthday,
       setReindexPage,
-      setZMainPage
+      setMainPage
     },
     dispatch
   )

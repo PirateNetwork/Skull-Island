@@ -36,23 +36,16 @@ module.exports = {
             // list of plugins to include into bundle
             // you can use something like this to automatically include Object.keys(require("./package.json").cordova.plugins)
             plugins: [
-              'cordova-plugin-add-swift-support',
               'cordova-plugin-qrscanner',
               'cordova-plugin-webpack',
               'cordova-plugin-whitelist',
-              'cordova-plugin-sapling',
+              'cordova-plugin-litewallet',
               'cordova-plugin-file',
-              'cordova-plugin-file-downloader',
-              'cordova-plugin-file-md5',
-              'cordova-plugin-file-transfer',
-              'cordova-plugin-network-information',
-              'cordova-plugin-whitelist',
-              'cordova-plugin-zip',
-              'cordova-sqlite-storage',
               'cordova-plugin-insomnia',
               'cordova-plugin-screen-orientation',
               'cordova-clipboard',
-              'cordova-plugin-splashscreen'
+              'cordova-plugin-androidx-adapter',
+              'cordova-plugin-firebasex'
             ],
         }),
         new webpack.DefinePlugin({

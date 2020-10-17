@@ -3,8 +3,7 @@
 import '@babel/polyfill'
 
 import {
-  SET_SUB_PAGE_ZMAIN,
-  SET_SUB_PAGE_TMAIN,
+  SET_SUB_PAGE_MAIN,
   SET_SUB_PAGE_SEND,
   SET_SUB_PAGE_RECEIVE,
   SET_SUB_PAGE_PRIVATE_KEY,
@@ -20,8 +19,7 @@ export const GraphOpenPos = 0.0
 export const GraphClosedPos = 0.235
 
 const initialMainSubPage= {
-  zmainPage: 'visible',
-  tmainPage: 'none',
+  mainPage: 'visible',
   sendPage: 'none',
   receivePage: 'none',
   privateKeyPage: 'none',
@@ -34,14 +32,9 @@ const initialMainSubPage= {
 
 export default function MainSubPageReducer (state = initialMainSubPage, action) {
   switch (action.type) {
-    case SET_SUB_PAGE_ZMAIN:
+    case SET_SUB_PAGE_MAIN:
       return Object.assign({}, state, {
-        zmainPage: action.zmainPage
-      })
-
-    case SET_SUB_PAGE_TMAIN:
-      return Object.assign({}, state, {
-        tmainPage: action.tmainPage
+        mainPage: action.mainPage
       })
 
     case SET_SUB_PAGE_SEND:
@@ -83,7 +76,7 @@ export default function MainSubPageReducer (state = initialMainSubPage, action) 
       return Object.assign({}, state, {
         transactionScrollPos: action.transactionScrollPos
       })
-      
+
     default:
       return state
   }

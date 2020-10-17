@@ -4,7 +4,8 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { openRecordset }  from '../database/sqlite'
+import {list} from '../utils/litewallet'
+import {setWalletInUse} from '../actions/Context'
 
 import {
   ResponsiveContainer,
@@ -30,16 +31,15 @@ class BalanceGraph extends React.Component {
     this.range = 'all'
     this.setTransactionData = this.setTransactionData.bind(this)
     this.createGraphData = this.createGraphData.bind(this)
-    this.setupSocket = this.setupSocket.bind(this)
   }
 
 
   setTransactionData (d) {this.setState({transactionData: d})}
 
-  async createGraphData () {
+  async createGraphData (manualRefresh) {
 
     var minPoint = this.props.settings.minimumBlock[this.props.settings.currentCoin]
-    var maxPoint = this.props.context.zHeight
+    var maxPoint = this.props.context.height
     var blockTime = 60
     var interval
 
@@ -89,80 +89,76 @@ class BalanceGraph extends React.Component {
       value: 0
     })
 
-    const rs =  await openRecordset(this.props.context.db, 'SELECT sum(case when type = 0 then value else -value end) as value, block '
-                                                          +'FROM ('
-                                                          +'SELECT txid, outputindex, spent, value, height as block, 0 as type, '
-                                                          +'case when height = -1 then 9999999 else height end as height '
-                                                          +'FROM Wallet '
-                                                          +'Union All '
-                                                          +'SELECT spenttxid as txid, 0 as outputindex, spent, sum(value) as value, spent as block, 1 as type, '
-                                                          +'case when spent = -1 then 9999999 else spent end as height '
-                                                          +'FROM Wallet '
-                                                          +'WHERE spent <> 0 '
-                                                          +'GROUP BY spenttxid, spent, '
-                                                          +'case when spent = -1 then 9999999 else spent end) x '
-                                                          +'WHERE height<>9999999 '
-                                                          +'GROUP BY block '
-                                                          +'ORDER BY height ASC '  )
+    this.props.setWalletInUse(true)
+    var transactionList = await list()
+    this.props.setWalletInUse(false)
 
-    if (rs != null) {
-      for (var r = 0; r < rs.rows.length; r++) {
-        if (rs.rows.item(r).block != null) {
-          for (var j = 0; j < points.length; j++){
-            if (points[j].block >= rs.rows.item(r).block) {
-              points[j].balance += rs.rows.item(r).value/1e08
-              if ((points[j].balance > points[j].value && j < points.length - 1) || j == points.length - 1) {
-                points[j].value = points[j].balance
-              }
+    try {
+        transactionList = JSON.parse(transactionList)
+
+        for (var t = 0; t < transactionList.length; t++) {
+            var md
+            var meta
+            var j
+
+            if (transactionList[t].incoming_metadata != null) {
+                meta = transactionList[t].incoming_metadata
+                for (md = 0; md < meta.length; md++) {
+                    for (j = 0; j < points.length; j++){
+                        if (points[j].block >= transactionList[t].block_height) {
+                            points[j].balance += meta[md].value/1e08
+                            if ((points[j].balance > points[j].value && j < points.length - 1) || j == points.length - 1) {
+                              points[j].value = points[j].balance
+                            }
+                        }
+                    }
+                }
             }
-          }
+
+
+            if (transactionList[t].outgoing_metadata != null) {
+                meta = transactionList[t].outgoing_metadata
+                for (md = 0; md < meta.length; md++) {
+                    for (j = 0; j < points.length; j++){
+                        if (points[j].block >= transactionList[t].block_height) {
+                            points[j].balance += (meta[md].value/1e08) * (-1)
+                            if ((points[j].balance > points[j].value && j < points.length - 1) || j == points.length - 1) {
+                              points[j].value = points[j].balance
+                            }
+                        }
+                    }
+                }
+            }
         }
-      }
+    } catch (err) {
+        if (process.env.NODE_ENV != 'production') {
+            console.log(err)
+        }
     }
+
     this.setTransactionData(points)
-
-    if (maxPoint == 0) {
-      setTimeout(() => {this.createGraphData()},500)
-    }
-  }
-
-  setupSocket() {
-    if (!this.state.Socket) {
-      if (this.props.context.insightSocket != false) {
-        if (this.props.context.zSynced) {
-          this.setState({Socket: true})
-          var socket = this.props.context.insightSocket
-          socket.on('tx', this.createGraphData)
-          socket.on('block', this.createGraphData)
-          clearInterval(this.setSocketGID)
-          this.setSocketGID = setInterval(() => this.setupSocket(),120000)
-        } else {
-          this.createGraphData()
-          clearInterval(this.setSocketGID)
-          this.setSocketGID = setInterval(() => this.setupSocket(),120000)
-        }
+    if (!manualRefresh) {
+      clearTimeout(this.GraphID)
+      if (maxPoint == 0) {
+        this.GraphID = setTimeout(() => {this.createGraphData(false)},500)
       } else {
-        console.log('Transaction List Socket not set, waiting')
+        this.GraphID = setTimeout(() => {this.createGraphData(false)},5000)
       }
     }
   }
 
   componentDidMount() {
-    this.range = 'all'
-    this.createGraphData()
-    this.setSocketGID = setInterval(() => this.setupSocket(),500)
-    this.setBalanceID = setInterval(() => this.createGraphData,30000)
+    this.createGraphData(false)
   }
 
   componentWillUnmount() {
-      clearInterval(this.setSocketGID)
-      clearInterval(this.setBalanceID)
+    clearTimeout(this.GraphID)
   }
 
   render() {
 
     var graphStatus
-    if (this.props.mainSubPage.zmainPage == 'visible') {
+    if (this.props.mainSubPage.mainPage == 'visible') {
       graphStatus = this.props.mainSubPage.graphOpen
     } else {
       graphStatus = false
@@ -170,7 +166,7 @@ class BalanceGraph extends React.Component {
 
     return (
       <BalanceGraphDiv graphOpen = {graphStatus}>
-        <BalanceGraphBackground graphOpen = {graphStatus} zmain={this.props.mainSubPage.zmainPage}>
+        <BalanceGraphBackground graphOpen = {graphStatus} zmain={this.props.mainSubPage.mainPage}>
           <BalanceGraphArea graphOpen = {graphStatus}>
             <ResponsiveContainer>
               <AreaChart data={this.state.transactionData}
@@ -191,35 +187,35 @@ class BalanceGraph extends React.Component {
           <BalanceGraphButton graphOpen = {graphStatus} hPosition={0.19 * 0}
             onClick = {() => {
               this.range = 'hour'
-              this.createGraphData()
+              this.createGraphData(true)
             }}>
             Hour
           </BalanceGraphButton>
           <BalanceGraphButton graphOpen = {graphStatus} hPosition={0.19 * 1}
             onClick = {() => {
               this.range = 'day'
-              this.createGraphData()
+              this.createGraphData(true)
             }}>
             Day
           </BalanceGraphButton>
           <BalanceGraphButton graphOpen = {graphStatus} hPosition={0.19 * 2}
             onClick = {() => {
               this.range = 'week'
-              this.createGraphData()
+              this.createGraphData(true)
             }}>
             Week
           </BalanceGraphButton>
           <BalanceGraphButton graphOpen = {graphStatus} hPosition={0.19 * 3}
             onClick = {() => {
               this.range = 'month'
-              this.createGraphData()
+              this.createGraphData(true)
             }}>
             Month
           </BalanceGraphButton>
           <BalanceGraphButton graphOpen = {graphStatus} hPosition={0.19 * 4}
             onClick = {() => {
               this.range = 'all'
-              this.createGraphData()
+              this.createGraphData(true)
             }}>
             All
           </BalanceGraphButton>
@@ -233,6 +229,7 @@ class BalanceGraph extends React.Component {
 
 
 BalanceGraph.propTypes = {
+  setWalletInUse: PropTypes.func.isRequired,
   context: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
   mainSubPage: PropTypes.object.isRequired
@@ -249,6 +246,7 @@ function mapStateToProps (state) {
 function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
+      setWalletInUse
     },
     dispatch
   )

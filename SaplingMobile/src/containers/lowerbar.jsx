@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import {
-  setZMainPage,
+  setMainPage,
   setSendPage,
   setReceivePage,
   setPassPhrasePage,
@@ -44,7 +44,7 @@ class LowerBar extends React.Component {
   render() {
 
     var sendVisible
-    if (this.props.context.zSynced == true) {
+    if (this.props.context.synced == true) {
       sendVisible = 1
     } else {
       sendVisible = 0.5
@@ -61,7 +61,7 @@ class LowerBar extends React.Component {
             <LowerBarButton opacity = {1} hPosition = {0.04}
               onClick={e => {
                 e.stopPropagation()
-                this.props.setZMainPage('visible')
+                this.props.setMainPage('visible')
                 this.props.setSendPage('none')
                 this.props.setReceivePage('none')
                 this.setCloseMenu()
@@ -69,7 +69,7 @@ class LowerBar extends React.Component {
               <LowerBarCenteredDiv>
                 <LowerBarButtonImg src={walletIcon}/>
               </LowerBarCenteredDiv>
-              <LowerBarButtonText active = {this.props.mainSubPage.zmainPage}>
+              <LowerBarButtonText active = {this.props.mainSubPage.mainPage}>
                 Wallet
               </LowerBarButtonText>
             </LowerBarButton>
@@ -77,7 +77,7 @@ class LowerBar extends React.Component {
               onClick={e => {
                 e.stopPropagation()
                 if (sendVisible == 1) {
-                  this.props.setZMainPage('none')
+                  this.props.setMainPage('none')
                   this.props.setSendPage('visible')
                   this.props.setReceivePage('none')
                   this.setCloseMenu()
@@ -93,7 +93,7 @@ class LowerBar extends React.Component {
             <LowerBarButton opacity = {1} hPosition = {0.54}
               onClick={e => {
                 e.stopPropagation()
-                this.props.setZMainPage('none')
+                this.props.setMainPage('none')
                 this.props.setSendPage('none')
                 this.props.setReceivePage('visible')
                 this.setCloseMenu()
@@ -126,7 +126,7 @@ class LowerBar extends React.Component {
 
 
 LowerBar.propTypes = {
-  setZMainPage: PropTypes.func.isRequired,
+  setMainPage: PropTypes.func.isRequired,
   setSendPage: PropTypes.func.isRequired,
   setReceivePage: PropTypes.func.isRequired,
   setPassPhrasePage: PropTypes.func.isRequired,
@@ -148,7 +148,7 @@ function mapStateToProps (state) {
 function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
-      setZMainPage,
+      setMainPage,
       setSendPage,
       setReceivePage,
       setPassPhrasePage,

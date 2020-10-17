@@ -8,7 +8,7 @@ import { QRCode } from 'react-qrcode-logo'
 import logo from '../assets/svg/QR_Logo.svg'
 
 import {
-  setZMainPage,
+  setMainPage,
   setReceivePage} from '../actions/MainSubPage'
 
   import {
@@ -72,7 +72,6 @@ class Receive extends React.Component {
           this.resetScroll(0)
         }
 
-        // console.log("Render Receive")
         return (
         <ReceiveDiv visible={this.props.mainSubPage.receivePage}>
           <ReceiveSectionOverscroll ref = {this.scrollRef}>
@@ -86,12 +85,12 @@ class Receive extends React.Component {
               </ReceiveAddressTitle>
               <ReceiveAddressArea>
                 <ReceiveAddressInput flash = {this.state.flash}>
-                  {this.props.context.zAddress}
+                  {this.props.context.address}
                 </ReceiveAddressInput>
               </ReceiveAddressArea>
               <ReceiveCopyButton
                   onClick={() => {
-                  cordova.plugins.clipboard.copy(this.props.context.zAddress)
+                  cordova.plugins.clipboard.copy(this.props.context.address)
                   this.beginFlash()
                 }}>
                 {'Copy'}
@@ -107,7 +106,7 @@ class Receive extends React.Component {
               </ReceiveQRTitle>
               <ReceiveQRBase>
                 <ReceiveQR>
-                  <QRCode value={this.props.context.zAddress}
+                  <QRCode value={this.props.context.address}
                          quietZone = {'0'}
                          size = {(this.props.context.dimensions.width * 0.550)}
                          bgColor = {'rgba(187,150,69,1)'}
@@ -118,7 +117,7 @@ class Receive extends React.Component {
               </ReceiveQRBase>
               <ReceiveBackButton
                 onClick={() => {
-                    this.props.setZMainPage('visible')
+                    this.props.setMainPage('visible')
                     this.props.setReceivePage('none')
                 }}>
                 {'Back'}
@@ -132,7 +131,7 @@ class Receive extends React.Component {
 
 Receive.propTypes = {
   setReceivePage: PropTypes.func.isRequired,
-  setZMainPage: PropTypes.func.isRequired,
+  setMainPage: PropTypes.func.isRequired,
   context: PropTypes.object.isRequired,
   mainSubPage: PropTypes.object.isRequired
 }
@@ -148,7 +147,7 @@ function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
       setReceivePage,
-      setZMainPage,
+      setMainPage,
     },
     dispatch
   )

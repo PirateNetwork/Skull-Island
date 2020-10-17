@@ -3,8 +3,8 @@
 import '@babel/polyfill'
 
 import {
-  SET_SECRET_ITEMS,
-  SET_SECRET_PHRASE
+  SET_SEED_PHRASE,
+  SET_BIRTHDAY
 } from '../actions/Secrets'
 
 /*
@@ -18,20 +18,21 @@ import {
  */
 
 const initialSecrets = {
-  secretPhrase: null,
-  items: []
+  seedPhrase: '',
+  birthday: 0,
 }
 
 export default function SecretsReducer (state = initialSecrets, action) {
   switch (action.type) {
-    case SET_SECRET_ITEMS:
-      return Object.assign({}, state, {
-        items: action.items
-      })
 
-    case SET_SECRET_PHRASE:
+    case SET_BIRTHDAY:
+          return Object.assign({}, state, {
+            birthday: action.birthday
+          })
+
+    case SET_SEED_PHRASE:
       return Object.assign({}, state, {
-        secretPhrase: action.secretPhrase
+        seedPhrase: action.seedPhrase
       })
 
     default:

@@ -4,33 +4,19 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import axios from 'axios'
-import { openRecordset }  from '../database/sqlite'
-import { apiBuildTransaction } from '../utils/sapling'
 import {
-  getBaseDirectoryEntry,
-  getDirectoryEntry,
-  getFileEntry,
-  writeDataToFile} from '../utils/fileops'
-
-import {
-  setTMainPage,
-  setZMainPage,
+  setMainPage,
   setSendPage} from '../actions/MainSubPage'
 
-import {
-  setActiveType,
-  setQrScanning} from '../actions/Context'
-
-import {
-  setNoteInputs,
-  setProcessTime} from '../actions/Settings'
+import {setQrScanning} from '../actions/Context'
 
 import {
   setSendToAddress,
   setSendToAmount,
   setSendToFiat,
   setSendToMemo} from '../actions/SendTo'
+
+import { send } from '../utils/litewallet'
 
 import {
     BlackBackgroundQR,
@@ -108,7 +94,7 @@ import {
   SendConfirmButton,
 
   SendBuildNote,
-  SendEstBuildTime,
+  // SendEstBuildTime,
   SendActBuildTime,
   SendSpinner,
 
@@ -141,8 +127,6 @@ class Send extends React.Component {
 
     this.state = {
       fee: 0.0001,
-      spendPath: '',
-      outputPath: '',
       transactionInput: 'visible',
       transactionConfirm: 'none',
       transactionSuccess: false,
@@ -165,8 +149,6 @@ class Send extends React.Component {
     //State Updates
     this.setMemo = this.setMemo.bind(this)
     this.setFee = this.setFee.bind(this)
-    this.setSpendPath = this.setSpendPath.bind(this)
-    this.setOutputPath = this.setOutputPath.bind(this)
     this.setTransactionInput = this.setTransactionInput.bind(this)
     this.setTransactionConfirm = this.setTransactionConfirm.bind(this)
     this.setTransactionSuccess = this.setTransactionSuccess.bind(this)
@@ -189,7 +171,6 @@ class Send extends React.Component {
     this.resetSpend = this.resetSpend.bind(this)
     this.safeReleaseCamera = this.safeReleaseCamera.bind(this)
     this.handleQRScan = this.handleQRScan.bind(this)
-    this.getInputs = this.getInputs.bind(this)
     this.msToTime = this.msToTime.bind(this)
     this.setSendValues = this.setSendValues.bind(this)
     this.resetScroll = this.resetScroll.bind(this)
@@ -221,9 +202,6 @@ class Send extends React.Component {
 
 
     setPassword (p) {
-      // if (p.length >= 8) {
-      //   p = p.substring(0,8)
-      // }
 
       if (p.length >= 8) {
         if (p == this.props.context.activePassword) {
@@ -244,10 +222,6 @@ class Send extends React.Component {
         })
       }
     }
-
-    //Takes Cordova FileEntry
-    setSpendPath (s) {this.setState({spendPath: s.fullPath})}
-    setOutputPath (s) {this.setState({outputPath: s.fullPath})}
 
     handleQRScan () {
       // Prepare QR Scanner
@@ -314,241 +288,49 @@ class Send extends React.Component {
       }
     }
 
-    async getInputs() {
-
-      var witnessRecords = await openRecordset(this.props.context.db,'SELECT Max(height) as height from Witnesses')
-      var witnessHeight = witnessRecords.rows.item(0).height
-      if (witnessHeight === null || isNaN(witnessHeight)) {
-        witnessHeight = 0
-      }
-
-      //var w = await openRecordset(this.props.context.db,'SELECT * from Wallet')
-
-      // var filesystem = await getBaseDirectoryEntry()
-      // var root_path = filesystem.root.nativeURL.replace("file://","")
-
-      //var directoryEntry = await getDirectoryEntry(filesystem, 'inputs')
-
-      // var txInputs = {
-      //     "spend_path" : root_path + "params/sapling-spend.params",
-      //     "output_path" : root_path + "params/sapling-output.params",
-      //     "data_path" : root_path + "inputs/",
-      //     "amount" : (this.props.sendTo.amount*1e08).toString(),
-      //     "input_type" : "0",
-      //     "fee" : (this.state.fee*1e08).toString(),
-      //     "payment_address" : this.props.sendTo.address,
-      //     "height" : this.props.context.zHeight.toString(),
-      //     "PrivateKey" : this.props.context.tPrivateKey,
-      //     "extended_spending_key" : this.props.context.zPrivateKey
-      //   }
-
-        //var tFiles = {"filename" : []}
-        //var zFiles = {"filename" : []}
-
-        var totalAmount = Number(this.props.sendTo.amount*1e08) + Number(this.state.fee*1e08)
-        var unspentTotal = 0
-        //var noteHeight = 0
-        var txInputs = []
-
-        if (this.props.context.activeType == 'Z') {
-          var notesRecords = await openRecordset(this.props.context.db,'SELECT i.value, i.cmu, i.ephemeralKey, i.encCiphertext, w.witness '
-                                                              + 'FROM Wallet as i '
-                                                              + 'JOIN Witnesses as w on i.cmu = w.cmu '
-                                                              + 'WHERE w.height = ' + (witnessHeight).toString() + ' and i.spent = 0 '
-                                                              + 'ORDER BY i.height ASC')
-
-            //Attampt Decryption of new transactions
-          for (var n = 0; n < notesRecords.rows.length; n++) {
-            if (notesRecords.rows.item(n).value != null) {
-
-                if (unspentTotal < totalAmount) {
-                  //var zFileInputs = {"z_inputs": []}
-
-                  unspentTotal += Number(notesRecords.rows.item(n).value)
-
-                  var txNotes = {
-                      "witness" : notesRecords.rows.item(n).witness,
-                      "cmu" : notesRecords.rows.item(n).cmu,
-                      "ephemeralKey" : notesRecords.rows.item(n).ephemeralKey,
-                      "encCiphertext" : notesRecords.rows.item(n).encCiphertext
-                  }
-                  txInputs.push(txNotes)
-
-                }
-              }
-            }
-          }
-
-      this.setNoteQty(txInputs.length)
-      this.setEstimatedBuildTime((this.state.noteQty * (this.props.settings.processTime/this.props.settings.noteInputs)))
-
-    }
-
     async createSpend() {
       this.setBuilding(true)
 
-      const status = await axios.get(this.props.settings.insightAPI + 'status')
-      const blockHeight = status.data.info.blocks
+      var start = Date.now()
+      this.setStart(start)
+      this.buildTimer()
 
-
-      var witnessRecords = await openRecordset(this.props.context.db,'SELECT Max(height) as height from Witnesses')
-      var witnessHeight = witnessRecords.rows.item(0).height
-      if (witnessHeight === null || isNaN(witnessHeight)) {
-        witnessHeight = 0
+      var sendtx = {
+        input: this.props.context.address,
+        fee: parseInt(this.state.fee * 1e08),
+        output: [],
       }
+      sendtx.output.push({
+        address: this.props.sendTo.address,
+        amount: parseInt(this.props.sendTo.amount * 1e08),
+        memo: this.props.sendTo.memo
+      })
 
-      //var w = await openRecordset(this.props.context.db,'SELECT * from Wallet')
+      sendtx = JSON.stringify(sendtx)
+      var tx = await send(sendtx)
 
-      var filesystem = await getBaseDirectoryEntry()
-      var root_path = filesystem.root.nativeURL.replace("file://","")
+      var processingTime = Date.now() - start
+      this.setActualBuildTime(processingTime)
+      this.clearBuildTimer()
+      this.setBuilding(true)
 
-      var directoryEntry = await getDirectoryEntry(filesystem, 'inputs')
-
-      var txInputs = {
-          "spend_path" : root_path + "params/sapling-spend.params",
-          "output_path" : root_path + "params/sapling-output.params",
-          "data_path" : root_path + "inputs/",
-          "amount" : (this.props.sendTo.amount*1e08).toString(),
-          "input_type" : "0",
-          "fee" : (this.state.fee*1e08).toString(),
-          "payment_address" : this.props.sendTo.address,
-          "height" : blockHeight.toString(),
-          "PrivateKey" : this.props.context.tPrivateKey,
-          "extended_spending_key" : this.props.context.zPrivateKey,
-          "memo" : this.props.sendTo.memo
-        }
-
-        var tFiles = {"filename" : []}
-        var zFiles = {"filename" : []}
-
-        var totalAmount = Number(txInputs.amount) + Number(txInputs.fee)
-        var unspentTotal = 0
-        //var noteHeight = 0
-
-
-        if (this.props.context.activeType == 'Z') {
-
-
-          var notesRecords = await openRecordset(this.props.context.db,'SELECT i.value, i.cmu, i.ephemeralKey, i.encCiphertext, w.witness '
-                                                              + 'FROM Wallet as i '
-                                                              + 'JOIN Witnesses as w on i.cmu = w.cmu '
-                                                              + 'WHERE w.height = ' + (witnessHeight).toString() + ' and i.spent = 0 '
-                                                              + 'ORDER BY i.height ASC')
-
-            //Attampt Decryption of new transactions
-          for (var n = 0; n < notesRecords.rows.length; n++) {
-            if (notesRecords.rows.item(n).value != null) {
-
-                if (unspentTotal < totalAmount) {
-                  var zFileInputs = {"z_inputs": []}
-
-                  unspentTotal += Number(notesRecords.rows.item(n).value)
-
-                  var txNotes = {
-                      "witness" : notesRecords.rows.item(n).witness,
-                      "cmu" : notesRecords.rows.item(n).cmu,
-                      "ephemeralKey" : notesRecords.rows.item(n).ephemeralKey,
-                      "encCiphertext" : notesRecords.rows.item(n).encCiphertext
-                  }
-
-                   zFileInputs.z_inputs.push(txNotes)
-                   var zFileName = "zinputs" + n + ".json"
-                   zFiles.filename.push(zFileName)
-                   var zData = JSON.stringify(zFileInputs)
-                   var zFileEntry = await getFileEntry(directoryEntry, zFileName)
-                   await writeDataToFile(zFileEntry, zData)
-
-                }
-              }
-            }
-            txInputs.input_type = "1"
-          }
-
-        if (this.props.context.activeType == 'T') {
-          var response = await axios.get(this.props.settings.insightAPI + 'addr/' + this.props.context.tAddress + '/utxo')
-          for (var i = 0; i < response.data.length; i++) {
-            if (unspentTotal < totalAmount) {
-              if (response.data[i].confirmations > 0 ) {
-                var tFileInputs = {
-                  "t_inputs": []
-                }
-
-                unspentTotal += Number(response.data[i].satoshis)
-
-                var utxo = {
-                  "txid": response.data[i].txid,
-                  "vout": response.data[i].vout.toString(),
-                  "satoshis": response.data[i].satoshis.toString(),
-                  "scriptPubKey": response.data[i].scriptPubKey
-                }
-
-                 tFileInputs.t_inputs.push(utxo)
-                 var tFileName = "tinputs" + i + ".json"
-                 tFiles.filename.push(tFileName)
-                 var tData = JSON.stringify(tFileInputs)
-                 var tFileEntry = await getFileEntry(directoryEntry, tFileName)
-                 await writeDataToFile(tFileEntry, tData)
-               }
-            }
-          }
-          txInputs.input_type = "0"
-        }
-
-
-        if ( unspentTotal >= totalAmount) {
-
-          var tIn = JSON.stringify(tFiles)
-          var zIn = JSON.stringify(zFiles)
-          var txIn = JSON.stringify(txInputs)
-
-          var start = Date.now()
-          this.setStart(start)
-          this.buildTimer()
-
-          var saplingtx = await apiBuildTransaction(txIn, tIn, zIn)
-          var processingTime = Date.now() - start
-          this.setActualBuildTime(processingTime)
-          this.clearBuildTimer()
-          // this.setShowButtons(true)
-          this.setBuilding(true)
-
-          var tx = JSON.parse(saplingtx)
-
-          if (tx.error == "false") {
-            try{
-              this.props.setProcessTime(processingTime + this.props.settings.processTime)
-              this.props.setNoteInputs(this.state.noteQty + this.props.settings.noteInputs)
-              var sendtx = await axios.post(this.props.settings.insightAPI + 'tx/send',
-                      {
-                        rawtx: tx.result
-                      },
-                      {
-                        headers: {
-                          'Content-Type': 'application/json'
-                        }
-                      })
-              if (sendtx.status == 200) {
-                this.setTransactionSuccess(true)
-                this.setTxid(sendtx.data.txid)
-              } else {
-                this.setTxError('Transaction send failed!! ')
-                this.setTransactionFailed(true)
-              }
-            } catch (err) {
-              this.setTxError('Transaction send failed!! ' + err + "   " + tx.result)
-              this.setTransactionFailed(true)
-            }
-          } else {
-            this.setTransactionFailed(true)
-            this.setTxError('Tx build failure! ' + tx.result)
-          }
+      try {
+        var ptx = JSON.parse(tx)
+        if (ptx.txid != null) {
+          this.setTransactionSuccess(true)
+          this.setTxid(ptx.txid)
         } else {
           this.setTransactionFailed(true)
-          this.setTxError('Not enough coins!')
+          alert('Tx build failure! ' + ptx.error)
         }
-      // this.setShowButtons(true)
+      } catch {
+        this.setTransactionFailed(true)
+        alert('Tx build failure! ' + tx)
+      }
+
       this.setBuilding(false)
     }
+
 
     resetSpend() {
       this.props.setSendToAddress('')
@@ -677,7 +459,6 @@ class Send extends React.Component {
                 this.resetScroll(0)
                 this.setTransactionConfirm('visible')
                 this.setTransactionInput('none')
-                this.getInputs()
               }}>
               {'Send'}
             </SendButton>
@@ -705,7 +486,7 @@ class Send extends React.Component {
                     <SendWalletButton
                       onClick={() => {
                         this.props.setSendPage('none')
-                        this.props.setZMainPage('visible')}}>
+                        this.props.setMainPage('visible')}}>
                       {'Wallet'}
                     </SendWalletButton>
                     <SendMoreButton
@@ -753,7 +534,7 @@ class Send extends React.Component {
                     <SendWalletButton
                       onClick={() => {
                         this.props.setSendPage('none')
-                        this.props.setZMainPage('visible')}}>
+                        this.props.setMainPage('visible')}}>
                       {'Wallet'}
                     </SendWalletButton>
                     <SendMoreButton
@@ -773,9 +554,6 @@ class Send extends React.Component {
                     <br/>
                     {'sending transaction.'}
                     </SendBuildNote>
-                    <SendEstBuildTime>
-                      {'Estimated time: ' + this.msToTime(this.state.estimatedBuildTime)}
-                    </SendEstBuildTime>
                     <SendActBuildTime>
                       {'Actual time: ' + this.msToTime(this.state.actualBuildTime)}
                     </SendActBuildTime>
@@ -809,7 +587,7 @@ class Send extends React.Component {
                       {'From your address'}
                     </SendConfirmFromAddress>
                     <SendConfirmFromAddressArea>
-                      {this.props.context.zAddress}
+                      {this.props.context.address}
                     </SendConfirmFromAddressArea>
                     <SendConfirmToAddress>
                       {'To this address'}
@@ -968,217 +746,12 @@ class Send extends React.Component {
   }
 
 
-  // <ConfirmHeading >
-  //   {"Confirm Transaction"}
-  // </ConfirmHeading>
-  // <ConfirmDataSection >
-  //
-  //
-  //   <ConfirmData >
-  //     {'Send from Address:'}
-  //   </ConfirmData>
-  //
-  //   <ConfirmData >
-  //     {this.props.context.activeType == 'Z' ? zaddress : taddress}
-  //   </ConfirmData>
-  //
-  //   <br/>
-  //
-  //   <ConfirmData >
-  //     {'Send to Address:'}
-  //   </ConfirmData>
-  //
-  //   <ConfirmData >
-  //     {this.props.sendTo.address}
-  //   </ConfirmData>
-  //
-  //   <br/>
-  //
-  //   <ConfirmData >
-  //     {'Amount: ' + (this.props.sendTo.amount/1.0).toFixed(8)}
-  //   </ConfirmData>
-  //   <ConfirmData >
-  //     {'Fee: ' + (this.state.fee/1.0).toFixed(8)}
-  //   </ConfirmData>
-  //
-  //   <br/>
-  //
-  //   <ConfirmData >
-  //     {'Estimated build time: ' + this.msToTime(this.state.estimatedBuildTime)}
-  //   </ConfirmData>
-  //   <ConfirmPasswordSection visible={'visible'}>
-  //     <ConfirmData >
-  //       {'Actual build time: ' + this.msToTime(this.state.actualBuildTime)}
-  //     </ConfirmData>
-  //   </ConfirmPasswordSection>
-  //
-  //
-  //   <ConfirmPasswordSection visible={displaySendPassword}>
-  //     <ConfirmPassword>
-  //       Enter 8-Digit Pin to Send
-  //       <br/>
-  //       <ConfirmPin
-  //
-  //         type="password"
-  //         value={this.state.password}
-  //         onChange={e => this.setPassword(e.target.value)} />
-  //     </ConfirmPassword>
-  //   </ConfirmPasswordSection>
-  //   <ConfirmPasswordSection visible={displaySendButton}>
-  //     <br/>
-  //     <ConfirmButtonSection>
-  //       {sendButton}
-  //       <ConfirmCancelButton
-  //       onClick={() => {
-  //         this.setTransactionConfirm('none')
-  //         this.setTransactionInput('visible')
-  //         this.setTransactionFailed(false)
-  //         this.setPassword('')
-  //         this.setValidPassword(false)
-  //       }}>
-  //       Cancel
-  //       </ConfirmCancelButton>
-  //     </ConfirmButtonSection>
-  //   </ConfirmPasswordSection>
-  //
-  //
-  //   <ConfirmPasswordSection visible={displayConfirm}>
-  //     <br/>
-  //     <TransactionLink  href={this.props.settings.insightAPI + 'insight/tx/' + this.state.txid}>
-  //       Show Completed Transaction
-  //     </TransactionLink>
-  //     <br/><br/><br/>
-  //     <ConfirmButtonSection>
-  //       <ConfirmSendButton
-  //       onClick={() => {
-  //         this.resetSpend()
-  //         this.setTransactionConfirm('none')
-  //         this.setTransactionInput('visible')
-  //       }}>
-  //       New
-  //       </ConfirmSendButton>
-  //       <ConfirmCancelButton
-  //       onClick={() => {
-  //         this.resetSpend()
-  //         this.setTransactionConfirm('none')
-  //         this.setTransactionInput('visible')
-  //         if (this.props.context.activeType == 'Z') {
-  //           this.props.setZMainPage('visible')
-  //         } else if (this.props.context.activeType == 'T') {
-  //           this.props.setTMainPage('visible')
-  //         }
-  //         this.props.setSendPage('none')
-  //       }}>
-  //       Done
-  //       </ConfirmCancelButton>
-  //     </ConfirmButtonSection>
-  //   </ConfirmPasswordSection>
-  // </ConfirmDataSection>
-  // <SpinnerSection visible = {displaySpinner}>
-  //   {spinner}
-  // </SpinnerSection>
-
-
-
-
-
-
-  // <AddressSelectSection >
-  //
-  //
-  //   <AddressSelectLabel visible={displayZ} >
-  //     <AddressSelectHeading >
-  //       {"Send from Private Address:"}
-  //     </AddressSelectHeading>
-  //     {zaddress.substring(0,8) + '...' + zaddress.substring(zaddress.length-8,zaddress.length)}
-  //     <AddressBalanceNumberDiv >
-  //       {((this.props.context.zBalance / 1e08).toFixed(8)) + ' ' + this.props.settings.currentCoin}
-  //     </AddressBalanceNumberDiv>
-  //     <AddressCurrencyDiv >
-  //       {((this.props.context.zBalance / 1e08) * this.props.context.BTCValue).toFixed(8) + ' BTC'}
-  //       <br/>
-  //       {((this.props.context.zBalance / 1e08)  * this.props.context.currencyValue).toFixed(6) + ' USD'}
-  //     </AddressCurrencyDiv>
-  //   </AddressSelectLabel>
-  //
-  //
-  //   <AddressSelectLabel visible={displayT} >
-  //     <AddressSelectHeading >
-  //       {"Send from Transparent Address:"}
-  //     </AddressSelectHeading>
-  //       {taddress.substring(0,8) + '...' + taddress.substring(taddress.length-8,taddress.length)}
-  //     <AddressBalanceNumberDiv >
-  //       {((this.props.context.tBalance / 1e08).toFixed(8))  + ' ' + this.props.settings.currentCoin}
-  //     </AddressBalanceNumberDiv>
-  //     <AddressCurrencyDiv >
-  //       {((this.props.context.tBalance / 1e08) * this.props.context.BTCValue).toFixed(8) + ' BTC'}
-  //       <br/>
-  //       {((this.props.context.tBalance / 1e08)  * this.props.context.currencyValue).toFixed(6) + ' USD'}
-  //     </AddressCurrencyDiv>
-  //   </AddressSelectLabel>
-  //   {displayToggleButton}
-  // </AddressSelectSection>
-  //
-  //
-  // <SendAddressSection >
-  //   {"Send to Address:"}
-  //   <br/>
-  //   <SendAddress
-  //     value={this.props.sendTo.address}
-  //     onChange={e => this.props.setSendToAddress(e.target.value)}  />
-  // </SendAddressSection>
-  // <AmountSection >
-  //   {"Amount: "}
-  //   <AmountInput type="number"
-  //     value={this.props.sendTo.amount}
-  //     onChange={e => this.props.setSendToAmount(e.target.value)} />
-  // </AmountSection>
-  // <FeeSection >
-  //   {"Fee: "}
-  //   <AmountInput type="number"
-  //     value={this.state.fee}
-  //     onChange={e => this.setFee(e.target.value)} />
-  // </FeeSection>
-  //
-  // <QRButton
-  //   onClick={() => {
-  //     this.handleQRScan()
-  //     }}>
-  //   QR
-  // </QRButton>
-  //
-  // <ButtonSection >
-  //   {preSendButton}
-  //
-  //   <GreyButton
-  //     onClick={() => {
-  //       this.resetSpend()
-  //       if (this.props.context.activeType == 'Z') {
-  //         this.props.setZMainPage('visible')
-  //       } else if (this.props.context.activeType == 'T') {
-  //         this.props.setTMainPage('visible')
-  //       }
-  //       this.props.setSendPage('none')
-  //       }}>
-  //     Cancel
-  //   </GreyButton>
-  // </ButtonSection>
-
-
-
-
-
-
 
 
 Send.propTypes = {
-  setZMainPage: PropTypes.func.isRequired,
-  setTMainPage: PropTypes.func.isRequired,
+  setMainPage: PropTypes.func.isRequired,
   setSendPage: PropTypes.func.isRequired,
   setQrScanning: PropTypes.func.isRequired,
-  setActiveType: PropTypes.func.isRequired,
-  setNoteInputs: PropTypes.func.isRequired,
-  setProcessTime: PropTypes.func.isRequired,
   setSendToAddress: PropTypes.func.isRequired,
   setSendToAmount: PropTypes.func.isRequired,
   setSendToFiat: PropTypes.func.isRequired,
@@ -1202,12 +775,8 @@ function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
       setSendPage,
-      setZMainPage,
-      setTMainPage,
-      setActiveType,
+      setMainPage,
       setQrScanning,
-      setNoteInputs,
-      setProcessTime,
       setSendToAddress,
       setSendToAmount,
       setSendToFiat,

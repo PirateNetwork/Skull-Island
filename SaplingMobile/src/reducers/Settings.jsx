@@ -8,35 +8,28 @@ import {
   SET_LANGUAGE,
   SET_CURRENCY,
   SET_WALLET_PASSWORD,
-  SET_INSIGHT_API,
-  SET_INSIGHT_ZMQ,
+  SET_WALLET_PASSPHRASE,
   SET_INSIGHT_EXPLORER,
   SET_SAVE_DATA,
   SET_CURRENT_COIN,
   SET_MINIMUM_BLOCK,
-  SET_DISPLAY_DIMENSIONS,
-  SET_NOTE_INPUTS,
-  SET_PROCESS_TIME
+  SET_DISPLAY_DIMENSIONS
 } from '../actions/Settings'
 
 import { coins } from '../utils/coins.js'
 
 const initialSettings = {
   currentCoin: 'pirate',
-  insightAPI: coins['pirate'].api[0],
-  insightZMQ: coins['pirate'].zmq[0],
   explorerURL: coins['pirate'].explorer[0],
   language: LANG_ENGLISH,
   currency: CURRENCY_USD,
   minimumBlock:  {
-    zero: 0,
     pirate: 0,
     },
   password: null,
+  passPhrase: null,
   saveData: false,
   displayDimensions: {"height" : window.outerHeight, "width" : window.outerWidth},
-  noteInputs: 1,
-  processTime: 15
 
 }
 
@@ -47,6 +40,11 @@ export default function SettingsReducer (state = initialSettings, action) {
         password: action.password
       })
 
+    case SET_WALLET_PASSPHRASE:
+      return Object.assign({}, state, {
+        passPhrase: action.passPhrase
+      })
+
     case SET_CURRENCY:
       return Object.assign({}, state, {
         currency: action.currency
@@ -55,16 +53,6 @@ export default function SettingsReducer (state = initialSettings, action) {
     case SET_LANGUAGE:
       return Object.assign({}, state, {
         language: action.language
-      })
-
-    case SET_INSIGHT_API:
-      return Object.assign({}, state, {
-        insightAPI: action.insightAPI
-      })
-
-    case SET_INSIGHT_ZMQ:
-      return Object.assign({}, state, {
-        insightZMQ: action.insightZMQ
       })
 
     case SET_INSIGHT_EXPLORER:
@@ -92,15 +80,6 @@ export default function SettingsReducer (state = initialSettings, action) {
         displayDimensions: action.displayDimensions
       })
 
-    case SET_NOTE_INPUTS:
-      return Object.assign({}, state, {
-        noteInputs: action.noteInputs
-      })
-
-    case SET_PROCESS_TIME:
-      return Object.assign({}, state, {
-        processTime: action.processTime
-      })
     default:
       return state
   }

@@ -107,10 +107,9 @@ export const LANGUAGES = [
 // Actions
 export const SET_LANGUAGE = 'SET_LANGUAGE'
 export const SET_CURRENCY = 'SET_CURRENCY'
-export const SET_INSIGHT_API = 'SET_INSIGHT_API'
-export const SET_INSIGHT_ZMQ = 'SET_INSIGHT_ZMQ'
 export const SET_INSIGHT_EXPLORER = 'SET_INSIGHT_EXPLORER'
 export const SET_WALLET_PASSWORD = 'SET_WALLET_PASSWORD'
+export const SET_WALLET_PASSPHRASE = 'SET_WALLET_PASSPHRASE'
 export const SET_SAVE_DATA = 'SET_SAVE_DATA'
 export const SET_MINIMUM_BLOCK = 'SET_MINIMUM_BLOCK'
 export const SET_CURRENT_COIN = 'SET_CURRENT_COIN'
@@ -125,6 +124,13 @@ export function setWalletPassword (password) {
   }
 }
 
+export function setWalletPassPhrase (passPhrase) {
+  return {
+    type: SET_WALLET_PASSPHRASE,
+    passPhrase
+  }
+}
+
 export function setLanguage (language) {
   return {
     type: SET_LANGUAGE,
@@ -136,20 +142,6 @@ export function setCurrency (currency) {
   return {
     type: SET_CURRENCY,
     currency
-  }
-}
-
-export function setInsightAPI (insightAPI) {
-  return {
-    type: SET_INSIGHT_API,
-    insightAPI
-  }
-}
-
-export function setInsightZMQ (insightZMQ) {
-  return {
-    type: SET_INSIGHT_ZMQ,
-    insightZMQ
   }
 }
 
@@ -185,19 +177,5 @@ export function setDisplayDimensions (displayDimensions) {
   return {
     type: SET_DISPLAY_DIMENSIONS,
     displayDimensions
-  }
-}
-
-export function setNoteInputs (noteInputs) {
-  return {
-    type: SET_NOTE_INPUTS,
-    noteInputs
-  }
-}
-
-export function setProcessTime (processTime) {
-  return {
-    type: SET_PROCESS_TIME,
-    processTime
   }
 }

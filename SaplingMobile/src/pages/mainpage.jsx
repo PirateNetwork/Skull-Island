@@ -16,6 +16,8 @@ import PassPhrase from '../containers/passphrase'
 import Reindex from '../containers/reindex'
 import Qr from '../containers/qr'
 
+import {setGraphOpen} from '../actions/MainSubPage'
+
 import {BlackBackground} from '../pagecomponents/PirateShared'
 
 class MainPage extends React.Component {
@@ -28,19 +30,34 @@ class MainPage extends React.Component {
 
       const mainStyle =  this.props.context.qrScanning ? {opacity: '0.0', display: 'none'} : {opacity: '1.0'}
 
-      // console.log("Render Main")
+      var page
+
+      if (this.props.mainSubPage.mainPage == 'visible') {
+        page = <div>
+                <BalanceGraph />
+                <ChainOps />
+                <ZMain />
+              </div>
+      } else if (this.props.mainSubPage.receivePage == 'visible') {
+        page = <Receive />
+      } else if (this.props.mainSubPage.privateKeyPage == 'visible') {
+        page = <PrivateKey />
+      } else if (this.props.mainSubPage.passPhrasePage == 'visible') {
+        page = <PassPhrase />
+      } else if (this.props.mainSubPage.reindexPage == 'visible') {
+        page = <Reindex />
+      }
+
+      if (this.props.mainSubPage.mainPage != 'visible' && this.props.mainSubPage.graphOpen == false) {
+        this.props.setGraphOpen(true)
+      }
+
       return (
         <div>
           <div style={mainStyle}>
             <BlackBackground>
-              <BalanceGraph />
-              <ChainOps />
-              <ZMain />
+              {page}
               <Send />
-              <Receive />
-              <Reindex />
-              <PassPhrase />
-              <PrivateKey />
               <LowerBar />
             </BlackBackground>
           </div>
@@ -51,6 +68,7 @@ class MainPage extends React.Component {
   }
 
 MainPage.propTypes = {
+  setGraphOpen: PropTypes.func.isRequired,
   settings: PropTypes.object.isRequired,
   context: PropTypes.object.isRequired,
   mainSubPage: PropTypes.object.isRequired
@@ -67,6 +85,7 @@ function mapStateToProps (state) {
 function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
+      setGraphOpen
     },
     dispatch
   )

@@ -7,8 +7,10 @@ import { connect } from 'react-redux'
 import { QRCode } from 'react-qrcode-logo'
 import logo from '../assets/svg/QR_Logo.svg'
 
+// import { privateKey } from '../utils/litewallet'
+
 import {
-  setZMainPage,
+  setMainPage,
   setPrivateKeyPage,} from '../actions/MainSubPage'
 
   import {
@@ -40,7 +42,7 @@ class PrivateKey extends React.Component {
 
       this.state = {
         pin: 'visible',
-        key: 'none',
+        showkey: 'none',
         password: '',
         reset: true,
         flash: false
@@ -54,6 +56,8 @@ class PrivateKey extends React.Component {
       this.resetScroll = this.resetScroll.bind(this)
       this.beginFlash = this.beginFlash.bind(this)
       this.removeFlash = this.removeFlash.bind(this)
+      // this.setPrivateKey = this.setPrivateKey.bind(this)
+
     }
 
     beginFlash () {
@@ -66,29 +70,33 @@ class PrivateKey extends React.Component {
       clearInterval(this.setFlashPrivateKeyId)
     }
 
-    setPassword (p) {
-      // if (p.length >= 8) {
-      //   p = p.substring(0,8)
-      // }
+  //   async setPrivateKey() {
+  //     var pk = await privateKey(this.props.context.address)
+  //     pk = JSON.parse(pk)
+  //     this.setState({key: pk[0].private_key})
+  // }
 
+    setPassword (p) {
       if (p.length >= 8) {
         if (p == this.props.context.activePassword) {
+          this.setPrivateKey
           this.setState({
             pin: 'none',
-            key: 'visible',
+            showkey: 'visible',
             password: '',
             reset: false
           })
         } else {
           this.setState({
             pin: 'visible',
-            key: 'none',
+            showkey: 'none',
             password: p,
             reset: true
           })
         }
       } else {
         this.setState({
+          showkey: 'none',
           password: p,
           reset: false
         })
@@ -98,7 +106,7 @@ class PrivateKey extends React.Component {
     setReset() {
       this.setState({
         pin: 'visible',
-        key: 'none',
+        showkey: 'none',
         password: '',
         passphrase: '',
         reset: true
@@ -149,7 +157,7 @@ class PrivateKey extends React.Component {
                 </PrivateKeyPWRedText>
 
               </PrivateKeySection>
-              <PrivateKeySection visible={this.state.key}>
+              <PrivateKeySection visible={this.state.showkey}>
                 <PrivateKeyTitle>
                   {'Private Key'}
                 </PrivateKeyTitle>
@@ -158,13 +166,13 @@ class PrivateKey extends React.Component {
                 </PrivateKeyPWTitle>
                 <PrivateKeyArea>
                   <PrivateKeyInput flash = {this.state.flash}>
-                    {this.props.context.zPrivateKey}
+                    {this.props.context.privateKey}
                   </PrivateKeyInput>
                 </PrivateKeyArea>
                 <PrivateKeyCopyButton
 
                     onClick={() => {
-                    cordova.plugins.clipboard.copy(this.props.context.zPrivateKey)
+                    cordova.plugins.clipboard.copy(this.props.context.privateKey)
                     this.beginFlash()
                   }}>
                   {'Copy'}
@@ -180,7 +188,7 @@ class PrivateKey extends React.Component {
                 </PrivateKeyQRTitle>
                 <PrivateKeyQRBase>
                   <PrivateKeyQR>
-                    <QRCode value={this.props.context.zPrivateKey}
+                    <QRCode value={this.props.context.privateKey}
                            quietZone = {(this.props.context.dimensions.width * 0.025)}
                            size = {(this.props.context.dimensions.width * 0.850)}
                            bgColor = {'rgba(187,150,69,1)'}
@@ -191,7 +199,7 @@ class PrivateKey extends React.Component {
                 </PrivateKeyQRBase>
                 <PrivateKeyBackButton
                   onClick={() => {
-                      this.props.setZMainPage('visible')
+                      this.props.setMainPage('visible')
                       this.props.setPrivateKeyPage('none')
                   }}>
                   {'Back'}
@@ -202,82 +210,12 @@ class PrivateKey extends React.Component {
 
         )
   }
-
 }
 
 
-// <ReceiveGrid sc={screenDim} visible={this.props.mainSubPage.privateKeyPage}>
-//   <PinSection visible={this.state.pin}>
-//     <ReceiveSection sc={screenDim}>
-//       <ConfirmPassword>
-//         <br/><br/><br/><br/>
-//         Enter 8-Digit Pin to Unlock Keys
-//         <br/><br/>
-//         <ConfirmPin
-//           sc={screenDim}
-//           type="password"
-//           value={this.state.password}
-//           onChange={e => this.setPassword(e.target.value)} />
-//       </ConfirmPassword>
-//       <br/>
-//       <ReceiveGreyButton sc={screenDim}
-//         onClick={() => {
-//           if (this.props.context.activeType == 'Z') {
-//             this.props.setZMainPage('visible')
-//           } else if (this.props.context.activeType == 'T') {
-//             this.props.setTMainPage('visible')
-//           }
-//           this.setState({pin: 'visible',key: 'none',password: ''})
-//           this.props.setPrivateKeyPage('none')
-//         }}>
-//         Close
-//       </ReceiveGreyButton>
-//     </ReceiveSection>
-//   </PinSection>
-//
-//   <KeySection visible={this.state.key}>
-//     <ReceiveSection sc={screenDim}>
-//       <ReceiveAddress sc={screenDim}
-//         value={key}
-//         onChange={() => {
-//           //console.log('address text area is static')
-//         }}
-//         >
-//       </ReceiveAddress>
-//       <ReceiveQR sc={screenDim}>
-//         <QRCode value={key}
-//            size = {(screenDim.width * 0.70) - 20}
-//            logoImage = {logo}
-//            ecLevel = "H"
-//               />
-//       </ReceiveQR>
-//       <ReceiveButtonSection sc={screenDim}>
-//         <ReceiveGreyButton sc={screenDim}
-//           onClick={() => {
-//             cordova.plugins.clipboard.copy(key)
-//           }}>
-//           Copy Key
-//         </ReceiveGreyButton>
-//         <ReceiveGreyButton sc={screenDim}
-//           onClick={() => {
-//             if (this.props.context.activeType == 'Z') {
-//               this.props.setZMainPage('visible')
-//             } else if (this.props.context.activeType == 'T') {
-//               this.props.setTMainPage('visible')
-//             }
-//             this.setState({pin: 'visible',key: 'none',password: ''})
-//             this.props.setPrivateKeyPage('none')
-//           }}>
-//           Close
-//         </ReceiveGreyButton>
-//       </ReceiveButtonSection>
-//     </ReceiveSection>
-//   </KeySection>
-// </ReceiveGrid>
-
 PrivateKey.propTypes = {
   setPrivateKeyPage: PropTypes.func.isRequired,
-  setZMainPage: PropTypes.func.isRequired,
+  setMainPage: PropTypes.func.isRequired,
   context: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
   mainSubPage: PropTypes.object.isRequired
@@ -295,7 +233,7 @@ function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
       setPrivateKeyPage,
-      setZMainPage,
+      setMainPage,
     },
     dispatch
   )

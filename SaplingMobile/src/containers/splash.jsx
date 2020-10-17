@@ -16,7 +16,10 @@ import {
   SplashFooterImg,
   SplashFooter,
   SplashCopyright,
+  SplashLoader
 } from '../components/splash'
+
+import Loader from '../containers/loader'
 
 import skull from '../assets/Pirate_Logo_Skull_Gold.png'
 import pirateChain from '../assets/svg/pirate_chain.svg'
@@ -40,6 +43,9 @@ class SplashPage extends React.Component {
         <SplashSection>
           <SplashSkullImg src = {skull} />
           <SplashPirateImg src = {pirateChain}/>
+          <SplashLoader>
+            <Loader/>
+          </SplashLoader>
           <SplashMobileImg src = {mobileWallet}/>
           <SplashFooterImg src = {footer} />
           <SplashFooter>

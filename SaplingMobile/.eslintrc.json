@@ -1,0 +1,28 @@
+{
+    "extends": [
+      "eslint:recommended",
+      "plugin:react/recommended"
+    ],
+    "settings": {
+      "react": {
+        "version": "detect"
+      }
+    },
+    "parser": "babel-eslint",
+    "env" : {
+      "node": true,
+      "es6": true,
+      "browser": true
+    },
+    "globals": {
+        "FirebasePlugin" : true,
+        "LiteWallet" : true,
+        "FileError": true,
+        "downloader": true,
+        "cordova": true,
+        "md5chksum": true,
+        "LocalFileSystem": true,
+        "QRScanner": true,
+        "SQLitePlugin": true
+    }
+}

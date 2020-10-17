@@ -7,15 +7,12 @@ import { connect } from 'react-redux'
 import axios from 'axios'
 
 import {
-  //setPageSelection,
   setZerInBtcValue,
   setZerInCurrencyValue,
-  setActiveType,
   setQrScanning} from '../actions/Context'
 
 import {
-  setZMainPage,
-  setTMainPage,
+  setMainPage,
   setSendPage,
   setReceivePage,
   setPrivateKeyPage,
@@ -65,11 +62,6 @@ import menuIcon from '../assets/svg/menu_icon.svg'
 import menuPopup from '../assets/svg/modal_popup.svg'
 import arrow from '../assets/png/up_arrow.png'
 import qrImg from '../assets/svg/qr-code.svg'
-// import walletIcon from '../assets/svg/wallet_icon.svg'
-// import sendIcon from '../assets/svg/send_icon.svg'
-// import receiveIcon from '../assets/svg/receive_icon.svg'
-// import explorerIcon from '../assets/svg/explorer_icon.svg'
-// import pirateCoinIcon from '../assets/png/pirate_coin_icon.png'
 
 import ZTransactionList from '../containers/ztransactionlist'
 
@@ -125,7 +117,7 @@ class ZMain extends React.Component {
     }
 
     getZerPrice() {
-      if (this.props.mainSubPage.zmainPage != 'none') {
+      if (this.props.mainSubPage.mainPage != 'none') {
         var cmcZerInfoURL = 'https://api.coingecko.com/api/v3/simple/price?ids=pirate-chain&vs_currencies=usd'
         axios.get(cmcZerInfoURL)
           .then((resp) => {
@@ -175,7 +167,7 @@ class ZMain extends React.Component {
               alert(JSON.stringify(err))
             } else {
               // The scan completed, display the contents of the QR code
-              this.props.setZMainPage('none')
+              this.props.setMainPage('none')
               this.props.setSendPage('visible')
               this.props.setSendToAddress(address)
             }
@@ -228,7 +220,7 @@ class ZMain extends React.Component {
 
       //Disable Send button
       var displaySendButton
-      if (this.props.context.zSynced == true) {
+      if (this.props.context.synced == true) {
         displaySendButton = 1
       } else {
         displaySendButton = 0.5
@@ -250,7 +242,7 @@ class ZMain extends React.Component {
       }
 
       var syncedIndicator
-      if (this.props.context.zSynced) {
+      if (this.props.context.synced) {
         syncedIndicator =
         <svg>
           <ellipse fill="rgba(149,198,35,1)" rx="10" ry="10" cx="10" cy="10">
@@ -268,7 +260,7 @@ class ZMain extends React.Component {
       const scanning =  this.props.context.qrScanning ? {opacity: '0.0', display: 'none'} : {opacity: '1.0', display: 'visible'}
 
       return (
-        <ZMainDiv visible={this.props.mainSubPage.zmainPage}>
+        <ZMainDiv visible={this.props.mainSubPage.mainPage}>
           <BlackBackgroundQR qrScanning = {scanning}>
             <ZMainMenu>
               <ZMainMenuButton
@@ -289,7 +281,7 @@ class ZMain extends React.Component {
                 <ZMainMenuContentButtons>
                   <ZMainMenuButtonLine pos={3.0}
                   onClick={() => {
-                    this.props.setZMainPage('none')
+                    this.props.setMainPage('none')
                     this.props.setPrivateKeyPage('visible')
                   }}
                   >
@@ -298,7 +290,7 @@ class ZMain extends React.Component {
 
                   <ZMainMenuButtonLine pos={0.5}
                   onClick={() => {
-                    this.props.setZMainPage('none')
+                    this.props.setMainPage('none')
                     this.props.setPassPhrasePage('visible')
                   }}
                   >
@@ -307,7 +299,7 @@ class ZMain extends React.Component {
 
                   <ZMainMenuButtonLine pos={-2.0}
                   onClick={() => {
-                    this.props.setZMainPage('none')
+                    this.props.setMainPage('none')
                     this.props.setReindexPage('visible')
                   }}
                   >
@@ -321,7 +313,7 @@ class ZMain extends React.Component {
               <ZMainSendButton opacity = {displaySendButton}
                 onClick={() => {
                   if (displaySendButton == 1) {
-                    this.props.setZMainPage('none')
+                    this.props.setMainPage('none')
                     this.props.setSendPage('visible')
                   }
                 }}>
@@ -337,7 +329,7 @@ class ZMain extends React.Component {
               </ZMainCenterButton>
               <ZMainReceiveButton
                 onClick={() => {
-                  this.props.setZMainPage('none')
+                  this.props.setMainPage('none')
                   this.props.setReceivePage('visible')
                 }}>
                 Receive
@@ -395,13 +387,11 @@ ZMain.propTypes = {
   setZerInBtcValue: PropTypes.func.isRequired,
   setZerInCurrencyValue: PropTypes.func.isRequired,
   setReindexPage: PropTypes.func.isRequired,
-  setZMainPage: PropTypes.func.isRequired,
-  setTMainPage: PropTypes.func.isRequired,
+  setMainPage: PropTypes.func.isRequired,
   setSendPage: PropTypes.func.isRequired,
   setReceivePage: PropTypes.func.isRequired,
   setPrivateKeyPage: PropTypes.func.isRequired,
   setPassPhrasePage: PropTypes.func.isRequired,
-  setActiveType: PropTypes.func.isRequired,
   setQrScanning: PropTypes.func.isRequired,
   setGraphOpen: PropTypes.func.isRequired,
   setTransactionScroll: PropTypes.func.isRequired,
@@ -425,13 +415,11 @@ function matchDispatchToProps (dispatch) {
       setZerInBtcValue,
       setZerInCurrencyValue,
       setReindexPage,
-      setZMainPage,
-      setTMainPage,
+      setMainPage,
       setSendPage,
       setReceivePage,
       setPrivateKeyPage,
       setPassPhrasePage,
-      setActiveType,
       setQrScanning,
       setGraphOpen,
       setTransactionScroll,
