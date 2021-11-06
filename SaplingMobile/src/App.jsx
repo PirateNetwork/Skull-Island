@@ -5,7 +5,7 @@ import { ThemeProvider } from 'styled-components';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { setDimensions, setWalletLoaded, setFirebase } from './actions/Context'
+import { setDimensions, setWalletLoaded} from './actions/Context'
 
 import { setSeedPhrase, setBirthday } from './actions/Secrets'
 import {
@@ -28,7 +28,6 @@ import {
   setReindexPage} from './actions/MainSubPage'
 
 import { coins } from './utils/coins.js'
-import { crashlyticsEnabled } from './utils/firebase.js'
 
 import { walletExists,
          initalizeWallet,
@@ -69,7 +68,6 @@ class App extends React.Component {
     this.setRotate = this.setRotate.bind(this)
     this.backButtonHandler = this.backButtonHandler.bind(this)
     this.saveData = this.saveData.bind(this)
-    this.enableFirebase = this.enableFirebase.bind(this)
   }
 
   setScreenSize() {
@@ -236,25 +234,8 @@ class App extends React.Component {
     }
   }
 
-  async enableFirebase(b) {
-    try {
-      await crashlyticsEnabled(b)
-      if (process.env.NODE_ENV != 'production') {
-        console.log("Crashlytics data collection is enabled")
-      }
-      this.props.setFirebase(true)
-      FirebasePlugin.sendCrash()
-    } catch (err) {
-      if (process.env.NODE_ENV != 'production') {
-        console.error("Crashlytics data collection couldn't be enabled "+err)
-      }
-        this.props.setFirebase(false)
-    }
-  }
 
   componentDidMount() {
-
-    this.enableFirebase(true)
 
     document.addEventListener('backbutton', this.backButtonHandler, false)
 
@@ -379,7 +360,6 @@ class App extends React.Component {
 
 App.propTypes = {
   setGraphOpen: PropTypes.func.isRequired,
-  setFirebase: PropTypes.func.isRequired,
   setWalletLoaded: PropTypes.func.isRequired,
   setMainPage: PropTypes.func.isRequired,
   setSendPage: PropTypes.func.isRequired,
@@ -417,7 +397,6 @@ function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
       setGraphOpen,
-      setFirebase,
       setWalletLoaded,
       setMainPage,
       setSendPage,

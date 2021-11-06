@@ -16,7 +16,6 @@
       "browser": true
     },
     "globals": {
-        "FirebasePlugin" : true,
         "LiteWallet" : true,
         "FileError": true,
         "downloader": true,

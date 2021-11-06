@@ -1,4 +1,3 @@
-export const SET_FIREBASE = 'SET_CURRENT_FIREBASE'
 export const SET_ACTIVE_PASSWORD = 'SET_CURRENT_ACTIVE_PASSWORD'
 export const SET_ADDRESS = 'SET_CURRENT_ADDRESS'
 export const SET_PRIVATE_KEY = 'SET_CURRENT_PRIVATE_KEY'
@@ -19,13 +18,6 @@ export const SET_TADDRESSES = 'SET_CURRENT_TADDRESSES'
 export const SET_ZADDRESSES = 'SET_CURRENT_ZADDRESSES'
 export const SET_TX = 'SET_CURRENT_TX'
 export const SET_MENU_READY = 'SET_CURRENT_MENU_READY'
-
-export function setFirebase (firebase) {
-  return {
-    type: SET_FIREBASE,
-    firebase
-  }
-}
 
 export function setActivePassword (activePassword) {
   return {
