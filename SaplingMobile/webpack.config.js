@@ -1,7 +1,12 @@
-const { WebpackCordovaBundlePlugin } = require("webpack-cordova-bundle-plugin");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+const ESLintPlugin = require('eslint-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 var path = require('path');
+
+const options = {
+    extensions: [`js`, `jsx`]
+}
 
 module.exports = {
   optimization: {
@@ -28,25 +33,10 @@ module.exports = {
     ],
   },
   mode: 'production',
-  entry: ['cordova/init','./src/index.js',],
+  entry: ['./src/index.js',],
   plugins: [
-        new WebpackCordovaBundlePlugin({
-            // your platform
-            platform: "android",
-            // list of plugins to include into bundle
-            // you can use something like this to automatically include Object.keys(require("./package.json").cordova.plugins)
-            plugins: [
-              'cordova-plugin-qrscanner',
-              'cordova-plugin-webpack',
-              'cordova-plugin-whitelist',
-              'cordova-plugin-litewallet',
-              'cordova-plugin-file',
-              'cordova-plugin-insomnia',
-              'cordova-plugin-screen-orientation',
-              'cordova-clipboard',
-              'cordova-plugin-androidx-adapter'
-            ],
-        }),
+        new NodePolyfillPlugin(),
+        new ESLintPlugin(options),
         new webpack.DefinePlugin({
             PLATFORM_VERSION_BUILD_LABEL: JSON.stringify(require("cordova-android/package.json").version), // substitute cordova-ios with your platform package
         }),
@@ -60,7 +50,7 @@ module.exports = {
     rules: [
       {
         test: /\.(js|jsx)$/,
-        use: ['babel-loader', 'eslint-loader'],
+        use: ['babel-loader'],
       },
       {
         test: /\.(gif|png|jpe?g|svg)$/i,

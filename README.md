@@ -43,6 +43,7 @@ Note: Cordova doesn't provide a large enough heap to compile with firebase, the 
 Requires Android SDK (Recommend Full Studio) and Oracle Java to be installed
 ```
 cordova platform add android@9
+npx webpack
 cordova prepare android
 cordova run android
 ```
