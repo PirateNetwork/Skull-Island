@@ -36,7 +36,7 @@ import { walletExists,
 
 import {encrypt, decrypt, saltHashPassword, KeySalt} from './utils/hash.js'
 
-import { ZERO_MOBILE_SAVE_PATH, readFromFile, getLocalFileSystemURL, getFileEntry, writeDataToFile } from './utils/persistentStorage'
+import { PIRATE_MOBILE_SAVE_PATH, readFromFile, getLocalFileSystemURL, getFileEntry, writeDataToFile } from './utils/persistentStorage'
 
 import { GlobalDiv } from './pagecomponents/PirateShared'
 
@@ -162,7 +162,7 @@ class App extends React.Component {
           } else {
             var pp = decrypt(this.props.settings.passPhrase, keyHash)
             if (pp != seed.seed) {
-              alert("WARNING!!!" + args[0] + " seed phrase does not match the ZeroVerse's Master seed phrase.")
+              alert("WARNING!!!" + args[0] + " seed phrase does not match the Skull Island's master seed phrase.")
             }
           }
         }
@@ -208,7 +208,7 @@ class App extends React.Component {
         try {
           const data = {settings: this.props.settings}
           const folder = await getLocalFileSystemURL()
-          const file = await getFileEntry(folder, ZERO_MOBILE_SAVE_PATH)
+          const file = await getFileEntry(folder, PIRATE_MOBILE_SAVE_PATH)
           await writeDataToFile(file, data)
           this.savingFile = false
         } catch {
@@ -239,7 +239,7 @@ class App extends React.Component {
 
     document.addEventListener('backbutton', this.backButtonHandler, false)
 
-    readFromFile(ZERO_MOBILE_SAVE_PATH, (data) => {
+    readFromFile(PIRATE_MOBILE_SAVE_PATH, (data) => {
       // If errors while we're reading the JSOn
       // then just assume its empty
 

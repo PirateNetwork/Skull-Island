@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="pirate.sapling.litewallet" version="2.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<widget id="pirate.sapling.litewallet" version="2.1.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>Pirate Wallet</name>
     <description>
         Pirate Wallet
     </description>
-    <author email="zerocurrency@gmail.com" href="https://zero.directory">
-        Team Zero
+    <author email="marketing@pirate.black" href="https://pirate.black">
+        Forge
     </author>
     <content src="index.html" />
     <access origin="*" />

@@ -1,5 +1,5 @@
-export const ZERO_MOBILE_SAVE_PATH = 'zero_wallet.json'
-export const ZERO_MOBILE_CONTACTS_PATH = 'zero_wallet_contacts.json'
+export const PIRATE_MOBILE_SAVE_PATH = 'zero_wallet.json'
+export const PIRATE_MOBILE_CONTACTS_PATH = 'zero_wallet_contacts.json'
 
 export function readFromFile (fileName, onSuccess, onFail) {
   const pathToFile = cordova.file.dataDirectory + fileName

@@ -46,7 +46,6 @@ NDK/
 plugintest/
 rust-zcash/
 rusttest/
-zero-mobile/
 SaplingPlugin/native/rust/target/
 
 #Cryptoforge Specific System
