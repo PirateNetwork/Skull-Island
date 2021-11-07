@@ -254,3 +254,15 @@ export const ZMainLowerSection = styled.div`
   left: 0;
   transition:  500ms;
 `
+
+export const ZMainSyncIndicator = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * (0.003)) + 'px' };
+  left: ${props => (props.theme.width * (0.08)) + 'px' };
+  height: ${props => (props.theme.height * 0.015) + 'px' };
+  width: ${props => (props.theme.width * 0.72) + 'px' };
+  font-size: ${props => (props.theme.height * 0.015) + 'px' };
+  color: ${props => props.synced ? 'rgba(149,198,35,1)' : 'rgba(229,66,18,1)'};
+  text-align: left;
+  background-color: #000000;
+`

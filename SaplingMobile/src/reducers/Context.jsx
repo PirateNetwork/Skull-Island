@@ -8,6 +8,8 @@ import {
   SET_ADDRESS,
   SET_PRIVATE_KEY,
   SET_HEIGHT,
+  SET_SYNCED_BLOCKS,
+  SET_REFRESH_SECONDS_REMAINING,
   SET_SYNCED,
   SET_BALANCE,
   SET_DIMENSIONS,
@@ -31,6 +33,8 @@ const initialContext = {
   address: '',
   privateKey: '',
   height: 0,
+  syncedBlocks: 0,
+  setRefreshSecondsRemaining: 0,
   synced: false,
   balance: 0,
   dimensions: {"height" : window.outerHeight, "width" : window.outerWidth},
@@ -73,6 +77,16 @@ export default function ContextReducer (state = initialContext, action) {
     case SET_HEIGHT:
       return Object.assign({}, state, {
         height: action.height
+      })
+
+    case SET_SYNCED_BLOCKS:
+      return Object.assign({}, state, {
+        syncedBlocks: action.syncedBlocks
+      })
+
+    case SET_REFRESH_SECONDS_REMAINING:
+      return Object.assign({}, state, {
+        refreshSecondsRemaining: action.refreshSecondsRemaining
       })
 
     case SET_SYNCED:

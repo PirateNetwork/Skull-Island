@@ -11,8 +11,8 @@ export const ChainSyncDiv = styled.div`
 
 export const ChainSyncStatus = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.00) + 'px' };
-  left: ${props => (props.theme.width * 0.05) + 'px' };
+  top: 0;
+  left: ${props => (props.theme.width * (0.075 + 0.020)) + 'px' };
   height: ${props => (props.theme.height * 0.015) + 'px' };
   width: ${props => (props.theme.width * 0.50) + 'px' };
   font-size: ${props => (props.theme.height * 0.015) + 'px' };
@@ -66,30 +66,32 @@ export const ChainSyncBalanceLogoImg = styled.img`
   top: 0;
   left: 0;
   height: ${props => (props.theme.height * 0.075) + 'px' };
-  width: ${props => (props.theme.height * 0.075) + 'px' };
+  width:  ${props => (props.theme.height * 0.075) + 'px' };
+  background-color: #000000;
 `
-
 
 export const ChainSyncBalance = styled.div`
   position: absolute;
   top: ${props => (props.theme.height * 0.0175) + 'px' };
-  left: ${props => (props.theme.width * 0.15) + 'px' };
+  right: ${props => (props.theme.width * (0.05)) + 'px' };
   height: ${props => (props.theme.height * 0.035) + 'px' };
-  width: ${props => (props.theme.width * 0.70) + 'px' };
-  font-size: ${props => (props.theme.height * 0.035) + 'px' };
+  width: ${props => (props.theme.width * 0.75) + 'px' };
+  font-size: ${props => (props.theme.height * 0.030) + 'px' };
   color: #bb9645;
   text-align: right;
+  background-color: #000000;
 `
 
 export const ChainSyncBalanceUnits = styled.div`
   position: absolute;
   top: ${props => (props.theme.height * (0.0175 + 0.0125)) + 'px' };
-  left: ${props => (props.theme.width * 0.85) + 'px'};
+  right: ${props => (props.theme.width * 0.05) + 'px' };
   height: ${props => (props.theme.height * 0.0225) + 'px' };
-  width: ${props => (props.theme.width * 0.15) + 'px' };
+  width: ${props => (props.theme.width * 0.12) + 'px' };
   font-size: ${props => (props.theme.height * 0.0225) + 'px' };
   color: #bb9645;
-  text-align: left;
+  text-align: right;
+  background-color: #000000;
 `
 
 

@@ -56,6 +56,7 @@ import {
   ZMainReceiveButton,
   ZMainCenterButton,
   ZMainCenterButtonImg,
+  ZMainSyncIndicator,
   ZMainLowerSection} from '../components/zmain'
 
 import menuIcon from '../assets/svg/menu_icon.svg'
@@ -242,6 +243,7 @@ class ZMain extends React.Component {
       }
 
       var syncedIndicator
+      
       if (this.props.context.synced) {
         syncedIndicator =
         <svg>
@@ -256,7 +258,65 @@ class ZMain extends React.Component {
         </svg>
       }
 
+      var syncIndicatorText
 
+      var downloaded
+      var remainingBlocks
+      var refreshRemaining
+      try {
+        if (this.props.context.syncedBlocks == 0) {
+          downloaded = 0
+          remainingBlocks = -1
+          refreshRemaining = 0.0
+        } else {
+          downloaded = (this.props.context.syncedBlocks / this.props.context.height * 100).toFixed(2)
+          remainingBlocks =  this.props.context.height - this.props.context.syncedBlocks
+          if ((remainingBlocks>0) && (downloaded==100))	{ 
+            downloaded=99.99
+          }          
+
+          //Timeout in milliseconds
+          var refreshTimeout = this.props.context.refreshSecondsRemaining
+          var now = Date.now()
+          if (refreshTimeout>now) {
+            refreshRemaining = ((refreshTimeout - now)/1000).toFixed(0)
+          } else {
+            refreshRemaining = 0.0
+          }
+
+        }
+      } catch (err) {
+        downloaded = 0
+        remainingBlocks = -1
+        refreshTimeout = -1
+      }     
+
+      if (this.props.context.walletError)
+      {
+        syncIndicatorText = 
+        <ZMainSyncIndicator synced = {0}>
+            { 'Wallet Error' }
+        </ZMainSyncIndicator>
+      } else {
+        if (this.props.context.synced) {
+          syncIndicatorText =
+          <ZMainSyncIndicator synced = {this.props.context.synced}>
+            {'Synced. Refresh in '+refreshRemaining.toString()+' seconds' }
+          </ZMainSyncIndicator>
+        } else {
+          if (remainingBlocks>0) {
+            syncIndicatorText = 
+            <ZMainSyncIndicator synced = {this.props.context.synced}>
+              { 'Syning ' + downloaded.toString() + '%. '+ remainingBlocks + ' blocks left. Refresh in '+refreshRemaining.toString()+' seconds' }
+            </ZMainSyncIndicator>	
+          } else {
+            syncIndicatorText = 
+            <ZMainSyncIndicator synced = {this.props.context.synced}>
+              { 'Syncing. Refresh in '+refreshRemaining.toString()+' seconds' }
+            </ZMainSyncIndicator>	
+          }
+        }
+      }
       const scanning =  this.props.context.qrScanning ? {opacity: '0.0', display: 'none'} : {opacity: '1.0', display: 'visible'}
 
       return (
@@ -274,7 +334,9 @@ class ZMain extends React.Component {
 
               <ZMainMenuZSynced>
                 {syncedIndicator}
+                {syncIndicatorText}
               </ZMainMenuZSynced>
+
 
               <ZMainMenuContent visible={this.state.menuOpen} size={3}>
                 <ZMainMenuContentImg src={menuPopup}/>
@@ -285,7 +347,8 @@ class ZMain extends React.Component {
                     this.props.setPrivateKeyPage('visible')
                   }}
                   >
-                  {'Private Key'}
+                  {/*Changed to match the terminology of the Treasure Chest full node wallet*/}
+                  {'Spending Key'}
                   </ZMainMenuButtonLine>
 
                   <ZMainMenuButtonLine pos={0.5}
@@ -294,7 +357,8 @@ class ZMain extends React.Component {
                     this.props.setPassPhrasePage('visible')
                   }}
                   >
-                  {'Show Passphrase'}
+                  {/*Changed to match the terminology of the Treasure Chest full node wallet*/}
+                  {'Seed Phrase'}
                   </ZMainMenuButtonLine>
 
                   <ZMainMenuButtonLine pos={-2.0}

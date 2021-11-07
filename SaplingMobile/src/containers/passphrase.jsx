@@ -142,7 +142,7 @@ class PassPhrase extends React.Component {
 
     render () {
 
-        var qrData = JSON.stringify({passphrase: this.state.passphrase, height: this.props.secrets.birthday})
+        var qrData = JSON.stringify({seedphrase: this.state.passphrase, height: this.props.secrets.birthday})
 
         if (this.props.mainSubPage.passPhrasePage == 'none' && !this.state.reset) {
           this.resetScroll(0)
@@ -153,7 +153,7 @@ class PassPhrase extends React.Component {
         if (this.state.bip39Compatible) {
           bip39Message = ''
         } else {
-          bip39Message = 'Phrase incompatible with Lite Wallet!!!'
+          bip39Message = 'Seed phrase incompatible with the Lite Wallet!'
         }
 
         return (
@@ -161,7 +161,8 @@ class PassPhrase extends React.Component {
             <PassPhraseSectionOverscroll ref = {this.scrollRef}>
               <PassPhraseSection visible={this.state.pin}>
                 <PassPhraseTitle>
-                  {'Wallet Passphrase'}
+                  {/*Changed to match the terminology of the Treasure Chest full node wallet*/}
+                  {'Export Seed Phrase'}
                 </PassPhraseTitle>
                 <PassPhrasePWTitle>
                   {'Password:'}
@@ -186,10 +187,11 @@ class PassPhrase extends React.Component {
               </PassPhraseSection>
               <PassPhraseSection visible={this.state.key}>
                 <PassPhraseTitle>
-                  {'Wallet Passphrase'}
+                  {/*Change to match the terminology of the Treasure Chest full node wallet*/}
+                  {'Export Seed Phrase'}
                 </PassPhraseTitle>
                 <PassPhrasePWTitle>
-                  {'Passphrase:'}
+                  {'Mneumonic:'}
                 </PassPhrasePWTitle>
                 <PassPhraseArea>
                   <PassPhraseGradientCapLeft />
@@ -224,10 +226,11 @@ class PassPhrase extends React.Component {
                   {'Copy'}
                 </PassPhraseCopyButton>
                 <PassPhraseNote1>
-                  {'Passphrase is used to recover or transfer'}
+                  {/*Changed to match the terminology of the Treasure Chest full node wallet*/}
+                  {'The seed phrase is the only way to restore'}
                 </PassPhraseNote1>
                 <PassPhraseNote2>
-                  {'your wallet to another device.'}
+                  {'your wallet. Please back it up securely'}
                 </PassPhraseNote2>
                 <PassPhraseQRTitle>
                   {'QR Code:'}

@@ -51,7 +51,8 @@ class ZTransactionList extends React.Component {
       transactionList: null,
       address: '',
       memo: '',
-      displayMemo: false
+      displayMemo: false,
+      txType: 0
     }
 
     this.scrollRef = React.createRef()
@@ -61,12 +62,14 @@ class ZTransactionList extends React.Component {
     this.createTransactionList = this.createTransactionList.bind(this)
     this.setMemo = this.setMemo.bind(this)
     this.setDisplayMemo = this.setDisplayMemo.bind(this)
+    this.setTxType = this.setTxType.bind(this)
   }
 
     setTransactionList (b) {this.setState({transactionList: b})}
     setAddress (b) {this.setState({address: b})}
     setMemo (b) {this.setState({memo: b})}
     setDisplayMemo (b) {this.setState({displayMemo: b})}
+    setTxType (b)      {this.setState({txType: b})}
 
     resetScroll (p) {
       this.scrollRef.current.scrollTop = p
@@ -186,9 +189,11 @@ class ZTransactionList extends React.Component {
                   {tx.type==0 ? 'Incoming' : 'Outgoing'}
                   <ZTransactionMemoButton display = {tx.memo.length + tx.type}
                     onClick = {() => {
+                      console.log('LITEWALLET ztransactionlist createTransactionList(): addr:'+tx.address+', memo:'+tx.memo+', type:'+tx.type)
                       this.setAddress(tx.address)
                       this.setMemo(tx.memo)
                       this.setDisplayMemo(true)
+                      this.setTxType(tx.type)
                     }}>
                     <ZTransactionMemoImg src={memoIcon} />
                   </ZTransactionMemoButton>
@@ -226,11 +231,16 @@ class ZTransactionList extends React.Component {
     componentDidMount() {
       this.createTransactionList()
 
+      //This code gets triggered only once during 'DidMount()'. Set timeout
+      //to to the 'synced' refreshtime of 60 seconds. Don't bother to increase
+      //refresh interval while syncing
+      var refreshTimeout=60000
+      console.log('LITEWALLET ztransactionlist createTransactionList() Refresh '+refreshTimeout+' seconds')
+
       this.ProcessID = setInterval(
         () => this.createTransactionList(),
-        5000
+        refreshTimeout
       );
-
     }
 
     componentWillUnmount() {
@@ -250,13 +260,20 @@ class ZTransactionList extends React.Component {
           displayListSection = 'visible'
         }
 
-
+        console.log('LITEWALLET ztransactionlist Render():type='+this.state.txType+', memo: '+this.state.memo)
+        var addressDescription
+        //0='Incoming', 1='Outgoing'
+        if (this.state.txType==0) {
+          addressDescription="Received ARRR on our Pirate address:"
+        } else {
+          addressDescription="Sent ARRR to Pirate address:"
+        }
         return (
           <ZTransactionListMain>
             <ZTransactionListOverScroll ref = {this.scrollRef} visible = {displayMemoSection}>
               <ZTransactionMemo>
                 <br/>
-                {'Pirate Address:'}
+                {addressDescription}
                 <br/>
                 {this.state.address}
                 <br/><br/>
@@ -270,6 +287,7 @@ class ZTransactionList extends React.Component {
                     this.setAddress('')
                     this.setMemo('')
                     this.setDisplayMemo(false)
+                    this.setTxType(0)
                   }}>
                   {'Close'}
                 </ZTransactionMemoCloseButton>

@@ -136,14 +136,23 @@ class BalanceGraph extends React.Component {
         }
     }
 
+    var refreshTimeout=0
     this.setTransactionData(points)
     if (!manualRefresh) {
       clearTimeout(this.GraphID)
       if (maxPoint == 0) {
-        this.GraphID = setTimeout(() => {this.createGraphData(false)},500)
+        refreshTimeout=500
       } else {
-        this.GraphID = setTimeout(() => {this.createGraphData(false)},5000)
+        if (this.props.context.synced) {
+          refreshTimeout=60000
+          console.log('LITEWALLET balancegraph createGraphData() : Synced. maxPoint=='+maxPoint+'. Refresh '+refreshTimeout+' seconds')
+        } else {
+          refreshTimeout=10000
+          console.log('LITEWALLET balancegraph createGraphData() : Syncing. maxPoint=='+maxPoint+'. Refresh '+refreshTimeout+' seconds')
+        } 
       }
+      
+      this.GraphID = setTimeout(() => {this.createGraphData(false)},refreshTimeout)
     }
   }
 

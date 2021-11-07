@@ -51,7 +51,7 @@ class SplashPage extends React.Component {
           <SplashFooter>
             <SplashCopyright>
               <span>
-                © Copyright 2020 PirateChain
+                © Copyright 2021 PirateChain
                 <br/>
                 • All rights reserved •
               </span>
@@ -88,7 +88,7 @@ SplashPage.propTypes = {
 // </SplashFooter>
 // <Copyright>
 //   <CenteredDiv>
-//     <span>© Copyright 2020 PirateChain <br/>• All rights reserved •</span>
+//     <span>© Copyright 2021 PirateChain <br/>• All rights reserved •</span>
 //   </CenteredDiv>
 // </Copyright>
 

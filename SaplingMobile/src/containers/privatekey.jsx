@@ -134,7 +134,8 @@ class PrivateKey extends React.Component {
             <PrivateKeySectionOverscroll ref = {this.scrollRef}>
               <PrivateKeySection visible={this.state.pin}>
                 <PrivateKeyTitle>
-                  {'Private Key'}
+                  {/* Changed to match the terminology of the Treasure Chest full node wallet*/}
+                  {'Export Spending Key'}
                 </PrivateKeyTitle>
                 <PrivateKeyPWTitle>
                   {'Password:'}
@@ -159,10 +160,11 @@ class PrivateKey extends React.Component {
               </PrivateKeySection>
               <PrivateKeySection visible={this.state.showkey}>
                 <PrivateKeyTitle>
-                  {'Private Key'}
+                  {/* Changed to match the terminology of the Treasure Chest full node wallet */}
+                  {'Export Spending Key'}
                 </PrivateKeyTitle>
                 <PrivateKeyPWTitle>
-                  {'Key:'}
+                  {'Private key:'}
                 </PrivateKeyPWTitle>
                 <PrivateKeyArea>
                   <PrivateKeyInput flash = {this.state.flash}>
@@ -170,7 +172,6 @@ class PrivateKey extends React.Component {
                   </PrivateKeyInput>
                 </PrivateKeyArea>
                 <PrivateKeyCopyButton
-
                     onClick={() => {
                     cordova.plugins.clipboard.copy(this.props.context.privateKey)
                     this.beginFlash()
@@ -178,10 +179,10 @@ class PrivateKey extends React.Component {
                   {'Copy'}
                 </PrivateKeyCopyButton>
                 <PrivateKeyNote1>
-                  {'Private Key is used to recover or transfer'}
+                  {'The recovery info of your Pirate address.'}
                 </PrivateKeyNote1>
                 <PrivateKeyNote2>
-                  {'your address to a full node wallet.'}
+                  {'It can be imported in a full node wallet.'}
                 </PrivateKeyNote2>
                 <PrivateKeyQRTitle>
                   {'QR Code:'}

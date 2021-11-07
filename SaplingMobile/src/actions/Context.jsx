@@ -3,6 +3,8 @@ export const SET_ACTIVE_PASSWORD = 'SET_CURRENT_ACTIVE_PASSWORD'
 export const SET_ADDRESS = 'SET_CURRENT_ADDRESS'
 export const SET_PRIVATE_KEY = 'SET_CURRENT_PRIVATE_KEY'
 export const SET_HEIGHT = 'SET_CURRENT_HEIGHT'
+export const SET_SYNCED_BLOCKS = 'SET_CURRENT_SYNCED_BLOCKS'
+export const SET_REFRESH_SECONDS_REMAINING = 'SET_CURRENT_REFRESH_SECONDS_REMINAING'
 export const SET_SYNCED = 'SET_CURRENT_SYNCED'
 export const SET_BALANCE = 'SET_CURRENT_BALANCE'
 export const SET_DIMENSIONS = 'SET_CURRENT_DIMENSIONS'
@@ -43,6 +45,20 @@ export function setPrivateKey (privateKey) {
   return {
     type: SET_PRIVATE_KEY,
     privateKey
+  }
+}
+
+export function setRefreshSecondsRemaining(refreshSecondsRemaining) {
+  return {
+    type: SET_REFRESH_SECONDS_REMAINING,
+    refreshSecondsRemaining
+  }
+}
+
+export function setSyncedBlocks(syncedBlocks) {
+  return {
+    type: SET_SYNCED_BLOCKS,
+    syncedBlocks
   }
 }
 

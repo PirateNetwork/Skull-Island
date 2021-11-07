@@ -44,8 +44,7 @@ module.exports = {
               'cordova-plugin-insomnia',
               'cordova-plugin-screen-orientation',
               'cordova-clipboard',
-              'cordova-plugin-androidx-adapter',
-              'cordova-plugin-firebasex'
+              'cordova-plugin-androidx-adapter'
             ],
         }),
         new webpack.DefinePlugin({
