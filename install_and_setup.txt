@@ -29,6 +29,10 @@
 
  Android Studio
  --------------
+ Browse to https://developer.android.com/studio
+ Select Download Android Studio
+   The download is approx. 930mb
+
  $ tar -xvzf android-studio-2020.3.1.25-linux.tar.gz
  $ mv android-studio ~
  $ cd ~/android-studio/bin
