@@ -189,7 +189,6 @@ class ZTransactionList extends React.Component {
                   {tx.type==0 ? 'Incoming' : 'Outgoing'}
                   <ZTransactionMemoButton display = {tx.memo.length + tx.type}
                     onClick = {() => {
-                      console.log('LITEWALLET ztransactionlist createTransactionList(): addr:'+tx.address+', memo:'+tx.memo+', type:'+tx.type)
                       this.setAddress(tx.address)
                       this.setMemo(tx.memo)
                       this.setDisplayMemo(true)
@@ -260,7 +259,6 @@ class ZTransactionList extends React.Component {
           displayListSection = 'visible'
         }
 
-        console.log('LITEWALLET ztransactionlist Render():type='+this.state.txType+', memo: '+this.state.memo)
         var addressDescription
         //0='Incoming', 1='Outgoing'
         if (this.state.txType==0) {
