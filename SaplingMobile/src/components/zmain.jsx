@@ -89,7 +89,7 @@ export const ZMainMenuContent = styled.div`
   background-color: #000000;
   height: ${props => (props.theme.height) + 'px'};
   width: ${props => (props.theme.width) + 'px'};
-  z-index: 2;
+  z-index: 199;
 `
 
 export const ZMainMenuContentButtons = styled.div`
@@ -98,7 +98,7 @@ export const ZMainMenuContentButtons = styled.div`
   left: ${props => (props.theme.width/2) - (props.theme.width * 0.6/2) + 'px'};
   height: ${props => (props.theme.width * 0.6) + 'px'};
   width: ${props => (props.theme.width * 0.6) + 'px'};
-  z-index: 2;
+  z-index: 199;
 `
 
 export const ZMainMenuContentImg = styled.img`
@@ -172,87 +172,120 @@ export const ZMainCenterButtonImg = styled.img`
 `
 
 export const ZMainMiddleSection = styled.div`
-  height: ${props => (props.theme.height * 0.075) + ((((props.theme.width * 0.7)/15)*1.5)*2) + 'px'};
-  width: ${props => props.theme.width + 'px'};
   position: absolute;
-  top: ${props => ((props.theme.height * 0.40) - (props.theme.height * props.hPositionMod))+ 'px'};
+  top: ${props => (props.theme.height * 0.175) + 'px'};
   left: 0;
-  transition:  500ms;
+  height: ${props => (props.theme.height * 0.1625) + 'px'};
+  width: ${props => props.theme.width + 'px'};
+  background-color: rgba(0,0,0,1);
+  border-radius: ${props => (props.theme.height * 0.015/2) + 'px'};
+  z-index: 0;
 `
 
-export const ZMainTransactionListHeader = styled.div`
+export const ZMainAddressListHeader = styled.div`
+  position: absolute;
+  top: 0;
+  left: ${props => (props.theme.width * 0.05) + 'px'};
   height: ${props => ((((props.theme.width * 0.7)/15)*1.5)) + 'px'};
   width: ${props => (props.theme.width * 0.9) + 'px'};
-  font-size: ${props => (((props.theme.width * 0.7)/20)*1.5) + 'px'};
+  font-size: ${props => (((props.theme.width * 0.7)/25)*1.5) + 'px'};
   font-weight: bold;
   color: #bb9645;
-  position: absolute;
-  bottom: ${props => ((((props.theme.width * 0.7)/15)*1.5) * 6/8) + 'px'};
-  left: ${props => (props.theme.width * 0.05) + 'px'};
-  transition: 500ms;
-`
-
-export const ZMainTransactionListSwipeUp= styled.div`
-  height: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * props.hSize + 'px'};
-  width: ${props => (props.theme.width * 0.9) + 'px'};
-  position: absolute;
-  bottom: ${props => ((((props.theme.width * 0.7)/15)*1.5) * 2/8) + 'px'};
-  left:${props => (props.theme.width * 0.05) + 'px'};
-  transition: 500ms;
+  background-image: linear-gradient(rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,0), rgba(0,0,0,0));
   z-index: 2;
-  text-align: center;
 `
 
-export const ZMainTransactionListSwipeDown = styled.div`
-  height: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * props.hSize + 'px'};
-  width: ${props => (props.theme.width * 0.9) + 'px'};
+export const ZMainAddressList = styled.div`
   position: absolute;
-  bottom: ${props => ((((props.theme.width * 0.7)/15)*1.5) * 1/8) + 'px'};
-  left: ${props => (props.theme.width * 0.05) + 'px'};
-  transition: 500ms;
-  z-index: 2;
-  text-align: center;
-`
-
-export const ZMainTransactionListSwipeUpImg = styled.img`
-  position: absolute;
-  bottom: 0;
-  left: ${props =>(props.theme.width * 0.45) - (((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * 2.5 * props.hSize)/2 + 'px'};
-  height: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * props.hSize + 'px'};
-  width: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * 2.5 * props.hSize + 'px'};
-  transition: 500ms;
-`
-
-export const ZMainTransactionListSwipeDownImg = styled.img`
-  position: absolute;
-  bottom: 0;
-  left: ${props =>(props.theme.width * 0.45) - (((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * 2.5 * props.hSize)/2 + 'px'};
-  height: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * props.hSize + 'px'};
-  width: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * 2.5 * props.hSize + 'px'};
-  transform: rotate(180deg);
-  transition: 500ms;
-`
-
-export const ZMainTransactionListSwipe = styled.div`
-  height: ${props => ((((props.theme.width * 0.7)/15)*1.5)*2) + 'px'};
-  width: ${props => (props.theme.width) + 'px'};
-  font-size: ${props => (((props.theme.width * 0.7)/20)*1.5) + 'px'};
-  font-weight: bold;
-  color: #bb9645;
-  position: absolute;
-  bottom: 0;
+  top: ${props => (((props.theme.width * 0.7)/16)*1.5) + 'px'};
   left: 0;
+  height: ${props => ((props.theme.height * 0.1625) - (((props.theme.width * 0.7)/15)*1.5)) + 'px'};
+  width: ${props => (props.theme.width) + 'px'};
   z-index: 1;
 `
 
-export const ZMainLowerSection = styled.div`
-  background-image: linear-gradient(rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,0));
-  height: ${props => ((props.theme.height * 0.365) - ((((props.theme.width * 0.7)/15)*1.5)*2) + (props.theme.height * props.hPositionMod)) + 'px'};
-  width: ${props => props.theme.width + 'px'};
+export const ZMainAddressListEndCap = styled.div`
   position: absolute;
-  bottom: ${props => (props.theme.height * 0.15) + 'px'};
+  top: ${props => (props.theme.height * 0.3375) + 'px'};
   left: 0;
-  transition:  500ms;
+  height: ${props => (props.theme.height * (1 - 0.3375)) + 'px'};
+  width: ${props => (props.theme.width) + 'px'};
+  background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1));
+  z-index: 2;
+`
+
+// export const ZMainTransactionListSwipeUp= styled.div`
+//   height: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * props.hSize + 'px'};
+//   width: ${props => (props.theme.width * 0.9) + 'px'};
+//   position: absolute;
+//   bottom: ${props => ((((props.theme.width * 0.7)/15)*1.5) * 2/8) + 'px'};
+//   left:${props => (props.theme.width * 0.05) + 'px'};
+//   transition: 500ms;
+//   z-index: 2;
+//   text-align: center;
+// `
+//
+// export const ZMainTransactionListSwipeDown = styled.div`
+//   height: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * props.hSize + 'px'};
+//   width: ${props => (props.theme.width * 0.9) + 'px'};
+//   position: absolute;
+//   bottom: ${props => ((((props.theme.width * 0.7)/15)*1.5) * 1/8) + 'px'};
+//   left: ${props => (props.theme.width * 0.05) + 'px'};
+//   transition: 500ms;
+//   z-index: 2;
+//   text-align: center;
+// `
+//
+// export const ZMainTransactionListSwipeUpImg = styled.img`
+//   position: absolute;
+//   bottom: 0;
+//   left: ${props =>(props.theme.width * 0.45) - (((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * 2.5 * props.hSize)/2 + 'px'};
+//   height: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * props.hSize + 'px'};
+//   width: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * 2.5 * props.hSize + 'px'};
+//   transition: 500ms;
+// `
+//
+// export const ZMainTransactionListSwipeDownImg = styled.img`
+//   position: absolute;
+//   bottom: 0;
+//   left: ${props =>(props.theme.width * 0.45) - (((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * 2.5 * props.hSize)/2 + 'px'};
+//   height: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * props.hSize + 'px'};
+//   width: ${props => ((((props.theme.width * 0.7)/15)*1.5)/2) * 0.85 * 2.5 * props.hSize + 'px'};
+//   transform: rotate(180deg);
+//   transition: 500ms;
+// `
+
+export const ZMainLowerSection = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * 0.35) + 'px'};
+  left: 0;
+  height: ${props => (props.theme.height * 0.5125) + 'px'};
+  width: ${props => props.theme.width + 'px'};
+  background-color: rgba(0,0,0,1);
+  border-radius: ${props => (props.theme.height * 0.015/2) + 'px'};
+  z-index: 3;
+`
+export const ZMainTransactionListHeader = styled.div`
+  position: absolute;
+  top: 0;
+  left: ${props => (props.theme.width * 0.05) + 'px'};
+  height: ${props => ((((props.theme.width * 0.7)/15)*1.5)) + 'px'};
+  width: ${props => (props.theme.width * 0.9) + 'px'};
+  font-size: ${props => (((props.theme.width * 0.7)/25)*1.5) + 'px'};
+  font-weight: bold;
+  color: #bb9645;
+  left: ${props => (props.theme.width * 0.05) + 'px'};
+  background-image: linear-gradient(rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,0), rgba(0,0,0,0));
+  z-index: 5;
+`
+
+export const ZMainTransactionList = styled.div`
+  position: absolute;
+  top: ${props => (((props.theme.width * 0.7)/17)*1.5) + 'px'};
+  left: 0;
+  height: ${props => ((props.theme.height * 0.5125) - (((props.theme.width * 0.7)/25)*1.5)) + 'px'};
+  width: ${props => (props.theme.width) + 'px'};
+  z-index: 4;
 `
 
 export const ZMainSyncIndicator = styled.div`

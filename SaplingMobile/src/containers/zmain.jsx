@@ -6,16 +6,18 @@ import { connect } from 'react-redux'
 
 import axios from 'axios'
 
+import {newZAddress} from '../utils/litewallet'
+
 import {
   setZerInBtcValue,
   setZerInCurrencyValue,
-  setQrScanning} from '../actions/Context'
+  setQrScanning,
+  setAddressScanning} from '../actions/Context'
 
 import {
   setMainPage,
   setSendPage,
   setReceivePage,
-  setPrivateKeyPage,
   setPassPhrasePage,
   setReindexPage,
   setGraphOpen,
@@ -27,8 +29,6 @@ import {
 import Qr from '../containers/qr'
 
 import {GraphOpenPos, GraphClosedPos} from '../reducers/MainSubPage'
-
-import { Swipeable, defineSwipe } from 'react-touch';
 
 import {
     BlackBackgroundQR,
@@ -45,26 +45,20 @@ import {
   ZMainMenuContent,
   ZMainMenuContentImg,
   ZMainMenuButtonLine,
+  ZMainAddressListHeader,
+  ZMainAddressList,
   ZMainTransactionListHeader,
-  ZMainTransactionListSwipe,
-  ZMainTransactionListSwipeUp,
-  ZMainTransactionListSwipeDown,
-  ZMainTransactionListSwipeUpImg,
-  ZMainTransactionListSwipeDownImg,
+  ZMainTransactionList,
   ZMainMiddleSection,
-  ZMainSendButton,
-  ZMainReceiveButton,
-  ZMainCenterButton,
-  ZMainCenterButtonImg,
   ZMainSyncIndicator,
   ZMainLowerSection} from '../components/zmain'
 
 import menuIcon from '../assets/svg/menu_icon.svg'
 import menuPopup from '../assets/svg/modal_popup.svg'
-import arrow from '../assets/png/up_arrow.png'
-import qrImg from '../assets/svg/qr-code.svg'
+
 
 import ZTransactionList from '../containers/ztransactionlist'
+import ZAddressList from '../containers/zaddresslist'
 
 class ZMain extends React.Component {
 
@@ -74,8 +68,10 @@ class ZMain extends React.Component {
     this.state = {
       menuOpen: 'none',
       scrollPosition: 0,
-      graphPosition: GraphOpenPos,
+      graphPosition: GraphClosedPos,
       localGraphState : true,
+      tick: null,
+      tickTimer: null,
     }
 
     this.getZerPrice = this.getZerPrice.bind(this)
@@ -83,8 +79,8 @@ class ZMain extends React.Component {
     this.toggleMenu = this.toggleMenu.bind(this)
     this.setGraphPosition = this.setGraphPosition.bind(this)
     this.setLocalGraphState = this.setLocalGraphState.bind(this)
-    this.handleQRScan = this.handleQRScan.bind(this)
-    this.safeReleaseCamera = this.safeReleaseCamera.bind(this)
+    // this.handleQRScan = this.handleQRScan.bind(this)
+    // this.safeReleaseCamera = this.safeReleaseCamera.bind(this)
   }
 
     setLocalGraphState (b) {
@@ -150,100 +146,93 @@ class ZMain extends React.Component {
       }
     }
 
-    handleQRScan () {
-      // Prepare QR Scanner
-      QRScanner.prepare(function (err, status) {
-        // Oh no!
-        if (err) {
-          alert(JSON.stringify(err))
-        }
-
-        // If we are authorized to scan, then only do we invoke
-        // the scan method
-        if (status.authorized) {
-          // Start scanning
-          QRScanner.scan(function (err, address) {
-            // an error occurred, or the scan was canceled (error code `6`)
-            if (err) {
-              alert(JSON.stringify(err))
-            } else {
-              // The scan completed, display the contents of the QR code
-              this.props.setMainPage('none')
-              this.props.setSendPage('visible')
-              this.props.setSendToAddress(address)
-            }
-
-            // Set finished scanning
-            this.props.setQrScanning(false)
-            QRScanner.destroy()
-          }.bind(this))
-
-          // Show scanning preview
-          QRScanner.show()
-
-          // Set transparency
-          this.props.setQrScanning(true)
-        } else if (status.denied) {
-          // const CUR_LANG = this.props.settings.language
-          // alert(TRANSLATIONS[CUR_LANG].SendPage.noCameraPermissions)
-          QRScanner.openSettings()
-        } else {
-          // we didn't get permission, but we didn't get permanently denied. (On
-          // Android, a denial isn't permanent unless the user checks the "Don't
-          // ask again" box.) We can ask again at the next relevant opportunity.
-        }
-      }.bind(this))
-    }
-
-    safeReleaseCamera () {
-      // Destroy QR scanner if user goes back
-      // while scanning
-      if (this.props.context.qrScanning) {
-        QRScanner.destroy()
-        this.props.setQrScanning(false)
-      }
-    }
+    // handleQRScan () {
+    //   this.props.setAddressScanning(false)
+    //   this.props.setQrScanning(true)
+    //   // Prepare QR Scanner
+    //   QRScanner.prepare(function (err, status) {
+    //     // Oh no!
+    //     if (err) {
+    //       alert(JSON.stringify(err))
+    //     }
+    //
+    //     // If we are authorized to scan, then only do we invoke
+    //     // the scan method
+    //     if (status.authorized) {
+    //       // Start scanning
+    //       QRScanner.scan(function (err, address) {
+    //         // an error occurred, or the scan was canceled (error code `6`)
+    //         if (err) {
+    //           alert(JSON.stringify(err))
+    //         } else {
+    //           // The scan completed, display the contents of the QR code
+    //           this.props.setMainPage('none')
+    //           this.props.setSendPage('visible')
+    //           this.props.setSendToAddress(address)
+    //         }
+    //
+    //         // Set finished scanning
+    //         this.props.setQrScanning(false)
+    //         QRScanner.destroy()
+    //       }.bind(this))
+    //
+    //       // Show scanning preview
+    //       QRScanner.show()
+    //
+    //       // Set transparency
+    //       this.props.setQrScanning(true)
+    //     } else if (status.denied) {
+    //       // const CUR_LANG = this.props.settings.language
+    //       // alert(TRANSLATIONS[CUR_LANG].SendPage.noCameraPermissions)
+    //       QRScanner.openSettings()
+    //     } else {
+    //       // we didn't get permission, but we didn't get permanently denied. (On
+    //       // Android, a denial isn't permanent unless the user checks the "Don't
+    //       // ask again" box.) We can ask again at the next relevant opportunity.
+    //     }
+    //   }.bind(this))
+    // }
+    //
+    // safeReleaseCamera () {
+    //   // Destroy QR scanner if user goes back
+    //   // while scanning
+    //   if (this.props.context.qrScanning) {
+    //     QRScanner.destroy()
+    //     this.props.setQrScanning(false)
+    //   }
+    // }
 
     componentDidMount() {
       window.addEventListener("click", this.closeMenu)
 
       this.getZerPrice()
       this.PriceID = setInterval(() => this.getZerPrice(),30000)
+
+      const updateTickIDLong = setInterval(
+        () => {
+          this.setState({tick: Date.now()})
+        },
+        1000
+      )
+      this.setState({tickTimer: updateTickIDLong})
+
     }
 
     componentWillUnmount() {
       window.removeEventListener("click", this.closeMenu)
       clearInterval(this.PriceID)
-      this.safeReleaseCamera()
+      // this.safeReleaseCamera()
+      clearInterval(this.state.tickTimer)
     }
 
     render () {
 
-      //Disable Send button
-      var displaySendButton
-      if (this.props.context.synced == true) {
-        displaySendButton = 1
-      } else {
-        displaySendButton = 0.5
-      }
-
-
-      var swipe = defineSwipe({swipeDistance: 10});
-      var titlePosition
-      var topOpen
-      var bottomOpen
-      if (this.props.mainSubPage.graphOpen) {
-        titlePosition = 2.0/8.0
-        topOpen = 1
-        bottomOpen = 0
-      } else {
-        titlePosition = 5.0/8.0
-        topOpen = 0
-        bottomOpen = 1
-      }
+      // if (this.props.context.addrScanning) {
+      //    this.handleQRScan()
+      // }
 
       var syncedIndicator
-      
+
       if (this.props.context.synced) {
         syncedIndicator =
         <svg>
@@ -262,38 +251,38 @@ class ZMain extends React.Component {
 
       var downloaded
       var remainingBlocks
-      var refreshRemaining
+      // var refreshRemaining
       try {
         if (this.props.context.syncedBlocks == 0) {
           downloaded = 0
           remainingBlocks = -1
-          refreshRemaining = 0.0
+          // refreshRemaining = 0.0
         } else {
           downloaded = (this.props.context.syncedBlocks / this.props.context.height * 100).toFixed(2)
           remainingBlocks =  this.props.context.height - this.props.context.syncedBlocks
-          if ((remainingBlocks>0) && (downloaded==100))	{ 
+          if ((remainingBlocks>0) && (downloaded==100))	{
             downloaded=99.99
-          }          
+          }
 
           //Timeout in milliseconds
-          var refreshTimeout = this.props.context.refreshSecondsRemaining
-          var now = Date.now()
-          if (refreshTimeout>now) {
-            refreshRemaining = ((refreshTimeout - now)/1000).toFixed(0)
-          } else {
-            refreshRemaining = 0.0
-          }
+          // var refreshTimeout = this.props.context.refreshSecondsRemaining
+          // var now = Date.now()
+          // if (refreshTimeout>now) {
+          //   refreshRemaining = ((refreshTimeout - now)/1000).toFixed(0)
+          // } else {
+          //   refreshRemaining = 0.0
+          // }
 
         }
       } catch (err) {
         downloaded = 0
         remainingBlocks = -1
-        refreshTimeout = -1
-      }     
+        // refreshTimeout = -1
+      }
 
       if (this.props.context.walletError)
       {
-        syncIndicatorText = 
+        syncIndicatorText =
         <ZMainSyncIndicator synced = {0}>
             { 'Wallet Error' }
         </ZMainSyncIndicator>
@@ -301,19 +290,19 @@ class ZMain extends React.Component {
         if (this.props.context.synced) {
           syncIndicatorText =
           <ZMainSyncIndicator synced = {this.props.context.synced}>
-            {'Synced. Refresh in '+refreshRemaining.toString()+' seconds' }
+            {'Synced. Block height ' + this.props.context.height.toString()}
           </ZMainSyncIndicator>
         } else {
           if (remainingBlocks>0) {
-            syncIndicatorText = 
+            syncIndicatorText =
             <ZMainSyncIndicator synced = {this.props.context.synced}>
-              { 'Syning ' + downloaded.toString() + '%. '+ remainingBlocks + ' blocks left. Refresh in '+refreshRemaining.toString()+' seconds' }
-            </ZMainSyncIndicator>	
+              { 'Syning ' + downloaded.toString() + '%. '+ remainingBlocks + ' blocks left.'}
+            </ZMainSyncIndicator>
           } else {
-            syncIndicatorText = 
+            syncIndicatorText =
             <ZMainSyncIndicator synced = {this.props.context.synced}>
-              { 'Syncing. Refresh in '+refreshRemaining.toString()+' seconds' }
-            </ZMainSyncIndicator>	
+              {'Synced. Block height ' + this.props.context.height.toString()}
+            </ZMainSyncIndicator>
           }
         }
       }
@@ -337,31 +326,19 @@ class ZMain extends React.Component {
                 {syncIndicatorText}
               </ZMainMenuZSynced>
 
-
               <ZMainMenuContent visible={this.state.menuOpen} size={3}>
                 <ZMainMenuContentImg src={menuPopup}/>
                 <ZMainMenuContentButtons>
                   <ZMainMenuButtonLine pos={3.0}
                   onClick={() => {
                     this.props.setMainPage('none')
-                    this.props.setPrivateKeyPage('visible')
-                  }}
-                  >
-                  {/*Changed to match the terminology of the Treasure Chest full node wallet*/}
-                  {'Spending Key'}
-                  </ZMainMenuButtonLine>
-
-                  <ZMainMenuButtonLine pos={0.5}
-                  onClick={() => {
-                    this.props.setMainPage('none')
                     this.props.setPassPhrasePage('visible')
                   }}
                   >
-                  {/*Changed to match the terminology of the Treasure Chest full node wallet*/}
                   {'Seed Phrase'}
                   </ZMainMenuButtonLine>
 
-                  <ZMainMenuButtonLine pos={-2.0}
+                  <ZMainMenuButtonLine pos={0.5}
                   onClick={() => {
                     this.props.setMainPage('none')
                     this.props.setReindexPage('visible')
@@ -369,77 +346,38 @@ class ZMain extends React.Component {
                   >
                   {'Rescan'}
                   </ZMainMenuButtonLine>
+                  <ZMainMenuButtonLine pos={-2.0}
+                  onClick={() => {
+                    newZAddress()
+                  }}
+                  >
+                  {'New Address'}
+                  </ZMainMenuButtonLine>
                 </ZMainMenuContentButtons>
               </ZMainMenuContent>
             </ZMainMenu>
 
-            <ZMainMiddleSection hPositionMod={this.state.graphPosition}>
-              <ZMainSendButton opacity = {displaySendButton}
-                onClick={() => {
-                  if (displaySendButton == 1) {
-                    this.props.setMainPage('none')
-                    this.props.setSendPage('visible')
-                  }
-                }}>
-                Send
-              </ZMainSendButton>
-              <ZMainCenterButton opacity = {displaySendButton}
-                onClick={() => {
-                  if (displaySendButton == 1) {
-                    this.handleQRScan()
-                  }
-                }}>
-                <ZMainCenterButtonImg src = {qrImg} />
-              </ZMainCenterButton>
-              <ZMainReceiveButton
-                onClick={() => {
-                  this.props.setMainPage('none')
-                  this.props.setReceivePage('visible')
-                }}>
-                Receive
-              </ZMainReceiveButton>
-
-
-
-              <Swipeable config={swipe}
-                onSwipeUp={ () => {
-                  if (this.props.mainSubPage.graphOpen) {
-                    this.props.setGraphOpen(false)
-                    this.setLocalGraphState(false)
-                    this.props.setTransactionScroll(true)
-                    this.setGraphPosition()
-                  }}}
-                onSwipeDown={() => {
-                  if (!this.props.mainSubPage.graphOpen) {
-                    this.props.setTransactionScroll(false)
-                    this.props.setGraphOpen(true)
-                    this.setLocalGraphState(true)
-                    this.setGraphPosition()
-                  }
-                }}>
-                  <ZMainTransactionListSwipe>
-                    <ZMainTransactionListSwipeUp hSize = {topOpen}>
-                      <ZMainTransactionListSwipeUpImg hSize = {topOpen} src={arrow} />
-                    </ZMainTransactionListSwipeUp>
-                    <ZMainTransactionListHeader titlePosition = {titlePosition}>
-                      {'Transaction History'}
-                    </ZMainTransactionListHeader>
-                    <ZMainTransactionListSwipeDown hSize = {bottomOpen}>
-                      <ZMainTransactionListSwipeDownImg hSize = {bottomOpen} src={arrow} />
-                    </ZMainTransactionListSwipeDown>
-                  </ZMainTransactionListSwipe>
-              </Swipeable>
-
-
-
+            <ZMainMiddleSection>
+              <ZMainAddressListHeader>
+                {'Wallet Addresses'}
+              </ZMainAddressListHeader>
+              <ZMainAddressList>
+                <ZAddressList/>
+              </ZMainAddressList>
             </ZMainMiddleSection>
 
-            <ZMainLowerSection hPositionMod={this.state.graphPosition}>
-              <ZTransactionList/>
+            <ZMainLowerSection>
+              <ZMainTransactionListHeader>
+                {'Wallet Transactions'}
+              </ZMainTransactionListHeader>
+              <ZMainTransactionList>
+                <ZTransactionList/>
+              </ZMainTransactionList>
             </ZMainLowerSection>
 
           </BlackBackgroundQR>
           <Qr />
+
         </ZMainDiv>
       )
     }
@@ -454,9 +392,9 @@ ZMain.propTypes = {
   setMainPage: PropTypes.func.isRequired,
   setSendPage: PropTypes.func.isRequired,
   setReceivePage: PropTypes.func.isRequired,
-  setPrivateKeyPage: PropTypes.func.isRequired,
   setPassPhrasePage: PropTypes.func.isRequired,
   setQrScanning: PropTypes.func.isRequired,
+  setAddressScanning: PropTypes.func.isRequired,
   setGraphOpen: PropTypes.func.isRequired,
   setTransactionScroll: PropTypes.func.isRequired,
   setSendToAddress:  PropTypes.func.isRequired,
@@ -482,9 +420,9 @@ function matchDispatchToProps (dispatch) {
       setMainPage,
       setSendPage,
       setReceivePage,
-      setPrivateKeyPage,
       setPassPhrasePage,
       setQrScanning,
+      setAddressScanning,
       setGraphOpen,
       setTransactionScroll,
       setSendToAddress,

@@ -7,8 +7,8 @@ export const SET_REFRESH_SECONDS_REMAINING = 'SET_CURRENT_REFRESH_SECONDS_REMINA
 export const SET_SYNCED = 'SET_CURRENT_SYNCED'
 export const SET_BALANCE = 'SET_CURRENT_BALANCE'
 export const SET_DIMENSIONS = 'SET_CURRENT_DIMENSIONS'
-export const SET_ZER_IN_BTC_VALUE = 'SET_ZER_IN_BTC_VALUE'
-export const SET_ZER_IN_CURRENCY_VALUE = 'SET_ZER_IN_CURRENCY_VALUE'
+export const SET_IN_BTC_VALUE = 'SET_IN_BTC_VALUE'
+export const SET_IN_CURRENCY_VALUE = 'SET_IN_CURRENCY_VALUE'
 export const SET_QR_SCANNING = 'SET_QR_SCANNING'
 export const SET_SAVING = 'SET_CURRENT_SAVING'
 export const SET_WALLET_INUSE = 'SET_CURRENT_WALLET_INUSE'
@@ -17,7 +17,10 @@ export const SET_REFRESH_ADDRESS = 'SET_CURRENT_REFRESH_ADDRESS'
 export const SET_TADDRESSES = 'SET_CURRENT_TADDRESSES'
 export const SET_ZADDRESSES = 'SET_CURRENT_ZADDRESSES'
 export const SET_TX = 'SET_CURRENT_TX'
+export const SET_TX_LIST = 'SET_CURRENT_TX_LIST'
+export const SET_VIEWING_TX = 'SET_CURRENT_VIEWING_TX'
 export const SET_MENU_READY = 'SET_CURRENT_MENU_READY'
+export const SET_ADDRESS_SCANNING = 'SET_CURRENT_ADDRESS_SCANNING'
 
 export function setActivePassword (activePassword) {
   return {
@@ -84,14 +87,14 @@ export function setDimensions (dimensions) {
 
 export function setZerInBtcValue (BTCValue) {
   return {
-    type: SET_ZER_IN_BTC_VALUE,
+    type: SET_IN_BTC_VALUE,
     BTCValue
   }
 }
 
 export function setZerInCurrencyValue (currencyValue) {
   return {
-    type: SET_ZER_IN_CURRENCY_VALUE,
+    type: SET_IN_CURRENCY_VALUE,
     currencyValue
   }
 }
@@ -100,6 +103,13 @@ export function setQrScanning (qrScanning) {
   return {
     type: SET_QR_SCANNING,
     qrScanning
+  }
+}
+
+export function setAddressScanning (addrScanning) {
+  return {
+    type: SET_ADDRESS_SCANNING,
+    addrScanning
   }
 }
 
@@ -149,6 +159,20 @@ export function setTx (tx) {
   return {
     type: SET_TX,
     tx
+  }
+}
+
+export function setTxList (txList) {
+  return {
+    type: SET_TX_LIST,
+    txList
+  }
+}
+
+export function setViewingTx (viewingTx) {
+  return {
+    type: SET_VIEWING_TX,
+    viewingTx
   }
 }
 

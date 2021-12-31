@@ -142,7 +142,7 @@ class PassPhrase extends React.Component {
 
     render () {
 
-        var qrData = JSON.stringify({seedphrase: this.state.passphrase, height: this.props.secrets.birthday})
+        var qrData = JSON.stringify({passphrase: this.state.passphrase, height: this.props.secrets.birthday})
 
         if (this.props.mainSubPage.passPhrasePage == 'none' && !this.state.reset) {
           this.resetScroll(0)
@@ -238,11 +238,11 @@ class PassPhrase extends React.Component {
                 <PassPhraseQRBase>
                   <PassPhraseQR>
                     <QRCode value={qrData}
-                           quietZone = {'0'}
-                           size = {(this.props.context.dimensions.width * 0.550)}
-                           bgColor = {'rgba(187,150,69,1)'}
-                           logoImage = {logo}
-                           ecLevel = "H"
+                        quietZone = {(this.props.context.dimensions.width * 0.025)}
+                        size = {(this.props.context.dimensions.width * 0.850)}
+                        bgColor = {'rgba(187,150,69,1)'}
+                        logoImage = {logo}
+                        ecLevel = "H"
                               />
                   </PassPhraseQR>
                 </PassPhraseQRBase>

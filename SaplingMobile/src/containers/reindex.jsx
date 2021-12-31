@@ -27,14 +27,22 @@ import Loader from '../containers/loader'
 
 import { sync,
          syncStatus,
+         privateKey,
+         newZAddress,
          initalizeWallet,
-         restoreWallet} from '../utils/litewallet'
+         restoreWallet,
+         encryptionstatus,
+         encryptWallet,
+         unlock,
+         save,
+         walletSeed} from '../utils/litewallet'
 
 import {
     ReindexDiv,
     ReindexSection,
     ReindexSectionOverscroll,
     ReindexTitle,
+    ReindexLoader,
     ReindexPWTitle,
     ReindexPWArea,
     ReindexPWInput,
@@ -158,7 +166,17 @@ class ReindexPage extends React.Component {
           this.setMsg('Master seed not set, Restart App!!!')
         } else {
 
+
+            //Get unique key count
+            var keySet = new Set([]);
+            for (var i = 0; i < this.props.context.zAddresses.length; i++) {
+                var pk = await privateKey(this.props.context.zAddresses[i].address)
+                pk = JSON.parse(pk)
+                keySet.add(pk[0].viewing_key)
+            }
+
             try {
+              //Restore from passphrase
               args = [coins[key].litewallet[0]]
               args.push(coins[key].addressParams)
               args.push(passPhrase)
@@ -167,6 +185,12 @@ class ReindexPage extends React.Component {
 
               seed = JSON.parse(seed)
               if (seed.seed != null) {
+
+                //Re-Add Addresses
+                for (var n = 1; n < keySet.size; n++) {
+                    await newZAddress()
+                }
+
                 sync()
                 await syncStatus()
                 this.props.setSynced(false)
@@ -181,7 +205,6 @@ class ReindexPage extends React.Component {
 
                 this.props.setMenuReady(false)
                 this.props.setSaving(false)
-                this.setCancelEnabled(true)
                 this.props.setReindexPage('none')
                 this.props.setMainPage('visible')
               } else {
@@ -190,6 +213,30 @@ class ReindexPage extends React.Component {
                 args.push(coins[key].litewallet[0])
                 args.push(coins[key].addressParams)
                 seed = await initalizeWallet(args)
+
+                //Check to make sure wallet.dat is encrypted
+                var encryptStatus = await encryptionstatus()
+                encryptStatus = JSON.parse(encryptStatus)
+                if (!encryptStatus.encrypted) {
+                    await encryptWallet(this.props.context.activePassword)
+                }
+
+                //Unlock the wallet so it can be used
+                await unlock(this.props.context.activePassword)
+                encryptStatus = await encryptionstatus()
+                encryptStatus = JSON.parse(encryptStatus)
+                if (encryptStatus.locked) {
+                  alert('Catastrophic Error, Restart App!!!')
+                  if (confirm("Exit App?")) {
+                    navigator.app.exitApp()
+                  }
+                } else {
+                  await save(coins[key].networkname)
+                  await unlock(this.props.context.activePassword)
+                }
+
+                //get the seedPhrase
+                seed = await walletSeed()
                 seed = JSON.parse(seed)
                 if (seed.seed != null) {
                   sync()
@@ -206,27 +253,29 @@ class ReindexPage extends React.Component {
 
                   this.props.setMenuReady(false)
                   this.props.setSaving(false)
-                  this.setCancelEnabled(true)
                   this.props.setReindexPage('none')
                   this.props.setMainPage('visible')
                 } else {
-                  this.setMsg('Catastrophic Error, Restart App!!!')
+                  alert('Catastrophic Error, Restart App!!!')
+                  if (confirm("Exit App?")) {
+                    navigator.app.exitApp()
+                  }
                 }
               }
             } catch {
-              this.setMsg('Catastrophic Error, Restart App!!!')
+              alert('Catastrophic Error, Restart App!!!')
+              if (confirm("Exit App?")) {
+                navigator.app.exitApp()
+              }
             }
           }
         }
-
 
     componentDidMount() {
 
     }
 
-
     render () {
-      console.log(this.props)
 
       if (this.props.mainSubPage.reindexPage == 'none' && !this.state.reset) {
         this.resetScroll(0)
@@ -242,7 +291,9 @@ class ReindexPage extends React.Component {
               <ReindexTitle>
                 {this.state.spinnerMsg}
                 <br/><br/><br/>
-                <Loader />
+                <ReindexLoader>
+                    <Loader/>
+                </ReindexLoader>
               </ReindexTitle>
             </div>
       } else {

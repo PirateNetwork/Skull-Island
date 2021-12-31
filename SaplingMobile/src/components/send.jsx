@@ -6,7 +6,7 @@ const RedFontSize = 1.5/52
 const DashAreaSize = 1.5/18
 const InputAreaSize = 1.5/24
 const InputAreaFontSize = 1.5/36
-
+const MemoInput = 1.5/26
 
 export const SendDiv = styled.div`
   position: absolute;
@@ -18,9 +18,9 @@ export const SendDiv = styled.div`
 
 export const SendSectionOverscroll = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.125) + 'px'};
+  top: ${props => (props.theme.height * 0.0125) + 'px'};
   left: 0;
-  height: ${props => (props.theme.height * .875) + 'px'};
+  height: ${props => (props.theme.height * .975) + 'px'};
   width: ${props => props.theme.width + 'px'};
   overflow: scroll;
   overscroll-behavior: contain;
@@ -48,8 +48,7 @@ export const SendTitle = styled.div`
   font-size: ${props => (props.theme.width * TitleFontSize) + 'px'};
   text-align: center;
 `
-
-export const SendAddressTitle = styled.div`
+export const SelectAddressTitle = styled.div`
   position: absolute;
   top: ${props => (props.theme.height * 0.075)
        + (props.theme.width * TitleFontSize)
@@ -62,7 +61,7 @@ export const SendAddressTitle = styled.div`
   text-align: left;
 `
 
-export const SendDashedArea = styled.div`
+export const SelectAddressDashedArea = styled.div`
   position: absolute;
   top: ${props => (props.theme.height * 0.080)
        + (props.theme.width * TitleFontSize)
@@ -72,30 +71,73 @@ export const SendDashedArea = styled.div`
   background-color: rgba(187,150,69,0.1);
   width: ${props => (props.theme.width * 0.90) + 'px'};
   height: ${props => (props.theme.width * DashAreaSize) + 'px'};
+  margin: 0px;
+  border: 0px;
+  padding: 0px;
+  word-wrap: break-word;
+  word-break: break-word;
+`
+
+export const SendAddressTitle = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * 0.085)
+       + (props.theme.width * TitleFontSize)
+       + (props.theme.width * SectionTitleFontSize)
+       + (props.theme.width * DashAreaSize)
+       + 'px'};
+  left: ${props => (props.theme.width * 0.05) + 'px'};
+  color: #bb9645;
+  height: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
+  width: ${props => (props.theme.width * 0.45) + 'px'};
+  font-size: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
+  text-align: left;
+`
+
+export const SendDashedArea = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * 0.090)
+       + (props.theme.width * TitleFontSize)
+       + (props.theme.width * SectionTitleFontSize)
+       + (props.theme.width * SectionTitleFontSize)
+       + (props.theme.width * DashAreaSize)
+       + 'px'};
+  left: ${props => (props.theme.width * 0.05) + 'px'};
+  background-color: rgba(187,150,69,0.1);
+  width: ${props => (props.theme.width * 0.90) + 'px'};
+  height: ${props => (props.theme.width * ((InputAreaSize * 2) + DashAreaSize)) + 'px'};
+  margin: 0px;
+  border: 0px;
+  padding: 0px;
+  word-wrap: break-word;
+  word-break: break-word;
 `
 
 export function getDashedAreaScroll(h,w) {
     return (
-      (h * 0.080)
+      (h * 0.090)
     + (w * TitleFontSize)
     + (w * SectionTitleFontSize )
+    + (w * SectionTitleFontSize)
+    + (w * DashAreaSize)
     - (h * 0.15))
 }
 
-export const SendDashedInput = styled.input`
+export const SendDashedInput = styled.textarea`
   position: absolute;
   left: 0;
   top: 0;
   color: #ffffff;
   background-color: rgba(0,0,0,0);
   width: ${props => (props.theme.width * 0.90) + 'px'};
-  height: ${props => (props.theme.width * InputAreaSize) + 'px'};
+  height: ${props => (props.theme.width * InputAreaSize * 3) + 'px'};
   margin: 0px;
+  padding: 0px;
   border-width: 0px 0px 2px 0px;
   border-style: dashed;
   border-color: #bb9645;
   font-size: ${props => (props.theme.width * InputAreaFontSize) + 'px'};
   text-align: center;
+  word-wrap: break-word;
 
   :focus{
     outline: none;
@@ -106,9 +148,9 @@ export const SendGradientCapLeft = styled.div`
   position: absolute;
   left: 0;
   top: 0;
-  background-image: linear-gradient(90deg, rgba(0,0,0,1), rgba(0,0,0,0));
+  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0));
   width: ${props => (props.theme.width * 0.10) + 'px'};
-  height: ${props => (props.theme.width * DashAreaSize) + 'px'};
+  height: ${props => (props.theme.width * ((InputAreaSize * 2) + DashAreaSize)) + 'px'};
   z-index: 1;
 `
 
@@ -116,18 +158,20 @@ export const SendGradientCapRight = styled.div`
   position: absolute;
   right: 0;
   top: 0;
-  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,1));
+  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0));
   width: ${props => (props.theme.width * 0.10) + 'px'};
-  height: ${props => (props.theme.width * DashAreaSize) + 'px'};
+  height: ${props => (props.theme.width * ((InputAreaSize * 2) + DashAreaSize)) + 'px'};
   z-index: 1;
 `
 
 export const SendRedText = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.080)
+  top: ${props => (props.theme.height * 0.090)
         + (props.theme.width * TitleFontSize)
         + (props.theme.width * SectionTitleFontSize)
+        + (props.theme.width * SectionTitleFontSize)
         + (props.theme.width * DashAreaSize)
+        + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize))
         + 'px'};
   left: 0;
   height: ${props => (props.theme.width * RedFontSize) + 'px'};
@@ -139,10 +183,12 @@ export const SendRedText = styled.div`
 
 export const SendNoteLineOne = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.095)
+  top: ${props => (props.theme.height * 0.105)
         + (props.theme.width * TitleFontSize)
         + (props.theme.width * SectionTitleFontSize)
+        + (props.theme.width * SectionTitleFontSize)
         + (props.theme.width * DashAreaSize)
+        + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize))
         + (props.theme.width * RedFontSize)
         + 'px'};
   left: 0;
@@ -155,10 +201,12 @@ export const SendNoteLineOne = styled.div`
 
 export const SendNoteLineTwo = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.095)
+  top: ${props => (props.theme.height * 0.105)
       + (props.theme.width * TitleFontSize)
       + (props.theme.width * SectionTitleFontSize)
+      + (props.theme.width * SectionTitleFontSize)
       + (props.theme.width * DashAreaSize)
+      + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize))
       + (props.theme.width * RedFontSize * 2)
       + 'px'};
   left: 0;
@@ -176,10 +224,12 @@ export const SendNoteLineTwo = styled.div`
 
 export const SendAmountTitle = styled.div`
 position: absolute;
-top: ${props => (props.theme.height * 0.12)
+top: ${props => (props.theme.height * 0.13)
     + (props.theme.width * TitleFontSize)
     + (props.theme.width * SectionTitleFontSize)
+    + (props.theme.width * SectionTitleFontSize)
     + (props.theme.width * DashAreaSize)
+    + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize))
     + (props.theme.width * RedFontSize * 3)
     + 'px'};
 left: 0;
@@ -193,10 +243,12 @@ left: 0;
 
 export const SendAmountArea = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.125)
+  top: ${props => (props.theme.height * 0.135)
     + (props.theme.width * TitleFontSize)
     + (props.theme.width * SectionTitleFontSize * 2)
+    + (props.theme.width * SectionTitleFontSize)
     + (props.theme.width * DashAreaSize)
+    + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize))
     + (props.theme.width * RedFontSize * 3)
     + 'px'};
   left: ${props => (props.theme.width * 0.05) + 'px'};
@@ -207,10 +259,12 @@ export const SendAmountArea = styled.div`
 
 export function getAmountAreaScroll(h,w) {
     return (
-      (h * 0.125)
+      (h * 0.135)
     + (w * TitleFontSize)
     + (w * SectionTitleFontSize * 2)
-    + (w * DashAreaSize * 1)
+    + (w * SectionTitleFontSize)
+    + (w * DashAreaSize)
+    + (w * ((InputAreaSize * 2) + DashAreaSize) * 1)
     + (w * RedFontSize * 3)
     - (h * 0.15))
 }
@@ -251,7 +305,7 @@ export const SendAmountGradientCapLeft = styled.div`
   position: absolute;
   left: 0;
   top: 0;
-  background-image: linear-gradient(90deg, rgba(0,0,0,1), rgba(0,0,0,0));
+  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0));
   width: ${props => (props.theme.width * 0.10) + 'px'};
   height: ${props => (props.theme.width * DashAreaSize) + 'px'};
   z-index: 1;
@@ -261,7 +315,7 @@ export const SendAmountGradientCapRight = styled.div`
   position: absolute;
   right: 0;
   top: 0;
-  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,1));
+  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0));
   width: ${props => (props.theme.width * 0.10) + 'px'};
   height: ${props => (props.theme.width * DashAreaSize) + 'px'};
   z-index: 1;
@@ -285,10 +339,13 @@ export const SendCurrencyCap = styled.div`
 
 export const SendAmountRedText = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.125)
+  top: ${props => (props.theme.height * 0.135)
     + (props.theme.width * TitleFontSize)
     + (props.theme.width * SectionTitleFontSize * 2)
-    + (props.theme.width * DashAreaSize * 2)
+    + (props.theme.width * SectionTitleFontSize)
+    + (props.theme.width * DashAreaSize)
+    + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize) * 1)
+    + (props.theme.width * DashAreaSize * 1)
     + (props.theme.width * RedFontSize * 3)
     + 'px'};
   right: ${props => (props.theme.width * 0.05) + 'px'};
@@ -301,10 +358,13 @@ export const SendAmountRedText = styled.div`
 
 export const SendAmountFeeText = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.125)
+  top: ${props => (props.theme.height * 0.135)
     + (props.theme.width * TitleFontSize)
     + (props.theme.width * SectionTitleFontSize * 2)
-    + (props.theme.width * DashAreaSize * 2)
+    + (props.theme.width * SectionTitleFontSize)
+    + (props.theme.width * DashAreaSize)
+    + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize) * 1)
+    + (props.theme.width * DashAreaSize * 1)
     + (props.theme.width * RedFontSize * 3)
     + 'px'};
   left: ${props => (props.theme.width * 0.05) + 'px'};
@@ -319,10 +379,13 @@ export const SendAmountFeeText = styled.div`
 
 export const SendUSDArea = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.145)
+  top: ${props => (props.theme.height * 0.155)
     + (props.theme.width * TitleFontSize)
     + (props.theme.width * SectionTitleFontSize * 2)
-    + (props.theme.width * DashAreaSize * 2)
+    + (props.theme.width * SectionTitleFontSize)
+    + (props.theme.width * DashAreaSize)
+    + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize) * 1)
+    + (props.theme.width * DashAreaSize * 1)
     + (props.theme.width * RedFontSize * 4)
     + 'px'};
   left: ${props => (props.theme.width * 0.05) + 'px'};
@@ -332,10 +395,13 @@ export const SendUSDArea = styled.div`
 `
 export function getUSDAreaScroll(h,w) {
     return (
-      (h * 0.145)
+      (h * 0.155)
     + (w * TitleFontSize)
     + (w * SectionTitleFontSize * 2)
-    + (w * DashAreaSize * 2)
+    + (w * SectionTitleFontSize)
+    + (w * DashAreaSize)
+    + (w * ((InputAreaSize * 2) + DashAreaSize) * 1)
+    + (w * DashAreaSize * 1)
     + (w * RedFontSize * 4)
     - (h * 0.15))
 }
@@ -376,7 +442,7 @@ export const SendUSDGradientCapLeft = styled.div`
   position: absolute;
   left: 0;
   top: 0;
-  background-image: linear-gradient(90deg, rgba(0,0,0,1), rgba(0,0,0,0));
+  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0));
   width: ${props => (props.theme.width * 0.10) + 'px'};
   height: ${props => (props.theme.width * DashAreaSize) + 'px'};
   z-index: 1;
@@ -386,7 +452,7 @@ export const SendUSDGradientCapRight = styled.div`
   position: absolute;
   right: 0;
   top: 0;
-  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,1));
+  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0));
   width: ${props => (props.theme.width * 0.10) + 'px'};
   height: ${props => (props.theme.width * DashAreaSize) + 'px'};
   z-index: 1;
@@ -394,10 +460,13 @@ export const SendUSDGradientCapRight = styled.div`
 
 export const SendUSDRedText = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.145)
+  top: ${props => (props.theme.height * 0.155)
     + (props.theme.width * TitleFontSize)
     + (props.theme.width * SectionTitleFontSize * 2)
-    + (props.theme.width * DashAreaSize * 3)
+    + (props.theme.width * SectionTitleFontSize)
+    + (props.theme.width * DashAreaSize)
+    + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize) * 1)
+    + (props.theme.width * DashAreaSize * 2)
     + (props.theme.width * RedFontSize * 4)
     + 'px'};
   right: ${props => (props.theme.width * 0.05) + 'px'};
@@ -411,10 +480,13 @@ export const SendUSDRedText = styled.div`
 
 export const SendMemoTitle = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.155)
+  top: ${props => (props.theme.height * 0.165)
     + (props.theme.width * TitleFontSize)
     + (props.theme.width * SectionTitleFontSize * 2)
-    + (props.theme.width * DashAreaSize * 3)
+    + (props.theme.width * SectionTitleFontSize)
+    + (props.theme.width * DashAreaSize)
+    + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize) * 1)
+    + (props.theme.width * DashAreaSize * 2)
     + (props.theme.width * RedFontSize * 5)
     + 'px'};
   left: ${props => (props.theme.width * 0.05) + 'px'};
@@ -427,36 +499,47 @@ export const SendMemoTitle = styled.div`
 
 export const SendMemoArea = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.16)
+  top: ${props => (props.theme.height * 0.17)
     + (props.theme.width * TitleFontSize)
     + (props.theme.width * SectionTitleFontSize * 3)
-    + (props.theme.width * DashAreaSize * 3)
+    + (props.theme.width * SectionTitleFontSize)
+    + (props.theme.width * DashAreaSize)
+    + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize) * 1)
+    + (props.theme.width * DashAreaSize * 2)
     + (props.theme.width * RedFontSize * 5)
     + 'px'};
   left: ${props => (props.theme.width * 0.05) + 'px'};
   background-color: rgba(187,150,69,0.1);
   width: ${props => (props.theme.width * 0.90) + 'px'};
-  height: ${props => (props.theme.width * DashAreaSize) + 'px'};
+  height: ${props => (props.theme.width * DashAreaSize)
+    + (props.theme.width * (MemoInput * ((Math.ceil(props.mlength/35) > 0 ? Math.ceil(props.mlength/35) : 1) - 1)))
+    + 'px'};
 `
 
 export function getMemoAreaScroll(h,w) {
     return (
-      (h * 0.16)
+      (h * 0.17)
     + (w * TitleFontSize)
     + (w * SectionTitleFontSize * 3)
-    + (w * DashAreaSize * 3)
+    + (w * SectionTitleFontSize)
+    + (w * DashAreaSize)
+    + (w * ((InputAreaSize * 2) + DashAreaSize) * 1)
+    + (w * DashAreaSize * 2)
     + (w * RedFontSize * 5)
     - (h * 0.15))
 }
 
-export const SendMemoInput = styled.input`
+export const SendMemoInput = styled.textarea`
   position: absolute;
   left: 0;
   top: 0;
   color: #ffffff;
+  line-height: ${props => (props.theme.width * MemoInput) + 'px'};
   background-color: rgba(0,0,0,0);
   width: ${props => (props.theme.width * 0.90) + 'px'};
-  height: ${props => (props.theme.width * InputAreaSize) + 'px'};
+  height: ${props => (props.theme.width * InputAreaSize)
+         + (props.theme.width * (MemoInput * ((Math.ceil(props.mlength/35) > 0 ? Math.ceil(props.mlength/35) : 1) - 1)))
+         + 'px'};
   margin: 0px;
   border-width: 0px 0px 2px 0px;
   border-style: dashed;
@@ -473,7 +556,7 @@ export const SendMemoGradientCapLeft = styled.div`
   position: absolute;
   left: 0;
   top: 0;
-  background-image: linear-gradient(90deg, rgba(0,0,0,1), rgba(0,0,0,0));
+  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0));
   width: ${props => (props.theme.width * 0.10) + 'px'};
   height: ${props => (props.theme.width * DashAreaSize) + 'px'};
   z-index: 1;
@@ -483,7 +566,7 @@ export const SendMemoGradientCapRight = styled.div`
   position: absolute;
   right: 0;
   top: 0;
-  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,1));
+  background-image: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0));
   width: ${props => (props.theme.width * 0.10) + 'px'};
   height: ${props => (props.theme.width * DashAreaSize) + 'px'};
   z-index: 1;
@@ -491,11 +574,15 @@ export const SendMemoGradientCapRight = styled.div`
 
 export const SendMemoRedText = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.16)
+  top: ${props => (props.theme.height * 0.17)
     + (props.theme.width * TitleFontSize)
     + (props.theme.width * SectionTitleFontSize * 3)
-    + (props.theme.width * DashAreaSize * 4)
+    + (props.theme.width * SectionTitleFontSize)
+    + (props.theme.width * DashAreaSize)
+    + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize) * 1)
+    + (props.theme.width * DashAreaSize * 3)
     + (props.theme.width * RedFontSize * 5)
+    + (props.theme.width * (MemoInput * ((Math.ceil(props.mlength/35) > 0 ? Math.ceil(props.mlength/35) : 1) - 1)))
     + 'px'};
   left: ${props => (props.theme.width * 0.05) + 'px'};
   height: ${props => (props.theme.width * RedFontSize) + 'px'};
@@ -513,11 +600,15 @@ export const SendButton = styled.button`
   width: ${props => (props.theme.width * 0.325) + 'px'};
   height: ${props => (props.theme.height * 0.075) + 'px'};
   left: ${props => (props.theme.width * 0.5 - props.theme.width * 0.325/2) + 'px'};
-  top: ${props => (props.theme.height * 0.185)
+  top: ${props => (props.theme.height * 0.195)
       + (props.theme.width * TitleFontSize)
       + (props.theme.width * SectionTitleFontSize * 3)
-      + (props.theme.width * DashAreaSize * 4)
+      + (props.theme.width * SectionTitleFontSize)
+      + (props.theme.width * DashAreaSize)
+      + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize) * 1)
+      + (props.theme.width * DashAreaSize * 3)
       + (props.theme.width * RedFontSize * 6)
+      + (props.theme.width * (MemoInput * ((Math.ceil(props.mlength/35) > 0 ? Math.ceil(props.mlength/35) : 1) - 1)))
       + 'px'};
   border-radius: ${props => (props.theme.height * 0.075/2) + 'px'};
   border: 0px;
@@ -1063,210 +1154,6 @@ export const SendFailed = styled.div`
   overscroll-behavior: contain;
 `
 
-// export const SpinnerSection = styled.div`
-//   height: ${props => props.theme.height * 0.40 + 'px'};
-//   width: ${props => props.theme.width + 'px'};
-//   position: absolute;
-//   bottom: 0;
-//   left: 0;
-//   opacity: 0.80;
-//   display: ${props => props.visible};
-// `
-//
-//
-//
-// export const AddressSelectSection = styled.div`
-//   position: absolute;
-//   top: ${props => (props.theme.height * 0.025) + 'px'};
-//   left: ${props => (props.theme.width * 0.025) + 'px'};
-//   width: ${props => (props.theme.width * 0.95) + 'px'};
-//   height: ${props => (props.theme.height * 0.15) + 'px'};
-//   color: #ffffff;
-//   font-size: ${props => (props.theme.height * 0.025) + 'px'};
-//   display: ${props => props.visible};
-// `
-// export const AddressSelectHeading = styled.div`
-//   color: #ffffff;
-//   font-weight: bold;
-//   font-size: ${props => (props.theme.height * 0.03) + 'px'};
-// `
-//
-// export const AddressBalanceNumberDiv = styled.div`
-//   color: #ffd700;
-//   font-size: ${props => (props.theme.height * 0.028) + 'px'};
-//   font-weight: bold;
-// `
-//
-// export const AddressCurrencyDiv = styled.div`
-//   color: #ffffff;
-//   font-size: ${props => (props.theme.height * 0.020) + 'px'};
-// `
-//
-// export const AddressSelectLabel = styled.div`
-//   color: #ffffff;
-//   font-size: ${props => (props.theme.height * 0.025) + 'px'};
-//   display: ${props => props.visible};
-// `
-// export const AddressToggleButton = styled.button`
-//   position: absolute;
-//   top: ${props => (props.theme.height * 0.035) + 'px'};
-//   right: ${props => (props.theme.width * 0.0) + 'px'};
-//   background-color: ${props => props.disabled !== true ? '#707070' : '#707070' };
-//   opacity: ${props => props.disabled !== true ? '1.0' : '0.3' };
-//   color: #000000;
-//   border: 0px solid ${props => props.disabled !== true ? '#707070' : '#707070' };
-//   font-size: ${props => (props.theme.height * 0.0225) + 'px'};
-//   margin-top: ${props => (props.theme.height * 0.00125) + 'px'};
-//   margin-bottom: ${props => (props.theme.height * 0.00125) + 'px'};
-//   margin-left: ${props => (props.theme.width * 0.0125) + 'px'};
-//   margin-right: ${props => (props.theme.width * 0.0) + 'px'};
-//   height: ${props => (props.theme.height * 0.08) + 'px'};
-//   width: ${props => (props.theme.height * 0.08)+ 'px'};
-//   border-radius: 3px;
-// `
-// export const QRButton = styled.button`
-//   position: absolute;
-//   top: ${props => (props.theme.height * 0.425) + 'px'};
-//   right: ${props => (props.theme.width * 0.025) + 'px'};
-//   background-color: #707070;
-//   color: #000000;
-//   border: 0px solid #707070;
-//   font-size: ${props => (props.theme.height * 0.0225) + 'px'};
-//   margin-top: ${props => (props.theme.height * 0.00125) + 'px'};
-//   margin-bottom: ${props => (props.theme.height * 0.00125) + 'px'};
-//   margin-left: ${props => (props.theme.width * 0.0125) + 'px'};
-//   margin-right: ${props => (props.theme.width * 0.0) + 'px'};
-//   height: ${props => (props.theme.height * 0.08) + 'px'};
-//   width: ${props => (props.theme.height * 0.08)+ 'px'};
-//   border-radius: 3px;
-// `
-//
-// export const SendAddressSection = styled.div`
-//   position: absolute;
-//   top: ${props => (props.theme.height * 0.215) + 'px'};
-//   left: ${props => (props.theme.width * 0.025) + 'px'};
-//   width: ${props => (props.theme.width * 0.95) + 'px'};
-//   height: ${props => (props.theme.height * 0.15) + 'px'};
-//   font-size: ${props => (props.theme.height * 0.03) + 'px'};
-//   font-weight: bold;
-// `
-//
-// export const SendAddress = styled.textarea`
-//   position: absolute;
-//   margin: auto;
-//   width: ${props => ((props.theme.width * 0.95) - 2) + 'px'};
-//   height: ${props => (props.theme.height * 0.15) + 'px'};
-//   background-color: #121212;
-//   color: #ffffff;
-//   font-size: ${props => (props.theme.height * 0.025) + 'px'};
-//   border-radius: 10px;
-//   border: 1px solid #ffffff;
-// `
-//
-//
-// export const AmountSection = styled.div`
-//   position: absolute;
-//   top: ${props => (props.theme.height * 0.425) + 'px'};
-//   left: ${props => (props.theme.width * 0.025) + 'px'};
-//   width: ${props => (props.theme.width * 0.95) + 'px'};
-//   height: ${props => (props.theme.height * 0.035) + 'px'};
-//   color: #ffffff;
-//   font-size: ${props => (props.theme.height * 0.025) + 'px'};
-// `
-// export const AmountInput = styled.input`
-//   background-color: #121212;
-//   color: #ffffff;
-//   font-size: ${props => (props.theme.height * 0.025) + 'px'};
-//   width: ${props => (props.theme.width * 0.35) + 'px'};
-//   border-radius: 5px;
-//   border: 1px solid #ffffff;
-//   padding-left: 5px;
-// `
-//
-// export const FeeSection = styled.div`
-//   position: absolute;
-//   top: ${props => (props.theme.height * 0.475) + 'px'};
-//   left: ${props => (props.theme.width * 0.025) + 'px'};
-//   width: ${props => (props.theme.width * 0.95) + 'px'};
-//   height: ${props => (props.theme.height * 0.035) + 'px'};
-//   color: #ffffff;
-//   font-size: ${props => (props.theme.height * 0.025) + 'px'};
-// `
-// export const ButtonSection = styled.div`
-//   position: absolute;
-//   top: ${props => (props.theme.height * 0.525) + 'px'};
-//   left: ${props => (props.theme.width * 0) + 'px'};
-//   width: ${props => (props.theme.width) + 'px'};
-//   height: ${props => (props.theme.height * 0.035) + 'px'};
-//   color: #ffffff;
-//   font-size: ${props => (props.theme.height * 0.025) + 'px'};
-//   display: inline-block;
-// `
-//
-// export const ConfirmHeading = styled.div`
-//   width: ${props => (props.theme.width * 0.9) + 'px'};
-//   position: absolute;
-//   top: ${props => (props.theme.height * 0.03) + 'px'};
-//   left: ${props => (props.theme.width * 0.05) + 'px'};
-//   color: #ffffff;
-//   font-weight: bold;
-//   font-size: ${props => (props.theme.height * 0.03) + 'px'};
-// `
-// export const ConfirmDataSection = styled.div`
-//   width: ${props => (props.theme.width * 0.9) + 'px'};
-//   position: absolute;
-//   top: ${props => (props.theme.height * 0.065) + 'px'};
-//   left: ${props => (props.theme.width * 0.05) + 'px'};
-//   color: #ffffff;
-//   font-size: ${props => (props.theme.height * 0.020) + 'px'};
-// `
-//
-// export const ConfirmData = styled.div`
-//   color: #ffffff;
-//   font-size: ${props => (props.theme.height * 0.025) + 'px'};
-//   width: ${props => (props.theme.width * 0.9) + 'px'};
-//   word-wrap: break-word;
-// `
-// export const ConfirmButtonSection = styled.div`
-//   width: ${props => (props.theme.width * 0.9) + 'px'};
-//   height: ${props => (props.theme.height * 0.035) + 'px'};
-//   color: #ffffff;
-//   font-size: ${props => (props.theme.height * 0.025) + 'px'};
-//   display: inline-block;
-// `
-//
-// export const ConfirmSendButton = styled.button`
-//   background-color: ${props => props.disabled !== true ? '#32CD32' : '#707070' };
-//   opacity: ${props => props.disabled !== true ? '1.0' : '0.3' };
-//   color: #000000;
-//   border: 0px solid ${props => props.disabled !== true ? '#32CD32' : '#707070' };
-//   font-size: ${props => (props.theme.height * 0.0225) + 'px'};
-//   margin-top: ${props => (props.theme.height * 0.00125) + 'px'};
-//   margin-bottom: ${props => (props.theme.height * 0.00125) + 'px'};
-//   margin-left: ${props => (props.theme.width * 0.0125) + 'px'};
-//   margin-right: ${props => (props.theme.width * 0.0125) + 'px'};
-//   height: ${props => (props.theme.height * 0.0475) + 'px'};
-//   width: ${props => (props.theme.width * 0.425)+ 'px'};
-//   border-radius: 3px;
-// `
-//
-// export const ConfirmCancelButton = styled.button`
-//   background-color: #FF0000;
-//   color: #000000;
-//   border: 0px solid #FF0000;
-//   font-size: ${props => (props.theme.height * 0.0225) + 'px'};
-//   margin-top: ${props => (props.theme.height * 0.00125) + 'px'};
-//   margin-bottom: ${props => (props.theme.height * 0.00125) + 'px'};
-//   margin-left: ${props => (props.theme.width * 0.0125) + 'px'};
-//   margin-right: ${props => (props.theme.width * 0.0125) + 'px'};
-//   height: ${props => (props.theme.height * 0.0475) + 'px'};
-//   width: ${props => (props.theme.width * 0.425)+ 'px'};
-//   border-radius: 3px;
-// `
-//
-// export const ConfirmPasswordSection = styled.div`
-//   display: ${props => props.visible};
-// `
 export const ConfirmPassword = styled.h2`
   color: white;
   text-align: center;
@@ -1284,21 +1171,3 @@ export const ConfirmPin = styled.input`
   text-align: center;
   border-radius: 20px;
 `
-//
-// export const TransactionLink = styled.a`
-//
-//   width: ${props => (props.theme.width * 0.9) + 'px'};
-//   font-size: ${props => (props.theme.height * 0.030) + 'px'};
-//   font-weight: bold;
-//
-//
-//   :link {
-//     color: gold;
-//     text-align: center;
-//   }
-//
-//   :visited {
-//     color: white;
-//     text-align: center;
-//   }
-// `

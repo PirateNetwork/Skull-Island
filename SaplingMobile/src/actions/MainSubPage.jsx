@@ -7,6 +7,8 @@ export const SET_SUB_PAGE_REINDEX = 'SET_CURRENT_SUB_PAGE_REINDEX'
 export const SET_SUB_PAGE_GRAPH_OPEN = 'SET_CURRENT_SUB_PAGE_GRAPH_OPEN'
 export const SET_SUB_PAGE_TRANSACTION_SCOLL = 'SET_CURRENT_SUB_PAGE_TRANSACTION_SCOLL'
 export const SET_SUB_PAGE_TRANSACTION_SCOLL_POS = 'SET_CURRENT_SUB_PAGE_TRANSACTION_SCOLL_POS'
+export const SET_SUB_PAGE_ADDRESSLIST = 'SET_CURRENT_SUB_PAGE_ADDRESSLIST'
+export const SET_SUB_PAGE_TRANSACTION = 'SET_CURRENT_SUB_PAGE_TRANSACTION'
 
 export function setMainPage (mainPage) {
   return {
@@ -68,5 +70,19 @@ export function setTransactionScrollPos (transactionScrollPos) {
   return {
     type: SET_SUB_PAGE_TRANSACTION_SCOLL_POS,
     transactionScrollPos
+  }
+}
+
+export function setAddressList (addressList) {
+  return {
+    type: SET_SUB_PAGE_ADDRESSLIST,
+    addressList
+  }
+}
+
+export function setTransactionPage (transactionPage) {
+  return {
+    type: SET_SUB_PAGE_TRANSACTION,
+    transactionPage
   }
 }

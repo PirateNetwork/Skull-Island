@@ -149,7 +149,7 @@ export function newTAddress() {
           })
         }
 
-export function seed() {
+export function walletSeed() {
           return new Promise((resolve, reject) => {
             LiteWallet.seed((successResponse) => {
               resolve(successResponse)
@@ -179,7 +179,7 @@ export function list() {
           })
         }
 
-export function encrypt(password) {
+export function encryptWallet(password) {
           return new Promise((resolve, reject) => {
             LiteWallet.encrypt(password, (successResponse) => {
               resolve(successResponse)
@@ -189,7 +189,7 @@ export function encrypt(password) {
           })
         }
 
-export function decrypt(password) {
+export function decryptWallet(password) {
           return new Promise((resolve, reject) => {
             LiteWallet.decrypt(password, (successResponse) => {
               resolve(successResponse)
@@ -209,9 +209,9 @@ export function lock() {
           })
         }
 
-export function unlock() {
+export function unlock(password) {
           return new Promise((resolve, reject) => {
-            LiteWallet.unlock((successResponse) => {
+            LiteWallet.unlock(password, (successResponse) => {
               resolve(successResponse)
             }, (errorResonse) =>{
               reject(errorResonse)

@@ -51,7 +51,7 @@ class SplashPage extends React.Component {
           <SplashFooter>
             <SplashCopyright>
               <span>
-                © Copyright 2021 PirateChain
+                © Copyright 2022 PirateChain
                 <br/>
                 • All rights reserved •
               </span>

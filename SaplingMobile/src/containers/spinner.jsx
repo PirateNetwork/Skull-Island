@@ -38,10 +38,6 @@ class RingSpinner extends React.Component {
   }
 }
 
-// RingSpinner.propTypes = {
-//   // context: PropTypes.object.isRequire
-// }
-
 function mapStateToProps (state) {
   return {
     context: state.context

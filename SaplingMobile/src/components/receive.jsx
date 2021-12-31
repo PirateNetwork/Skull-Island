@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-import backgroundImage from '../assets/svg/modal_popup.svg'
+// import backgroundImage from '../assets/svg/modal_popup.svg'
 
 const TitleFontSize = 1.5/21
 const SectionTitleFontSize = 1.5/36
@@ -20,9 +20,9 @@ transition: 500ms;
 
 export const ReceiveSectionOverscroll = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.125) + 'px'};
+  top: ${props => (props.theme.height * 0.0125) + 'px'};
   left: 0;
-  height: ${props => (props.theme.height * .875) + 'px'};
+  height: ${props => (props.theme.height * .975) + 'px'};
   width: ${props => props.theme.width + 'px'};
   overflow: scroll;
   overscroll-behavior: contain;
@@ -37,7 +37,7 @@ export const ReceiveSection = styled.div`
        + (props.theme.width * SectionTitleFontSize * 2)
        + (props.theme.width * ((InputAreaSize * 3) + DashAreaSize - InputAreaSize))
        + (props.theme.width * RedFontSize * 2)
-       + (props.theme.width * 0.80 * (894/1020))
+       + (props.theme.width * 0.90)
        + 'px'};
   width: ${props => props.theme.width + 'px'};
 `
@@ -172,25 +172,24 @@ export const ReceiveQRTitle = styled.div`
 `
 
 export const ReceiveQRBase = styled.div`
-  background-image: url(${backgroundImage});
   position: absolute;
-  left: ${props => (props.theme.width * (0.5 - (0.80/2))) + 'px'};
+  left: ${props => (props.theme.width * 0.05) + 'px'};
   top: ${props => (props.theme.height * 0.2525)
        + (props.theme.width * TitleFontSize)
        + (props.theme.width * SectionTitleFontSize * 2)
        + (props.theme.width * ((InputAreaSize * 3) + DashAreaSize - InputAreaSize))
        + (props.theme.width * RedFontSize * 2)
        + 'px'};
-  width: ${props => (props.theme.width * 0.80) + 'px'};
-  height: ${props => (props.theme.width * 0.80 * (894/1020)) + 'px'};
+   width: ${props => (props.theme.width * 0.90) + 'px'};
+   height: ${props => (props.theme.width * 0.90) + 'px'};
 `
 
 export const ReceiveQR= styled.div`
   position: absolute;
-  top: ${props => (props.theme.width * (((0.80 * (894/1020)) - 0.55)/2)) + 'px'};
-  left: ${props => (props.theme.width * ((0.80-0.55)/2)) + 'px'};
-  width: ${props => (props.theme.width * 0.55) + 'px'};
-  height: ${props => (props.theme.width * 0.55) + 'px'};
+  top: 0;
+  left: 0;
+  width: ${props => (props.theme.width * 0.9) + 'px'};
+  height: ${props => (props.theme.width * 0.9) + 'px'};
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -209,7 +208,7 @@ export const ReceiveBackButton = styled.button`
        + (props.theme.width * SectionTitleFontSize * 2)
        + (props.theme.width * ((InputAreaSize * 3) + DashAreaSize - InputAreaSize))
        + (props.theme.width * RedFontSize * 2)
-       + (props.theme.width * 0.80 * (894/1020))
+       + (props.theme.width * 0.90)
        + 'px'};
   border-radius: ${props => (props.theme.height * 0.075/2) + 'px'};
   border: 0px;

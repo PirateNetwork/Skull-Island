@@ -25,14 +25,20 @@ import {
   setPrivateKeyPage,
   setPassPhrasePage,
   setGraphOpen,
-  setReindexPage} from './actions/MainSubPage'
+  setReindexPage,
+  setTransactionPage} from './actions/MainSubPage'
 
 import { coins } from './utils/coins.js'
 
 import { walletExists,
          initalizeWallet,
          newWallet,
-         checkSeedPhrase } from './utils/litewallet'
+         encryptionstatus,
+         encryptWallet,
+         unlock,
+         checkSeedPhrase,
+         walletSeed,
+         save} from './utils/litewallet'
 
 import {encrypt, decrypt, saltHashPassword, KeySalt} from './utils/hash.js'
 
@@ -71,14 +77,9 @@ class App extends React.Component {
   }
 
   setScreenSize() {
-
-    if (this.props.context.dimensions.height != window.outerHeight && this.props.context.dimensions.width != window.outerWidth) {
-      this.props.setDimensions({"height" : window.outerHeight, "width" : window.outerWidth})
-      this.props.setDisplayDimensions({"height" : window.outerHeight, "width" : window.outerWidth})
-    }
-
     screen.orientation.lock('portrait');
-
+    this.props.setDimensions({"height" : window.outerHeight, "width" : window.outerWidth})
+    this.props.setDisplayDimensions({"height" : window.outerHeight, "width" : window.outerWidth})
   }
 
   setRotate() {
@@ -142,11 +143,37 @@ class App extends React.Component {
     if (walletFile.exists) {
       try {
 
+        //Initalize thae wallet
         args = [coins[currentCoin].networkname]
         args.push(coins[currentCoin].litewallet[0])
         args.push(coins[currentCoin].addressParams)
-        seed = await initalizeWallet(args)
+        await initalizeWallet(args)
+
+        //Check to make sure wallet.dat is encrypted
+        var encryptStatus = await encryptionstatus()
+        encryptStatus = JSON.parse(encryptStatus)
+        if (!encryptStatus.encrypted) {
+            await encryptWallet(this.props.context.activePassword)
+        }
+
+        //Unlock the wallet so it can be used
+        await unlock(this.props.context.activePassword)
+        encryptStatus = await encryptionstatus()
+        encryptStatus = JSON.parse(encryptStatus)
+        if (encryptStatus.locked) {
+          alert("WARNING!!! wallet.dat failed to unlock, restart app.")
+          if (confirm("Exit App?")) {
+            navigator.app.exitApp()
+          }
+        } else {
+          await save(coins[currentCoin].networkname)
+          await unlock(this.props.context.activePassword)
+        }
+
+        //get the seedPhrase
+        seed = await walletSeed()
         seed = JSON.parse(seed)
+        console.log(seed)
         if (seed.seed != null) {
           this.props.setSeedPhrase(seed.seed)
           this.props.setBirthday(seed.birthday)
@@ -167,7 +194,9 @@ class App extends React.Component {
           }
         }
       } catch (err) {
-        console.log(err)
+        if (process.env.NODE_ENV != 'production') {
+          console.log(err)
+        }
       }
 
     } else {
@@ -189,7 +218,6 @@ class App extends React.Component {
       }
     }
 
-    this.setScreenSize()
     //window.addEventListener("orientationchange", this.setRotate)
     window.plugins.insomnia.keepAwake()
     //Database name
@@ -227,6 +255,7 @@ class App extends React.Component {
       this.props.setPrivateKeyPage('none')
       this.props.setPassPhrasePage('none')
       this.props.setReindexPage('none')
+      this.props.setTransactionPage('none')
     } else {
       if (confirm("Exit App?")) {
         navigator.app.exitApp()
@@ -236,6 +265,7 @@ class App extends React.Component {
 
 
   componentDidMount() {
+    this.setScreenSize()
 
     document.addEventListener('backbutton', this.backButtonHandler, false)
 
@@ -252,14 +282,8 @@ class App extends React.Component {
           data = {}
       }
 
-
       // Get settings
       if (data.settings !== undefined) {
-
-        if (data.settings.displayDimensions !== undefined) {
-          this.props.setDisplayDimensions(data.settings.displayDimensions)
-          this.props.setDimensions(data.settings.displayDimensions)
-        }
 
         if (data.settings.currentCoin !== undefined) {
           this.props.setCurrentCoin(data.settings.currentCoin)
@@ -367,6 +391,7 @@ App.propTypes = {
   setPrivateKeyPage: PropTypes.func.isRequired,
   setPassPhrasePage: PropTypes.func.isRequired,
   setReindexPage: PropTypes.func.isRequired,
+  setTransactionPage: PropTypes.func.isRequired,
   setCurrentCoin: PropTypes.func.isRequired,
   setLanguage: PropTypes.func.isRequired,
   setCurrency: PropTypes.func.isRequired,
@@ -404,6 +429,7 @@ function matchDispatchToProps (dispatch) {
       setPrivateKeyPage,
       setPassPhrasePage,
       setReindexPage,
+      setTransactionPage,
       setCurrentCoin,
       setLanguage,
       setCurrency,

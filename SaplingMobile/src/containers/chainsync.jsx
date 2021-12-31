@@ -10,13 +10,13 @@ import {
   setRefreshSecondsRemaining,
   setAddress,
   setBalance,
-  setPrivateKey,
   setSynced,
   setSaving,
   setZAddresses,
   setTAddresses,
   setMenuReady,
   setRefreshAddresses,
+  setTxList,
   setWalletInUse } from '../actions/Context'
 
 import {
@@ -35,11 +35,12 @@ import { coins } from '../utils/coins.js'
 
 import {
   balance,
+  list,
   sync,
   syncStatus,
   info,
   save,
-  privateKey } from '../utils/litewallet'
+  unlock} from '../utils/litewallet'
 
 
 class ChainOps extends React.Component {
@@ -66,286 +67,276 @@ class ChainOps extends React.Component {
 
   async getWalletStatus() {
 
-        this.props.setWalletInUse(true)
-        if (!this.props.context.saving) {
-          var walletStatus = await syncStatus()
-          walletStatus = JSON.parse(walletStatus)
-          console.log('LITEWALLET chainsync getWalletStatus(): '+JSON.stringify(walletStatus))
+        try {
+            this.props.setWalletInUse(true)
+            if (!this.props.context.saving) {
 
-          if (walletStatus.syncing != "true") {
-            console.log('LITEWALLET chainsync getWalletStatus() -- wallet==synced')
+                //Check Wallet Info
+                var walletInfo = await info()
+                try {
+                    walletInfo = JSON.parse(walletInfo)
+                    this.setState({
+                      walletError: false,
+                      errorMsg: ''
+                    })
+                } catch {
+                    this.setState({
+                      walletError: true,
+                      errorMsg: walletInfo
+                    })
+                }
 
-            this.props.setSynced(true)
-            this.setState({
-              syncing: false
-            })
-          } else {
-            var blocksRemaining = walletStatus.total_blocks.toString() - walletStatus.synced_blocks.toString()
-            console.log('LITEWALLET chainsync getWalletStatus() -- wallet busy syncing. '+walletStatus.synced_blocks.toString()+' of '+walletStatus.total_blocks.toString()+', '+blocksRemaining+' remaining')
+                //Get Wallet Balance
+                var walletBalance = await balance()
+                try {
+                    walletBalance = JSON.parse(walletBalance)
+                } catch {
+                    this.setState({
+                      walletError: true,
+                      errorMsg: walletBalance
+                    })
+                }
 
-            if (walletStatus.total_blocks > walletStatus.synced_blocks + 6) {
-              //Syncing does occur, but do not show it on the GUI unless
-              //we're more than 6 minutes behind.
-              console.log('LITEWALLET chainsync getWalletStatus() -- GUI behind. setSynced(false)')
-              this.props.setSynced(false)
-              this.setState({
-                syncing: true
-              })
+                //Get Wallet Status - used to check syncing
+                var walletStatus = await syncStatus()
+                try {
+                    walletStatus = JSON.parse(walletStatus)
+                } catch {
+                    this.setState({
+                      walletError: true,
+                      errorMsg: walletStatus
+                    })
+                }
+
+                var changed = false
+                var downloaded = 0
+                if (walletStatus.syncing == "true") {
+                    //Check if the sync'd height or balance has changed
+                    if (this.state.synced_blocks != walletStatus.synced_blocks ||
+                      walletBalance.verified_zbalance + walletBalance.tbalance != walletBalance) {
+                       changed = true
+                    }
+
+                    if (walletStatus.total_blocks > 0) {
+                        downloaded = walletStatus.synced_blocks/walletStatus.total_blocks
+                    } else {
+                        downloaded = 0
+                    }
+
+                    this.setState({
+                        walletBalance: (walletBalance.verified_zbalance + walletBalance.tbalance).toFixed(8).toString(),
+                        walletHeight: walletStatus.synced_blocks,
+                        chainHeight: walletStatus.total_blocks,
+                        DownloadPercentage: downloaded
+                    })
+
+                    this.props.setHeight(walletStatus.total_blocks)
+                    this.props.setSyncedBlocks(walletStatus.synced_blocks)
+
+                    if (walletInfo.latest_block_height > walletStatus.synced_blocks + 10) {
+                        //walletStatus will revert back to 'syncing=true' automatically
+                        //when the wallet falls far enough behind the block height
+                        //For a few blocks, don't show on the GUI that we're syncing in
+                        //the background:
+
+                        this.props.setSynced(false)
+                        this.setState({
+                          syncing: true
+                        })
+                    }
+                } else {
+                    //Note: walletStatus contains no other fields if syncing==false
+                    //check if the sync'd height or balance has changed
+                    if (this.state.synced_blocks != walletInfo.synced_blocks ||
+                      walletBalance.verified_zbalance + walletBalance.tbalance != walletBalance) {
+                       changed = true
+                    }
+
+                    this.setState({
+                        walletBalance: (walletBalance.verified_zbalance + walletBalance.tbalance).toFixed(8).toString(),
+                        walletHeight: walletInfo.latest_block_height,
+                        chainHeight:  walletInfo.latest_block_height,
+                        DownloadPercentage: 1
+                    })
+                    this.props.setHeight(walletInfo.latest_block_height)
+                    this.props.setSyncedBlocks(walletInfo.latest_block_height)
+                }
+
+
+                //Set Addresses
+                var bestAddress = ''
+                var bestAmount = 0
+                var zlist = []
+                for (var z = 0; z < walletBalance.z_addresses.length; z++) {
+                    var zaddr = {
+                        address: walletBalance.z_addresses[z].address,
+                        balance: walletBalance.z_addresses[z].verified_zbalance
+                    }
+
+                    if (bestAmount == 0 && z == 0) {
+                        bestAddress =  zaddr.address
+                        bestAmount = zaddr.balance
+                    }
+
+                    if (zaddr.balance > bestAmount) {
+                        bestAddress =  zaddr.address
+                        bestAmount = zaddr.balance
+                    }
+
+                    zlist.push(zaddr)
+                }
+                this.props.setZAddresses(zlist)
+
+
+
+                var tlist = []
+                if (coins[this.props.settings.currentCoin].tEnabled) {
+                  for (var t = 0; t < walletBalance.t_addresses.length; t++) {
+                    var taddr = {
+                      address: walletBalance.t_addresses[t].address,
+                      balance: walletBalance.t_addresses[t].balance
+                    }
+                    if (taddr.balance > bestAmount) {
+                      bestAddress =  taddr.address
+                      bestAmount = taddr.balance
+                    }
+                    tlist.push(taddr)
+                  }
+                }
+
+                this.props.setTAddresses(tlist)
+
+                if (this.props.context.address == '') {
+                  this.props.setAddress(bestAddress)
+                  this.props.setBalance(bestAmount)
+                }
+
+                if (!this.props.context.menuReady) {
+                  this.props.setMenuReady(true)
+                }
+
+                if (walletStatus.syncing != "true") {
+                    this.props.setSynced(true)
+                    this.setState({
+                      syncing: false
+                    })
+                } else {
+                    if (walletStatus.total_blocks > walletStatus.synced_blocks + 6) {
+                        //Syncing does occur, but do not show it on the GUI unless
+                        //we're more than 6 minutes behind.
+                        this.props.setSynced(false)
+                        this.setState({
+                          syncing: true
+                        })
+                    }
+                }
+
+
+                //Get the Transaction List if the wallet has changed
+                if (this.state.syncing != "true") {
+                  if (changed || this.props.context.transactionList == null) {
+                    var transactionList = await list()
+                    try {
+                        transactionList = JSON.parse(transactionList)
+                        transactionList.reverse()
+                        if (this.props.context.transactionList != transactionList) {
+                          this.props.setTxList(transactionList)
+                        }
+                    } catch {
+                        this.setState({
+                          walletError: true,
+                          errorMsg: transactionList
+                        })
+                    }
+                  }
+                }
             }
-          }
-        }
-        else
-        {
-          console.log('LITEWALLET chainsync getWalletStatus() -- saving. Not evaluation sync status')
-        }
 
-        var mainPageOpen = true
-        if (this.props.mainSubPage.receivePage == 'visible') {
-          mainPageOpen = false
-        }
+            //When the synced blocks get close to the chain hieght, check more often for better GUI response
+            var statusTimeout = 10000
+            if (walletStatus.syncing == "true") {
+                if (this.props.context.height - this.props.context.syncedBlocks < 1000) {
+                  statusTimeout = 1000
+                }
+            }
 
-        clearTimeout(this.state.syncWalletTimer)
-        if (this.props.context.synced) {
-          if (mainPageOpen) {
-            console.log('LITEWALLET chainsync getWalletStatus() : synced -- refresh in 60 seconds.')
-
-            const syncWalletTimerIDLong = setTimeout(
+            const syncWalletTimerIDShort = setTimeout(
               () => {
                 this.getWalletStatus()
-              },60000)
-            this.setState({syncWalletTimer: syncWalletTimerIDLong})
-          } else {
-            console.log('LITEWALLET chainsync getWalletStatus() : synced -- Main page not open. Do not schedule a refresh')
-          }
-        } else {
-          if (mainPageOpen) {
-            console.log('LITEWALLET chainsync getWalletStatus() : not synced -- refreshing in 10 seconds.')
+              },statusTimeout)
+            this.setState({syncWalletTimer: syncWalletTimerIDShort})
+
+        } catch {
+
+            this.setState({
+              walletError: true,
+              errorMsg: 'getWalletStatus Failed! '
+            })
 
             const syncWalletTimerIDShort = setTimeout(
               () => {
                 this.getWalletStatus()
               },10000)
             this.setState({syncWalletTimer: syncWalletTimerIDShort})
-          } else {
-            console.log('LITEWALLET chainsync getWalletStatus() : not synced -- Main page not open. Do not schedule a refresh')
-          }
         }
+
         this.props.setWalletInUse(false)
-      }
+    }
 
 async updateWallet() {
-      if (!this.props.context.saving) {
-        this.props.setWalletInUse(true)
 
-        sync()
+      try {
+          if (!this.props.context.saving) {
 
-        if (this.state.saveWalletCounter >= 30) {
-          console.log('LITEWALLET chainsync updateWallet() : save wallet. saveWalletCounter='+this.state.saveWalletCounter.toString() )
-          this.props.setSaving(true)
-          await save(coins[this.props.settings.currentCoin].networkname)
-          this.setState({saveWalletCounter: 0})
-          this.props.setSaving(false)
-        } else {
-          console.log('LITEWALLET chainsync updateWallet() : not saving wallet. saveWalletCounter='+this.state.saveWalletCounter.toString() )
-        }
-        
-        var walletInfo = await info()
-        try {
-          walletInfo = JSON.parse(walletInfo)
-          console.log('LITEWALLET chainsync updateWallet() parsed info:'+JSON.stringify(walletInfo));
-          this.setState({
-            walletError: false,
-            errorMsg: ''
-          })
-        } catch {
-          console.log('LITEWALLET chainsync updateWallet() info() failed');
-          this.setState({
-            walletError: true,
-            errorMsg: walletInfo
-          })
-        }
-
-        var walletBalance = await balance()
-        try {
-          walletBalance = JSON.parse(walletBalance)
-        } catch {
-          console.log('LITEWALLET chainsync updateWallet() balance() failed');
-          this.setState({
-            walletError: true,
-            errorMsg: walletBalance
-          })
-        }
-
-        var walletStatus = await syncStatus()
-        try {
-          walletStatus = JSON.parse(walletStatus)
-          //Note: If syncing==false, then walletStatus will not contain synced_blocks and total_blocks
-          console.log('LITEWALLET chainsync updateWallet() parsed status:'+JSON.stringify(walletStatus));
-        } catch {
-          console.log('LITEWALLET chainsync updateWallet() syncStatus() failed');
-          this.setState({
-            walletError: true,
-            errorMsg: walletStatus
-          })
-        }
-
-        var downloaded = 0
-        if (walletStatus.syncing == "true") {
-          if (walletStatus.total_blocks > 0) {
-            downloaded = walletStatus.synced_blocks/walletStatus.total_blocks
-          } else {
-            downloaded = 0
-          }
-
-          this.setState({
-            walletBalance: (walletBalance.verified_zbalance + walletBalance.tbalance).toFixed(8).toString(),
-            walletHeight: walletStatus.synced_blocks,
-            chainHeight: walletStatus.total_blocks,
-            DownloadPercentage: downloaded
-          })
-
-          this.props.setHeight(walletStatus.total_blocks)
-          this.props.setSyncedBlocks(walletStatus.synced_blocks)
-          
-          if (walletInfo.latest_block_height > walletStatus.synced_blocks + 10) {
-            //walletStatus will revert back to 'syncing=true' automatically
-            //when the wallet falls far enough behind the block height
-            //For a few blocks, don't show on the GUI that we're syncing in
-            //the background:
-          
-            this.props.setSynced(false)
-            this.setState({
-              syncing: true
-            })
-            console.log('LITEWALLET chainsync updateWallet() start syncing: ' + (walletInfo.latest_block_height - walletStatus.synced_blocks) + ' behind');
-          } else {
-            console.log('LITEWALLET chainsync updateWallet() not indicating sync on GUI. Only ' + (walletInfo.latest_block_height - walletStatus.synced_blocks) + ' behind');
-          }
-        } else {
-          console.log('LITEWALLET chainsync updateWallet() synced');
-
-          //Note: walletStatus contains no other fields if syncing==false
-          this.setState({
-            walletBalance: (walletBalance.verified_zbalance + walletBalance.tbalance).toFixed(8).toString(),
-            walletHeight: walletInfo.latest_block_height,
-            chainHeight:  walletInfo.latest_block_height,
-            DownloadPercentage: 1
-          })
-          this.props.setHeight(walletInfo.latest_block_height)
-          this.props.setSyncedBlocks(walletInfo.latest_block_height)
-        }
-
-        var bestAddress = ''
-        var bestAmount = 0
-
-        var zlist = []
-        for (var z = 0; z < walletBalance.z_addresses.length; z++) {
-          var zaddr = {
-            address: walletBalance.z_addresses[z].address,
-            balance: walletBalance.z_addresses[z].verified_zbalance
-          }
-
-          if (bestAmount == 0 && z == 0) {
-            bestAddress =  zaddr.address
-            bestAmount = zaddr.balance
-          }
-
-          if (zaddr.balance > bestAmount) {
-            bestAddress =  zaddr.address
-            bestAmount = zaddr.balance
-          }
-
-          zlist.push(zaddr)
-        }
-        this.props.setZAddresses(zlist)
-
-        var tlist = []
-        if (coins[this.props.settings.currentCoin].tEnabled) {
-          for (var t = 0; t < walletBalance.t_addresses.length; t++) {
-            var taddr = {
-              address: walletBalance.t_addresses[t].address,
-              balance: walletBalance.t_addresses[t].balance
+            this.props.setWalletInUse(true)
+            if (!this.state.syncing) {
+              sync()
             }
-            if (taddr.balance > bestAmount) {
-              bestAddress =  taddr.address
-              bestAmount = taddr.balance
+
+            //Save wallet to disk
+            if (this.state.saveWalletCounter >= 10) {
+                this.props.setSaving(true)
+                await save(coins[this.props.settings.currentCoin].networkname)
+                await unlock(this.props.context.activePassword)
+                this.setState({saveWalletCounter: 0})
+                this.props.setSaving(false)
             }
-            tlist.push(taddr)
+
+            clearTimeout(this.state.updateTimer)
+            var refreshSecondsRemaining=Date.now()+30000
+            this.props.setRefreshSecondsRemaining(refreshSecondsRemaining)
+
+            const updateTimerIDLong = setTimeout(
+              () => {
+                const walletCount = this.state.saveWalletCounter + 1
+                this.setState({saveWalletCounter: walletCount})
+                this.updateWallet()
+              },
+              30000
+            )
+            this.setState({updateTimer: updateTimerIDLong})
           }
-        }
+      } catch {
 
-        this.props.setTAddresses(tlist)
-
-        if (this.props.context.address == '') {
-          this.props.setAddress(bestAddress)
-          this.props.setBalance(bestAmount)
-          var pk = await privateKey(bestAddress)
-          pk = JSON.parse(pk)
-          this.props.setPrivateKey(pk[0].private_key)
-        }
-
-        if (!this.props.context.menuReady) {
-          this.props.setMenuReady(true)
-        }
-
-        this.props.setWalletInUse(false)
-      }
-
-      var mainPageOpen = true
-      if (this.props.mainSubPage.receivePage == 'visible') {
-        mainPageOpen = false
-      }
-
-      var refreshSecondsRemaining
-
-
-      clearTimeout(this.state.updateTimer)
-      if (walletStatus.syncing=="false") {
-        if (mainPageOpen) {
-          console.log('LITEWALLET chainsync updateWallet() : synced, setRefreshSecondsRemaining=180')
-          refreshSecondsRemaining=Date.now()+180000
-          this.props.setRefreshSecondsRemaining(refreshSecondsRemaining)
+          this.setState({
+            walletError: true,
+            errorMsg: 'updateWallet Failed!'
+          })
 
           const updateTimerIDLong = setTimeout(
             () => {
-              const walletCount = this.state.saveWalletCounter + 180
+              const walletCount = this.state.saveWalletCounter + 0
               this.setState({saveWalletCounter: walletCount})
               this.updateWallet()
             },
-            180000
+            10000
           )
           this.setState({updateTimer: updateTimerIDLong})
-        }
-	else
-	{
-          console.log('LITEWALLET chainsync updateWallet() : synced. Main page not open. Do nothing')          
-	}
-      } else {
-        if (mainPageOpen) {
-          //Server doe sn't respond with new data even when calling more frequently
-          console.log('LITEWALLET chainsync updateWallet() : not synced, setRefreshSecondsRemaining=30')
-          refreshSecondsRemaining=Date.now()+30000
-          this.props.setRefreshSecondsRemaining(refreshSecondsRemaining)
 
-          const updateTimerIDShort = setTimeout(
-            () => {
-              const walletCount = this.state.saveWalletCounter + 30
-              this.setState({saveWalletCounter: walletCount})
-              this.updateWallet()
-            },
-            30000
-          )
-          this.setState({updateTimer: updateTimerIDShort})
-        }
-	else
-	{
-          console.log('LITEWALLET chainsync updateWallet() : Not synced. Main page not open. Do nothing')
-	}
       }
-    }
+  }
 
     componentDidMount() {
-      sync()
       this.getWalletStatus()
       this.updateWallet()
     }
@@ -359,7 +350,6 @@ async updateWallet() {
     render () {
 
       if (this.props.context.refreshAddresses) {
-	console.log('LITEWALLET chainsync updateWallet() : refreshAddresses - update all')
         this.updateWallet()
         this.getWalletStatus()
         this.props.setRefreshAddresses(false)
@@ -426,12 +416,12 @@ ChainOps.propTypes = {
   setRefreshAddresses: PropTypes.func.isRequired,
   setTAddresses: PropTypes.func.isRequired,
   setZAddresses: PropTypes.func.isRequired,
-  setMenuReady: PropTypes.func.isRequired,  
+  setTxList: PropTypes.func.isRequired,
+  setMenuReady: PropTypes.func.isRequired,
   setSynced: PropTypes.func.isRequired,
   setSaving: PropTypes.func.isRequired,
   setAddress: PropTypes.func.isRequired,
   setBalance:  PropTypes.func.isRequired,
-  setPrivateKey:  PropTypes.func.isRequired,
   context: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
   secrets: PropTypes.object.isRequired,
@@ -458,10 +448,10 @@ function matchDispatchToProps (dispatch) {
       setRefreshAddresses,
       setTAddresses,
       setZAddresses,
+      setTxList,
       setMenuReady,
       setAddress,
       setBalance,
-      setPrivateKey,
       setSynced,
       setSaving
     },

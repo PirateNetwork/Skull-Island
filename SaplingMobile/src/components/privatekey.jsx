@@ -20,9 +20,9 @@ transition: 500ms;
 
 export const PrivateKeySectionOverscroll = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.125) + 'px'};
+  top: ${props => (props.theme.height * 0.0125) + 'px'};
   left: 0;
-  height: ${props => (props.theme.height * .875) + 'px'};
+  height: ${props => (props.theme.height * .975) + 'px'};
   width: ${props => props.theme.width + 'px'};
   overflow: scroll;
   overscroll-behavior: contain;

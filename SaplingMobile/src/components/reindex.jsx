@@ -11,18 +11,18 @@ const InputAreaFontSize = 1.5/36
 
 
 export const ReindexDiv = styled.div`
-position: absolute;
-top: 0;
-left: 0;
-display: ${props => props.visible};
-transition: 500ms;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: ${props => props.visible};
+  transition: 500ms;
 `
 
 export const ReindexSectionOverscroll = styled.div`
   position: absolute;
-  top: ${props => (props.theme.height * 0.125) + 'px'};
+  top: ${props => (props.theme.height * 0.0125) + 'px'};
   left: 0;
-  height: ${props => (props.theme.height * .875) + 'px'};
+  height: ${props => (props.theme.height * .975) + 'px'};
   width: ${props => props.theme.width + 'px'};
   overflow: scroll;
   overscroll-behavior: contain;
@@ -48,6 +48,12 @@ export const ReindexTitle = styled.div`
   font-style: normal;
   font-weight: bold;
   font-size: ${props => (props.theme.width * TitleFontSize) + 'px'};
+  text-align: center;
+`
+
+export const ReindexLoader = styled.div`
+  position: absolute;
+  left: ${props => ((props.theme.width * 0.5)) + 'px'};
   text-align: center;
 `
 

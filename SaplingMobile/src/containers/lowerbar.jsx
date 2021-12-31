@@ -10,7 +10,12 @@ import {
   setReceivePage,
   setPassPhrasePage,
   setPrivateKeyPage,
-  setReindexPage,} from '../actions/MainSubPage'
+  setReindexPage,
+  setTransactionPage} from '../actions/MainSubPage'
+
+import {
+  setRefreshAddresses,
+  setAddressScanning} from '../actions/Context'
 
 import {
   LowerBarDiv,
@@ -24,7 +29,7 @@ import {
 
 import walletIcon from '../assets/svg/wallet_icon.svg'
 import sendIcon from '../assets/svg/send_icon.svg'
-import receiveIcon from '../assets/svg/receive_icon.svg'
+import qrImg from '../assets/svg/qr-code.svg'
 import explorerIcon from '../assets/svg/explorer_icon.svg'
 import pirateCoinIcon from '../assets/png/pirate_coin_icon.png'
 
@@ -36,9 +41,12 @@ class LowerBar extends React.Component {
   }
 
   setCloseMenu() {
+    this.props.setRefreshAddresses(true)
     this.props.setPassPhrasePage('none')
     this.props.setPrivateKeyPage('none')
     this.props.setReindexPage('none')
+    this.props.setTransactionPage('none')
+    this.props.setReceivePage('none')
   }
 
   render() {
@@ -61,48 +69,48 @@ class LowerBar extends React.Component {
             <LowerBarButton opacity = {1} hPosition = {0.04}
               onClick={e => {
                 e.stopPropagation()
-                this.props.setMainPage('visible')
-                this.props.setSendPage('none')
-                this.props.setReceivePage('none')
                 this.setCloseMenu()
+                this.props.setSendPage('none')
+                this.props.setMainPage('visible')
               }}>
               <LowerBarCenteredDiv>
                 <LowerBarButtonImg src={walletIcon}/>
               </LowerBarCenteredDiv>
               <LowerBarButtonText active = {this.props.mainSubPage.mainPage}>
-                Wallet
+                {'Wallet'}
               </LowerBarButtonText>
             </LowerBarButton>
             <LowerBarButton opacity = {sendVisible} hPosition = {0.20}
               onClick={e => {
                 e.stopPropagation()
                 if (sendVisible == 1) {
+                  this.setCloseMenu()
                   this.props.setMainPage('none')
                   this.props.setSendPage('visible')
-                  this.props.setReceivePage('none')
-                  this.setCloseMenu()
                 }
               }}>
               <LowerBarCenteredDiv>
                 <LowerBarButtonImg src={sendIcon}/>
               </LowerBarCenteredDiv>
               <LowerBarButtonText active = {this.props.mainSubPage.sendPage}>
-                Send
+                {'Send'}
               </LowerBarButtonText>
             </LowerBarButton>
-            <LowerBarButton opacity = {1} hPosition = {0.54}
+            <LowerBarButton opacity = {sendVisible} hPosition = {0.54}
               onClick={e => {
                 e.stopPropagation()
-                this.props.setMainPage('none')
-                this.props.setSendPage('none')
-                this.props.setReceivePage('visible')
-                this.setCloseMenu()
+                if (sendVisible == 1) {
+                  this.setCloseMenu()
+                  this.props.setMainPage('none')
+                  this.props.setSendPage('visible')
+                  this.props.setAddressScanning(true)
+                }
               }}>
               <LowerBarCenteredDiv>
-                <LowerBarButtonImg src={receiveIcon}/>
+                <LowerBarButtonImg src={qrImg}/>
               </LowerBarCenteredDiv>
               <LowerBarButtonText active = {this.props.mainSubPage.receivePage}>
-                Receive
+                {'Scan'}
               </LowerBarButtonText>
             </LowerBarButton>
             <LowerBarButton opacity = {1} hPosition = {0.70}
@@ -114,7 +122,7 @@ class LowerBar extends React.Component {
                 <LowerBarButtonImg src={explorerIcon}/>
               </LowerBarCenteredDiv>
               <LowerBarButtonText>
-                Explorer
+                {'Explorer'}
               </LowerBarButtonText>
             </LowerBarButton>
           </LowerBarSection>
@@ -132,6 +140,9 @@ LowerBar.propTypes = {
   setPassPhrasePage: PropTypes.func.isRequired,
   setPrivateKeyPage: PropTypes.func.isRequired,
   setReindexPage: PropTypes.func.isRequired,
+  setTransactionPage: PropTypes.func.isRequired,
+  setAddressScanning: PropTypes.func.isRequired,
+  setRefreshAddresses: PropTypes.func.isRequired,
   settings: PropTypes.object.isRequired,
   context: PropTypes.object.isRequired,
   mainSubPage: PropTypes.object.isRequired
@@ -154,6 +165,9 @@ function matchDispatchToProps (dispatch) {
       setPassPhrasePage,
       setPrivateKeyPage,
       setReindexPage,
+      setTransactionPage,
+      setAddressScanning,
+      setRefreshAddresses
     },
     dispatch
   )

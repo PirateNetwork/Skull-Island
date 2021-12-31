@@ -13,7 +13,7 @@ export const coins = {
     addressParams: {
       coin_type: '141',
       hrp_sapling_extended_spending_key: 'secret-extended-key-main',
-      hrp_sapling_extended_full_viewing_key: 'zviews',
+      hrp_sapling_extended_full_viewing_key: 'zxviews',
       hrp_sapling_payment_address: 'zs',
       b58_pubkey_address_prefix: '1cb8',
       b58_script_address_prefix: '1cbd',

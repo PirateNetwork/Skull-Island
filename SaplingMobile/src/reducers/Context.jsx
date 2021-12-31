@@ -12,8 +12,8 @@ import {
   SET_SYNCED,
   SET_BALANCE,
   SET_DIMENSIONS,
-  SET_ZER_IN_BTC_VALUE,
-  SET_ZER_IN_CURRENCY_VALUE,
+  SET_IN_BTC_VALUE,
+  SET_IN_CURRENCY_VALUE,
   SET_QR_SCANNING,
   SET_SAVING,
   SET_WALLET_INUSE,
@@ -22,7 +22,10 @@ import {
   SET_TADDRESSES,
   SET_ZADDRESSES,
   SET_TX,
-  SET_MENU_READY
+  SET_TX_LIST,
+  SET_VIEWING_TX,
+  SET_MENU_READY,
+  SET_ADDRESS_SCANNING
 
 } from '../actions/Context'
 
@@ -39,6 +42,7 @@ const initialContext = {
   BTCValue: 0,
   currencyValue: 0,
   qrScanning: false,
+  addrScanning: false,
   saving: false,
   walletInUse: false,
   walletLoaded: false,
@@ -46,6 +50,8 @@ const initialContext = {
   zAddresses: [],
   tAddresses: [],
   tx: null,
+  txList: null,
+  viewingTx: false,
   menuReady: false
 }
 
@@ -97,12 +103,12 @@ export default function ContextReducer (state = initialContext, action) {
         dimensions: action.dimensions
       })
 
-    case SET_ZER_IN_BTC_VALUE:
+    case SET_IN_BTC_VALUE:
       return Object.assign({}, state, {
         BTCValue: action.BTCValue
       })
 
-    case SET_ZER_IN_CURRENCY_VALUE:
+    case SET_IN_CURRENCY_VALUE:
       return Object.assign({}, state, {
         currencyValue: action.currencyValue
       })
@@ -110,6 +116,11 @@ export default function ContextReducer (state = initialContext, action) {
     case SET_QR_SCANNING:
       return Object.assign({}, state, {
         qrScanning: action.qrScanning
+      })
+
+    case SET_ADDRESS_SCANNING:
+      return Object.assign({}, state, {
+        addrScanning: action.addrScanning
       })
 
     case SET_SAVING:
@@ -145,6 +156,16 @@ export default function ContextReducer (state = initialContext, action) {
     case SET_TX:
       return Object.assign({}, state, {
         tx: action.tx
+      })
+
+    case SET_TX_LIST:
+      return Object.assign({}, state, {
+        txList: action.txList
+      })
+
+    case SET_VIEWING_TX:
+      return Object.assign({}, state, {
+        viewingTx: action.viewingTx
       })
 
     case SET_MENU_READY:

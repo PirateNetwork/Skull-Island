@@ -12,7 +12,8 @@ import {
   SET_SUB_PAGE_GRAPH_OPEN,
   SET_SUB_PAGE_TRANSACTION_SCOLL,
   SET_SUB_PAGE_TRANSACTION_SCOLL_POS,
-
+  SET_SUB_PAGE_ADDRESSLIST,
+  SET_SUB_PAGE_TRANSACTION,
 } from '../actions/MainSubPage'
 
 export const GraphOpenPos = 0.0
@@ -28,6 +29,8 @@ const initialMainSubPage= {
   graphOpen: true,
   transactionScroll: false,
   transactionScrollPos: 0,
+  addressList: 'visible',
+  transactionPage: 'none'
 }
 
 export default function MainSubPageReducer (state = initialMainSubPage, action) {
@@ -76,6 +79,16 @@ export default function MainSubPageReducer (state = initialMainSubPage, action) 
       return Object.assign({}, state, {
         transactionScrollPos: action.transactionScrollPos
       })
+
+    case SET_SUB_PAGE_ADDRESSLIST:
+          return Object.assign({}, state, {
+            addressList: action.addressList
+          })
+
+    case SET_SUB_PAGE_TRANSACTION:
+          return Object.assign({}, state, {
+            transactionPage: action.transactionPage
+          })
 
     default:
       return state

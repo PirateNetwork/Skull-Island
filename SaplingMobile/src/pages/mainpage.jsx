@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import ChainOps from '../containers/chainsync'
-import BalanceGraph from '../containers/balancegraph'
 import LowerBar from '../containers/lowerbar'
 import ZMain from '../containers/zmain'
 // import TMain from '../containers/tmain'
@@ -15,6 +14,7 @@ import PrivateKey from '../containers/privatekey'
 import PassPhrase from '../containers/passphrase'
 import Reindex from '../containers/reindex'
 import Qr from '../containers/qr'
+import ZTransaction from '../containers/ztransaction'
 
 import {setGraphOpen} from '../actions/MainSubPage'
 
@@ -34,7 +34,6 @@ class MainPage extends React.Component {
 
       if (this.props.mainSubPage.mainPage == 'visible') {
         page = <div>
-                <BalanceGraph />
                 <ChainOps />
                 <ZMain />
               </div>
@@ -46,6 +45,8 @@ class MainPage extends React.Component {
         page = <PassPhrase />
       } else if (this.props.mainSubPage.reindexPage == 'visible') {
         page = <Reindex />
+      } else if (this.props.mainSubPage.transactionPage == 'visible') {
+        page = <ZTransaction />
       }
 
       if (this.props.mainSubPage.mainPage != 'visible' && this.props.mainSubPage.graphOpen == false) {

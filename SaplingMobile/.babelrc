@@ -6,7 +6,6 @@
   ],
   "plugins": [
     "emotion",
-    "recharts",
     "@babel/plugin-proposal-export-default-from"
   ]
 }

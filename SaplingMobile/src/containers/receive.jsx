@@ -58,7 +58,9 @@ class Receive extends React.Component {
       try {
         this.scrollRef.current.scrollTop = p
       } catch {
-        console.log('Unable to set scroll on receive page')
+        if (process.env.NODE_ENV != 'production') {
+          console.log('Unable to set scroll on receive page')
+        }
       }
     }
 
@@ -107,11 +109,11 @@ class Receive extends React.Component {
               <ReceiveQRBase>
                 <ReceiveQR>
                   <QRCode value={this.props.context.address}
-                         quietZone = {'0'}
-                         size = {(this.props.context.dimensions.width * 0.550)}
-                         bgColor = {'rgba(187,150,69,1)'}
-                         logoImage = {logo}
-                         ecLevel = "H"
+                      quietZone = {(this.props.context.dimensions.width * 0.025)}
+                      size = {(this.props.context.dimensions.width * 0.850)}
+                      bgColor = {'rgba(187,150,69,1)'}
+                      logoImage = {logo}
+                      ecLevel = "H"
                             />
                 </ReceiveQR>
               </ReceiveQRBase>

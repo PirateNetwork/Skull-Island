@@ -7,33 +7,50 @@ import { connect } from 'react-redux'
 import { QRCode } from 'react-qrcode-logo'
 import logo from '../assets/svg/QR_Logo.svg'
 
-// import { privateKey } from '../utils/litewallet'
+import { privateKey } from '../utils/litewallet'
+
+import { setPrivateKey } from '../actions/Context'
 
 import {
   setMainPage,
+  setReceivePage,
   setPrivateKeyPage,} from '../actions/MainSubPage'
 
-  import {
-    PrivateKeyDiv,
-    PrivateKeySection,
-    PrivateKeySectionOverscroll,
-    PrivateKeyTitle,
-    PrivateKeyPWTitle,
-    PrivateKeyPWArea,
-    PrivateKeyPWInput,
-    PrivateKeyPWGradientCapLeft,
-    PrivateKeyPWGradientCapRight,
-    PrivateKeyPWRedText,
-    PrivateKeyArea,
-    PrivateKeyInput,
-    PrivateKeyCopyButton,
-    PrivateKeyNote1,
-    PrivateKeyNote2,
-    PrivateKeyQRTitle,
-    PrivateKeyQRBase,
-    PrivateKeyQR,
-    PrivateKeyBackButton,
-  } from '../components/privatekey'
+import {
+  PrivateKeyDiv,
+  PrivateKeySection,
+  PrivateKeySectionOverscroll,
+  PrivateKeyTitle,
+  PrivateKeyPWTitle,
+  PrivateKeyPWArea,
+  PrivateKeyPWInput,
+  PrivateKeyPWGradientCapLeft,
+  PrivateKeyPWGradientCapRight,
+  PrivateKeyPWRedText,
+  PrivateKeyArea,
+  PrivateKeyInput,
+  PrivateKeyCopyButton,
+  PrivateKeyNote1,
+  PrivateKeyNote2,
+  PrivateKeyQRTitle,
+  PrivateKeyQRBase,
+  PrivateKeyQR,
+  PrivateKeyBackButton,
+    } from '../components/privatekey'
+
+import {
+  ZMainMenu,
+  ZMainMenuButton,
+  ZMainMenuButtonImg,
+  ZMainMenuContentButtons,
+  ZMainCenteredDiv,
+  ZMainMenuContent,
+  ZMainMenuContentImg,
+  ZMainMenuButtonLine,
+    } from '../components/zmain'
+
+import menuIcon from '../assets/svg/menu_icon.svg'
+import menuPopup from '../assets/svg/modal_popup.svg'
 
 class PrivateKey extends React.Component {
 
@@ -41,23 +58,30 @@ class PrivateKey extends React.Component {
     super(props)
 
       this.state = {
+        menuOpen: 'block',
         pin: 'visible',
         showkey: 'none',
         password: '',
         reset: true,
-        flash: false
+        flash: false,
+        keyType: 'Spending',
       }
 
       this.scrollRef = React.createRef()
 
       //State Updates
+      this.toggleMenu = this.toggleMenu.bind(this)
       this.setPassword = this.setPassword.bind(this)
       this.setReset = this.setReset.bind(this)
       this.resetScroll = this.resetScroll.bind(this)
       this.beginFlash = this.beginFlash.bind(this)
       this.removeFlash = this.removeFlash.bind(this)
-      // this.setPrivateKey = this.setPrivateKey.bind(this)
+      this.setPrivateKey = this.setPrivateKey.bind(this)
+      this.setKeyType = this.setKeyType.bind(this)
+    }
 
+    setKeyType(t) {
+        this.setState({keyType: t})
     }
 
     beginFlash () {
@@ -70,16 +94,19 @@ class PrivateKey extends React.Component {
       clearInterval(this.setFlashPrivateKeyId)
     }
 
-  //   async setPrivateKey() {
-  //     var pk = await privateKey(this.props.context.address)
-  //     pk = JSON.parse(pk)
-  //     this.setState({key: pk[0].private_key})
-  // }
+    async setPrivateKey() {
+      var pk = await privateKey(this.props.context.address)
+      pk = JSON.parse(pk)
+      if (this.state.keyType == 'Spending') {
+          this.props.setPrivateKey(pk[0].private_key)
+      } else {
+          this.props.setPrivateKey(pk[0].viewing_key)
+      }
+  }
 
     setPassword (p) {
       if (p.length >= 8) {
         if (p == this.props.context.activePassword) {
-          this.setPrivateKey
           this.setState({
             pin: 'none',
             showkey: 'visible',
@@ -105,12 +132,21 @@ class PrivateKey extends React.Component {
 
     setReset() {
       this.setState({
+        menuOpen: 'none',
         pin: 'visible',
         showkey: 'none',
         password: '',
         passphrase: '',
         reset: true
       })
+    }
+
+    toggleMenu () {
+      if (this.state.menuOpen == 'none') {
+        this.setState({menuOpen: 'block'})
+      } else {
+        this.setState({menuOpen: 'none'})
+      }
     }
 
     resetScroll (p) {
@@ -131,11 +167,60 @@ class PrivateKey extends React.Component {
 
         return (
           <PrivateKeyDiv visible={this.props.mainSubPage.privateKeyPage}>
+
+            <ZMainMenu>
+              <ZMainMenuButton
+                onClick={ e => {
+                  e.stopPropagation()
+                  this.toggleMenu()}}>
+                <ZMainCenteredDiv>
+                  <ZMainMenuButtonImg src={menuIcon}/>
+                </ZMainCenteredDiv>
+              </ZMainMenuButton>
+
+              <ZMainMenuContent visible={this.state.menuOpen} size={3}>
+                <ZMainMenuContentImg src={menuPopup}/>
+                <ZMainMenuContentButtons>
+
+                  <ZMainMenuButtonLine pos={3.0}
+                  onClick={() => {
+                    this.props.setReceivePage('visible')
+                    this.props.setPrivateKeyPage('none')
+                    this.toggleMenu()
+                  }}
+                  >
+                  {'Receiving'}
+                  </ZMainMenuButtonLine>
+
+                  <ZMainMenuButtonLine pos={0.5}
+                  onClick={() => {
+                    this.setKeyType('Spending')
+                    this.setPrivateKey()
+                    this.toggleMenu()
+                  }}
+                  >
+                  {'Spending Key'}
+                  </ZMainMenuButtonLine>
+
+                  <ZMainMenuButtonLine pos={-2.0}
+                  onClick={() => {
+                    this.setKeyType('Viewing')
+                    this.setPrivateKey()
+                    this.toggleMenu()
+                  }}
+                  >
+                  {'Viewing Key'}
+                  </ZMainMenuButtonLine>
+
+                </ZMainMenuContentButtons>
+              </ZMainMenuContent>
+            </ZMainMenu>
+
             <PrivateKeySectionOverscroll ref = {this.scrollRef}>
               <PrivateKeySection visible={this.state.pin}>
                 <PrivateKeyTitle>
                   {/* Changed to match the terminology of the Treasure Chest full node wallet*/}
-                  {'Export Spending Key'}
+                  {this.state.keyType == 'Spending'? 'Export Spending Key' : 'Export Viewing Key'}
                 </PrivateKeyTitle>
                 <PrivateKeyPWTitle>
                   {'Password:'}
@@ -161,7 +246,7 @@ class PrivateKey extends React.Component {
               <PrivateKeySection visible={this.state.showkey}>
                 <PrivateKeyTitle>
                   {/* Changed to match the terminology of the Treasure Chest full node wallet */}
-                  {'Export Spending Key'}
+                  {this.state.keyType == 'Spending'? 'Export Spending Key' : 'Export Viewing Key'}
                 </PrivateKeyTitle>
                 <PrivateKeyPWTitle>
                   {'Private key:'}
@@ -179,7 +264,7 @@ class PrivateKey extends React.Component {
                   {'Copy'}
                 </PrivateKeyCopyButton>
                 <PrivateKeyNote1>
-                  {'The recovery info of your Pirate address.'}
+                  {this.state.keyType == 'Spending'? 'The recovery info for your Pirate address.' : 'The viewing info for your Pirate address.'}
                 </PrivateKeyNote1>
                 <PrivateKeyNote2>
                   {'It can be imported in a full node wallet.'}
@@ -215,7 +300,9 @@ class PrivateKey extends React.Component {
 
 
 PrivateKey.propTypes = {
+  setPrivateKey:  PropTypes.func.isRequired,
   setPrivateKeyPage: PropTypes.func.isRequired,
+  setReceivePage: PropTypes.func.isRequired,
   setMainPage: PropTypes.func.isRequired,
   context: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
@@ -235,6 +322,8 @@ function matchDispatchToProps (dispatch) {
     {
       setPrivateKeyPage,
       setMainPage,
+      setReceivePage,
+      setPrivateKey,
     },
     dispatch
   )

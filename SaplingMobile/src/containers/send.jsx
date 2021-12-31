@@ -8,7 +8,9 @@ import {
   setMainPage,
   setSendPage} from '../actions/MainSubPage'
 
-import {setQrScanning} from '../actions/Context'
+import {
+  setQrScanning,
+  setAddressScanning} from '../actions/Context'
 
 import {
   setSendToAddress,
@@ -26,12 +28,15 @@ import {
 import Qr from '../containers/qr'
 
 import RingSpinner from '../containers/spinner'
+import AddressDropdown from '../containers/addressdropdown'
 
 import {
   SendDiv,
   SendSectionOverscroll,
   SendSection,
   SendTitle,
+  SelectAddressTitle,
+  SelectAddressDashedArea,
   SendAddressTitle,
   SendDashedArea,
   SendDashedInput,
@@ -224,6 +229,8 @@ class Send extends React.Component {
     }
 
     handleQRScan () {
+      this.props.setAddressScanning(false)
+      this.props.setQrScanning(true)
       // Prepare QR Scanner
       QRScanner.prepare(function (err, status) {
         // Oh no!
@@ -241,9 +248,8 @@ class Send extends React.Component {
               alert(JSON.stringify(err))
             } else {
               // The scan completed, display the contents of the QR code
-              // this.setState({
-              //   sendToAddress: address
-              // })
+              this.props.setMainPage('none')
+              this.props.setSendPage('visible')
               this.props.setSendToAddress(address)
             }
 
@@ -387,8 +393,13 @@ class Send extends React.Component {
     }
 
     render () {
+
         if ((this.state.transactionSuccess || this.state.transactionFailed) && this.props.mainSubPage.sendPage == 'none') {
           this.resetSpend()
+        }
+
+        if (this.props.context.addrScanning) {
+           this.handleQRScan()
         }
 
         var height = this.props.context.dimensions.height
@@ -396,7 +407,7 @@ class Send extends React.Component {
 
         var hsize = 0.875
         if (this.state.transactionInput == 'visible') {
-          hsize = 0.875 * 1.5
+          hsize = 0.875 * 2
         }
 
         if (this.state.transactionConfirm == 'visible') {
@@ -430,7 +441,6 @@ class Send extends React.Component {
           spinner = ''
         }
 
-
         var sendConfirmButton
         var displaySendPassword
         if (this.state.validPassword == true) {
@@ -454,7 +464,7 @@ class Send extends React.Component {
         var sendButton
         if (this.props.sendTo.amount > 0) {
             sendButton =
-            <SendButton
+            <SendButton mlength = {this.props.sendTo.memo.length}
               onClick={() => {
                 this.resetScroll(0)
                 this.setTransactionConfirm('visible')
@@ -464,7 +474,7 @@ class Send extends React.Component {
             </SendButton>
         } else {
           sendButton =
-          <SendButton disabled = {true}>
+          <SendButton disabled = {true} mlength = {this.props.sendTo.memo.length}>
             {'Send'}
           </SendButton>
         }
@@ -646,8 +656,14 @@ class Send extends React.Component {
                     <SendTitle>
                       {'Sending'}
                     </SendTitle>
+                    <SelectAddressTitle>
+                      {'Send from Address:'}
+                    </SelectAddressTitle>
+                    <SelectAddressDashedArea>
+                      <AddressDropdown/>
+                    </SelectAddressDashedArea>
                     <SendAddressTitle>
-                      {'Pirate address:'}
+                      {'Send to address:'}
                     </SendAddressTitle>
                     <SendDashedArea>
                       <SendGradientCapLeft/>
@@ -721,9 +737,9 @@ class Send extends React.Component {
                     <SendMemoTitle>
                       {'Memo'}
                     </SendMemoTitle>
-                    <SendMemoArea>
+                    <SendMemoArea mlength = {this.props.sendTo.memo.length}>
                       <SendMemoGradientCapLeft />
-                      <SendMemoInput
+                      <SendMemoInput mlength = {this.props.sendTo.memo.length}
                         value={this.props.sendTo.memo}
                         onChange={e => this.setMemo(e.target.value)}
                         onClick = {() => {
@@ -732,7 +748,7 @@ class Send extends React.Component {
                         }}/>
                       <SendMemoGradientCapRight />
                     </SendMemoArea>
-                    <SendMemoRedText>
+                    <SendMemoRedText mlength = {this.props.sendTo.memo.length}>
                       {this.props.sendTo.memo.length > 0 ? (512 - this.props.sendTo.memo.length) + ' character remaining' : 'Max 512 characters.'}
                     </SendMemoRedText>
                     {sendButton}
@@ -752,6 +768,7 @@ Send.propTypes = {
   setMainPage: PropTypes.func.isRequired,
   setSendPage: PropTypes.func.isRequired,
   setQrScanning: PropTypes.func.isRequired,
+  setAddressScanning: PropTypes.func.isRequired,
   setSendToAddress: PropTypes.func.isRequired,
   setSendToAmount: PropTypes.func.isRequired,
   setSendToFiat: PropTypes.func.isRequired,
@@ -777,6 +794,7 @@ function matchDispatchToProps (dispatch) {
       setSendPage,
       setMainPage,
       setQrScanning,
+      setAddressScanning,
       setSendToAddress,
       setSendToAmount,
       setSendToFiat,

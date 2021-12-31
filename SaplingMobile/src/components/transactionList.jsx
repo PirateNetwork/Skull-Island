@@ -5,17 +5,16 @@ export const ZTransactionListMain = styled.div`
   top: 0;
   left: 0;
   width: ${props => (props.theme.width) + 'px'};
-  height: ${props => (props.theme.height * 0.6) + 'px'};
+  height: ${props => ((props.theme.height * 0.55) - (((props.theme.width * 0.7)/25)*1.5)) + 'px'};
 `
   // overscroll-behavior: contain;
 
 export const ZTransactionListOverScroll = styled.div`
   position: absolute;
   top: 0;
-  left: 0;
-  width: ${props => (props.theme.width) + 'px'};
-  height: ${props => (props.theme.height * 0.6) + 'px'};
-  display: ${props => props.visible};
+  left: ${props => (props.theme.width * 0.05) + 'px'};
+  width: ${props => (props.theme.width * 0.90) + 'px'};
+  height: ${props => ((props.theme.height * 0.55) - (((props.theme.width * 0.7)/25)*1.5)) + 'px'};
   overflow: scroll;
   overscroll-behavior: contain;
 `
@@ -23,7 +22,7 @@ export const ZTransactionListOverScroll = styled.div`
   // overflow: hidden;
 
 export const ZTransactionListBottomSpacer = styled.div`
-  width: ${props => (props.theme.width) + 'px'};
+  width: ${props => (props.theme.width * 0.90) + 'px'};
   height: ${props => (props.theme.height * 0.25) + 'px'};
 `
 
@@ -73,11 +72,14 @@ export const ZTransactionListLi = styled.li`
   display: grid;
   padding: 0;
   margin: 0;
+  background-color: #111111;
+  border-radius: ${props => (props.theme.height * 0.015/2) + 'px'};
   grid-template-columns: ${props => ((props.theme.width) * 0.05) + 'px '}
-                         ${props => ((props.theme.width) * 0.10) + 'px '}
-                         ${props => ((props.theme.width) * 0.40) + 'px '}
-                         ${props => ((props.theme.width) * 0.25) + 'px '}
-                         ${props => ((props.theme.width) * 0.10) + 'px '};
+                         ${props => ((props.theme.width) * 0.05) + 'px '}
+                         ${props => ((props.theme.width) * 0.20) + 'px '}
+                         ${props => ((props.theme.width) * 0.05) + 'px '}
+                         ${props => ((props.theme.width) * 0.45) + 'px '}
+                         ${props => ((props.theme.width) * 0.05) + 'px '}
                          ${props => ((props.theme.width) * 0.05) + 'px '};
 `
 
@@ -87,77 +89,110 @@ export const Col1Div = styled.div`
 `
 
 export const Col2Div = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   grid-column-start: 2;
   grid-column-end: 2;
 `
 
 export const Col2All = styled.div`
-  position: relative;
-  top: 0;
-  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `
 
 export const Col3Div = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   grid-column-start: 3;
   grid-column-end: 3;
 `
 
 export const Col3Top = styled.div`
-  position: relative;
-  top: 0;
-  left: 0;
-  color: grey;
-  width: ${props => (props.theme.width * 0.40) + 'px'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #737373;
+  width: ${props => (props.theme.width * 0.20) + 'px'};
   height: ${props => ((props.theme.width * 0.125)/2) + 'px'};
-  font-size: ${props => (((props.theme.width * 0.40)/16)*1.5) + 'px'};
-  text-align: left;
-  margin-left: ${props => ((((props.theme.width * 0.40)/26)*1.5) * 1.5) + 'px'};
+  font-size: ${props => (((props.theme.width * 0.40)/20)*1.5) + 'px'};
 `
 
 export const Col3Bottom = styled.div`
-  color: ${(props => props.inbound ? '#95c623' : '#e54212')};
-  width: ${props => (props.theme.width * 0.40) + 'px'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #737373;
+  width: ${props => (props.theme.width * 0.20) + 'px'};
   height: ${props => ((props.theme.width * 0.125)/2) + 'px'};
-  font-size: ${props => (((props.theme.width * 0.40)/18)*1.5) + 'px'};
-  text-align: left;
-  margin-left: ${props => ((((props.theme.width * 0.40)/18)*1.5) * 2.5) + 'px'};
+  font-size: ${props => (((props.theme.width * 0.40)/20)*1.5) + 'px'};
 `
 
 export const Col4Div = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   grid-column-start: 4;
   grid-column-end: 4;
 `
 
 export const Col4Top = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #737373;
-  width: ${props => (props.theme.width * 0.325) + 'px'};
+  width: ${props => ((props.theme.width * 0.125)/2) + 'px'};
   height: ${props => ((props.theme.width * 0.125)/2) + 'px'};
-  font-size: ${props => (((props.theme.width * 0.30)/13)*1.5) + 'px'};
-  text-align: right;
+  font-size: ${props => (((props.theme.width * 0.40)/20)*1.5) + 'px'};
 `
 
 export const Col4Bottom = styled.div`
   color: #907435;
-  width: ${props => (props.theme.width * 0.325) + 'px'};
+  width: ${props => ((props.theme.width * 0.125)/2) + 'px'};
   height: ${props => ((props.theme.width * 0.125)/2) + 'px'};
-  font-size: ${props => (((props.theme.width * 0.30)/13)*1.5) + 'px'};
+  font-size: ${props => (((props.theme.width * 0.40)/20)*1.5) + 'px'};
   text-align: right;
 `
 
 export const Col5Div = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: right;
   grid-column-start: 5;
   grid-column-end: 5;
 `
 
 export const Col5All = styled.div`
-  position: relative;
-  top: 0;
-  left: 0;
+  color: ${(props => props.inbound ? '#95c623' : '#e54212')};
+  width: ${props => (props.theme.width * 0.45) + 'px'};
+  font-size: ${props => (((props.theme.width * 0.40)/20)*1.5) + 'px'};
+  margin-left: ${props => ((((props.theme.width * 0.40)/26)*1.5) * 1.5) + 'px'};
 `
 
 export const Col6Div = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   grid-column-start: 6;
   grid-column-end: 6;
+`
+
+
+
+export const Col7Div = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  grid-column-start: 7;
+  grid-column-end: 7;
+`
+export const Col7All = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: right;
 `
 
 export const Spacer = styled.div`
@@ -165,45 +200,38 @@ export const Spacer = styled.div`
 `
 
 export const ArrowImg = styled.img`
-  position: absolute;
-  top: ${props => ((props.theme.width * 0.125)/2)-((props.theme.width * 0.06)/2) + 'px'};
-  left: 0
-  max-height: ${props => (props.theme.width * 0.06) + 'px'};
+  max-height: ${props => (props.theme.width * 0.03) + 'px'};
 `
 
 export const ZTransactionListImgDiv = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: ${props => (props.theme.width * 0.1) - 4 + 'px'};
-  height: ${props => (props.theme.width * 0.1) - 4 + 'px'};
-  border-radius: ${props => (props.theme.width * 0.1/2) + 'px'};
-  border: 2px solid black;
-  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: ${props => (props.theme.width * 0.05) - 4 + 'px'};
+  height: ${props => (props.theme.width * 0.05) - 4 + 'px'};
+  border-radius: ${props => (props.theme.width * 0.05/2) + 'px'};
+  border: 0px solid black;
+  margin: 0;
+  padding: 0;
   background-color: ${(props => props.inbound ? '#95c623' : '#e54212')};
 `
 
 export const ZTransactionListImg = styled.img`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: ${props => ((props.theme.width * 0.1) - 2) + 'px'};
-  height: ${props => ((props.theme.width * 0.1) - 2) + 'px'};
-  border-radius: ${props => (props.theme.width * 0.1/2) + 'px'};
+  width: ${props => ((props.theme.width * 0.05) - 2) + 'px'};
+  height: ${props => ((props.theme.width * 0.05) - 2) + 'px'};
+  border-radius: ${props => (props.theme.width * 0.05/2) + 'px'};
   border: 1px solid #000000;
-  margin: auto;
+  margin: 0;
   padding: 0;
 `
 
 export const ZTransactionMemoButton = styled.button`
-  position: absolute;
+  width: ${props => (props.theme.width * 0.90) + 'px'};
+  border-radius: ${props => (props.theme.height * 0.015/2) + 'px'};
   background-color: rgba(0,0,0,0);
-  top: ${props => ((props.theme.width * 0.0125/2)) + 'px'};
-  right: ${props => ((props.theme.width * 0)) + 'px'};
-  width: ${props => ((props.theme.width * 0.05)) + 'px'};
-  height: ${props => ((props.theme.width * 0.05)) + 'px'};
-  display: ${props => props.display == 0 ? 'none' : 'visible'};
   border: 0px;
+  margin: 0;
+  padding: 0;
 
   :focus{
     outline: none;
@@ -211,11 +239,9 @@ export const ZTransactionMemoButton = styled.button`
 `
 
 export const ZTransactionMemoImg = styled.img`
-  position: absolute;
-  top: ${props => ((props.theme.width * 0.0125/2)) + 'px'};
-  right: ${props => ((props.theme.width * 0)) + 'px'};
-  width: ${props => ((props.theme.width * 0.05)) + 'px'};
-  height: ${props => ((props.theme.width * 0.05)) + 'px'};
+  width: ${props => ((props.theme.width * 0.035)) + 'px'};
+  height: ${props => ((props.theme.width * 0.035)) + 'px'};
+  opacity: ${props => props.opacity};
 `
 
 export const ZTransactionListLink = styled.a`

@@ -16,7 +16,10 @@ import RingSpinner from '../containers/spinner'
 import { restoreWallet,
          checkSeedPhrase,
          getSeedPhrase,
-         save} from '../utils/litewallet'
+         save,
+         encryptionstatus,
+         encryptWallet,
+         unlock,} from '../utils/litewallet'
 
 import {
     BlackBackgroundQR,
@@ -107,7 +110,13 @@ class SetWalletPage extends React.Component {
   setTempBirthday (p) {
 
     try {
-      p = Math.floor(+p)
+      if ( p != '') {
+        if (Number.isInteger(+p)) {
+          p = Math.floor(+p)
+        } else {
+          p = this.state.tempBirthday
+        }
+      }
     } catch {
       p = coins[this.props.settings.currentCoin].branchHeight['sapling']
     }
@@ -138,6 +147,7 @@ class SetWalletPage extends React.Component {
               tempSeedPhrase: qrReadData.passphrase,
               tempBirthday: qrReadData.height
             })
+            this.checkSeed(this.state.tempSeedPhrase)
           }
 
           // Set finished scanning
@@ -246,6 +256,25 @@ class SetWalletPage extends React.Component {
       this.props.setSeedPhrase(seed.seed)
       this.props.setBirthday(seed.birthday)
     }
+
+    //Check to make sure wallet.dat is encrypted
+    var encryptStatus = await encryptionstatus()
+    encryptStatus = JSON.parse(encryptStatus)
+    if (!encryptStatus.encrypted) {
+        await encryptWallet(this.props.context.activePassword)
+    }
+
+    await unlock(this.props.context.activePassword)
+    encryptStatus = await encryptionstatus()
+    encryptStatus = JSON.parse(encryptStatus)
+    if (encryptStatus.locked) {
+      alert("WARNING!!! wallet.dat failed to unlock, restart app.")
+    } else {
+      await save(coins[currentCoin].networkname)
+      await unlock(this.props.context.activePassword)
+    }
+    console.log(encryptStatus)
+
   }
 
   componentDidMount () {
@@ -278,6 +307,8 @@ class SetWalletPage extends React.Component {
             </WalletNewButton>
             <WalletRecoverButton
               onClick={() => {
+                this.setTempSeedPhrase('')
+                this.setTempBirthday(coins[this.props.settings.currentCoin].branchHeight['sapling'])
                 this.setSection(3)
             }}>
               {'Recover Wallet'}
