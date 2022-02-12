@@ -53,7 +53,7 @@ class ChainOps extends React.Component {
       walletHeight: 0,
       DownloadPercentage: 0,
       chainHeight: 1,
-      syncing: true,
+      syncing: false,
       walletError: false,
       errorMsg: '',
       syncWalletTimer: null,

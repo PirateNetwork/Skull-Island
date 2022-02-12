@@ -56,7 +56,7 @@ export const SelectAddressTitle = styled.div`
   left: ${props => (props.theme.width * 0.05) + 'px'};
   color: #bb9645;
   height: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
-  width: ${props => (props.theme.width * 0.45) + 'px'};
+  width: ${props => (props.theme.width * 0.90) + 'px'};
   font-size: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
   text-align: left;
 `
@@ -88,7 +88,7 @@ export const SendAddressTitle = styled.div`
   left: ${props => (props.theme.width * 0.05) + 'px'};
   color: #bb9645;
   height: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
-  width: ${props => (props.theme.width * 0.45) + 'px'};
+  width: ${props => (props.theme.width * 0.90) + 'px'};
   font-size: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
   text-align: left;
 `
@@ -236,7 +236,7 @@ left: 0;
   left: ${props => (props.theme.width * 0.05) + 'px'};
   color: #bb9645;
   height: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
-  width: ${props => (props.theme.width * 0.45) + 'px'};
+  width: ${props => (props.theme.width * 0.90) + 'px'};
   font-size: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
   text-align: left;
 `
@@ -369,10 +369,10 @@ export const SendAmountFeeText = styled.div`
     + 'px'};
   left: ${props => (props.theme.width * 0.05) + 'px'};
   height: ${props => (props.theme.width * RedFontSize) + 'px'};
-  width: ${props => (props.theme.width * 0.30) + 'px'};
+  width: ${props => (props.theme.width * 0.50) + 'px'};
   font-size: ${props => (props.theme.width * RedFontSize) + 'px'};
   color: #bb9645;
-  text-align: center;
+  text-align: left;
 `
 
 
@@ -492,7 +492,7 @@ export const SendMemoTitle = styled.div`
   left: ${props => (props.theme.width * 0.05) + 'px'};
   color: #bb9645;
   height: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
-  width: ${props => (props.theme.width * 0.45) + 'px'};
+  width: ${props => (props.theme.width * 0.90) + 'px'};
   font-size: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
   text-align: left;
 `
@@ -594,12 +594,12 @@ export const SendMemoRedText = styled.div`
 
 export const SendButton = styled.button`
   position: absolute;
-  background-color: #bb9645;
+  background-color: ${props => (props.disabled ? '#A9A9A9' : '#bb9645')};
   color: white;
   font-size: ${props => (props.theme.height * 0.025) + 'px'};
   width: ${props => (props.theme.width * 0.325) + 'px'};
   height: ${props => (props.theme.height * 0.075) + 'px'};
-  left: ${props => (props.theme.width * 0.5 - props.theme.width * 0.325/2) + 'px'};
+  left: ${props => (props.theme.width * 0.75 - props.theme.width * 0.325/2) + 'px'};
   top: ${props => (props.theme.height * 0.195)
       + (props.theme.width * TitleFontSize)
       + (props.theme.width * SectionTitleFontSize * 3)
@@ -618,7 +618,31 @@ export const SendButton = styled.button`
   }
 `
 
+export const MaxButton = styled.button`
+  position: absolute;
+  background-color: grey;
+  color: white;
+  font-size: ${props => (props.theme.height * 0.025) + 'px'};
+  width: ${props => (props.theme.width * 0.325) + 'px'};
+  height: ${props => (props.theme.height * 0.075) + 'px'};
+  left: ${props => (props.theme.width * 0.25 - props.theme.width * 0.325/2) + 'px'};
+  top: ${props => (props.theme.height * 0.195)
+      + (props.theme.width * TitleFontSize)
+      + (props.theme.width * SectionTitleFontSize * 3)
+      + (props.theme.width * SectionTitleFontSize)
+      + (props.theme.width * DashAreaSize)
+      + (props.theme.width * ((InputAreaSize * 2) + DashAreaSize) * 1)
+      + (props.theme.width * DashAreaSize * 3)
+      + (props.theme.width * RedFontSize * 6)
+      + (props.theme.width * (MemoInput * ((Math.ceil(props.mlength/35) > 0 ? Math.ceil(props.mlength/35) : 1) - 1)))
+      + 'px'};
+  border-radius: ${props => (props.theme.height * 0.075/2) + 'px'};
+  border: 0px;
 
+  :focus{
+    outline: none;
+  }
+`
 
 
 export const SendConfirmAmount = styled.div`

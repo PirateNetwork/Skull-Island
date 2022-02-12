@@ -296,7 +296,7 @@ class ZMain extends React.Component {
           if (remainingBlocks>0) {
             syncIndicatorText =
             <ZMainSyncIndicator synced = {this.props.context.synced}>
-              { 'Syning ' + downloaded.toString() + '%. '+ remainingBlocks + ' blocks left.'}
+              { 'Syncing ' + downloaded.toString() + '%. '+ remainingBlocks + ' blocks left.'}
             </ZMainSyncIndicator>
           } else {
             syncIndicatorText =

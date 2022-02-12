@@ -273,7 +273,6 @@ class SetWalletPage extends React.Component {
       await save(coins[currentCoin].networkname)
       await unlock(this.props.context.activePassword)
     }
-    console.log(encryptStatus)
 
   }
 

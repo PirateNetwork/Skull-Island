@@ -72,6 +72,7 @@ import {
 
   SendCurrencyCap,
   SendButton,
+  MaxButton,
 
   SendConfirmAmount,
   SendConfirmAmountArea,
@@ -285,6 +286,10 @@ class Send extends React.Component {
     }
 
     setSendValues(v,type) {
+      if (v < 0) {
+        v = 0
+      }
+      
       if (type == 0) {
         this.props.setSendToAmount(v)
         this.props.setSendToFiat((v * this.props.context.currencyValue).toFixed(2))
@@ -462,7 +467,7 @@ class Send extends React.Component {
         }
 
         var sendButton
-        if (this.props.sendTo.amount > 0) {
+        if (this.props.sendTo.amount > 0 && this.props.sendTo.amount <= (this.props.context.balance - this.state.fee)) {
             sendButton =
             <SendButton mlength = {this.props.sendTo.memo.length}
               onClick={() => {
@@ -751,7 +756,13 @@ class Send extends React.Component {
                     <SendMemoRedText mlength = {this.props.sendTo.memo.length}>
                       {this.props.sendTo.memo.length > 0 ? (512 - this.props.sendTo.memo.length) + ' character remaining' : 'Max 512 characters.'}
                     </SendMemoRedText>
-                    {sendButton}
+                      <MaxButton mlength = {this.props.sendTo.memo.length}
+                          onClick={() => {
+                              this.setSendValues(((this.props.context.balance/1e08) - this.state.fee),0)
+                          }}>
+                          {'Max ARRR'}
+                      </MaxButton>
+                      {sendButton}
                   </SendSection>
                 </SendSectionOverscroll>
             </BlackBackgroundQR>
