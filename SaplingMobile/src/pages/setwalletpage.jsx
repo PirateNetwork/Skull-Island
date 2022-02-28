@@ -239,12 +239,17 @@ class SetWalletPage extends React.Component {
   }
 
   async checkSeed(seed) {
-    var seedCheck = await checkSeedPhrase(seed)
-    seedCheck = JSON.parse(seedCheck)
-    if (seedCheck.checkSeedPhrase == 'Ok') {
-      this.setTempSeedPhraseInvalid(false)
+    var words = seed.split(" ")
+    if (words.length == 24) {
+        var seedCheck = await checkSeedPhrase(seed)
+        seedCheck = JSON.parse(seedCheck)
+        if (seedCheck.checkSeedPhrase == 'Ok') {
+            this.setTempSeedPhraseInvalid(false)
+        } else {
+            this.setTempSeedPhraseInvalid(true)
+        }
     } else {
-      this.setTempSeedPhraseInvalid(true)
+        this.setTempSeedPhraseInvalid(true)
     }
   }
 

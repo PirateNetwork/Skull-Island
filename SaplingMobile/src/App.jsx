@@ -173,7 +173,6 @@ class App extends React.Component {
         //get the seedPhrase
         seed = await walletSeed()
         seed = JSON.parse(seed)
-        console.log(seed)
         if (seed.seed != null) {
           this.props.setSeedPhrase(seed.seed)
           this.props.setBirthday(seed.birthday)

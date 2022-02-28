@@ -37,6 +37,7 @@ import {
 import {
   ZMainDiv,
   ZMainMenu,
+  ZMainSVG,
   ZMainMenuZSynced,
   ZMainMenuButton,
   ZMainMenuButtonImg,
@@ -235,16 +236,16 @@ class ZMain extends React.Component {
 
       if (this.props.context.synced) {
         syncedIndicator =
-        <svg>
+        <ZMainSVG>
           <ellipse fill="rgba(149,198,35,1)" rx="10" ry="10" cx="10" cy="10">
           </ellipse>
-        </svg>
+        </ZMainSVG>
       } else {
         syncedIndicator =
-        <svg>
+        <ZMainSVG>
           <ellipse fill="rgba(229,66,18,1)" rx="10" ry="10" cx="10" cy="10">
           </ellipse>
-        </svg>
+        </ZMainSVG>
       }
 
       var syncIndicatorText
@@ -287,23 +288,29 @@ class ZMain extends React.Component {
             { 'Wallet Error' }
         </ZMainSyncIndicator>
       } else {
-        if (this.props.context.synced) {
-          syncIndicatorText =
-          <ZMainSyncIndicator synced = {this.props.context.synced}>
-            {'Synced. Block height ' + this.props.context.height.toString()}
-          </ZMainSyncIndicator>
-        } else {
-          if (remainingBlocks>0) {
-            syncIndicatorText =
-            <ZMainSyncIndicator synced = {this.props.context.synced}>
-              { 'Syncing ' + downloaded.toString() + '%. '+ remainingBlocks + ' blocks left.'}
-            </ZMainSyncIndicator>
-          } else {
+        try {
+          if (this.props.context.synced) {
             syncIndicatorText =
             <ZMainSyncIndicator synced = {this.props.context.synced}>
               {'Synced. Block height ' + this.props.context.height.toString()}
             </ZMainSyncIndicator>
+          } else {
+            if (remainingBlocks>0) {
+              syncIndicatorText =
+              <ZMainSyncIndicator synced = {this.props.context.synced}>
+                { 'Syncing ' + downloaded.toString() + '%. '+ remainingBlocks + ' blocks left.'}
+              </ZMainSyncIndicator>
+            } else {
+              syncIndicatorText =
+              <ZMainSyncIndicator synced = {this.props.context.synced}>
+                {'Synced. Block height ' + this.props.context.height.toString()}
+              </ZMainSyncIndicator>
+            }
           }
+        } catch {
+            <ZMainSyncIndicator synced = {0}>
+                { 'Wallet Error' }
+            </ZMainSyncIndicator>
         }
       }
       const scanning =  this.props.context.qrScanning ? {opacity: '0.0', display: 'none'} : {opacity: '1.0', display: 'visible'}

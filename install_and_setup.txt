@@ -5,15 +5,15 @@
  # apt-get update
  # apt-get install build-essentials
  # apt-get install libgl1-mesa-dri joe git
- 
+
  If you've installed the O/S in VirtualBox:
    <Mount virtualbox additions CD: Devices->Insert Guest Additions CD>
    # cd /media/dev/VBox_GAs_6.1.26
    # ./VBoxLinuxAdditions.run
-   
+
  # apt-mark hold linux-generic linux-image-generic
  # Reboot
- 
+
  Gradle
  ------
  Installs gradle>=7.1.1
@@ -72,7 +72,7 @@
     You have to log out and back in for the settings to take effect. Otherwise
     you can load them in your current shell with: source /etc/bash.bash.rc
     The lines above assumed your user account is called 'dev'. Replace it with
-    your actual user account name. It also assumes that you've installed Java JDK 
+    your actual user account name. It also assumes that you've installed Java JDK
     and Android Studio in your home directory. Change as required for where
     you've extracted the 2 packages.
 
@@ -88,7 +88,7 @@
  Extract:
    tar -xvzf bellsoft-jdk8u312+7-linux-amd64.tar.gz
    mv jdk8u312 ~
-        
+
 Skull-Island
 ------------
   Deps:
@@ -103,8 +103,8 @@ Skull-Island
   $ cd Skull-Island
   $ git checkout master
   $ cd SaplingMobile
-  $ rm package-lock.json yarn.lock 
-  
+  $ rm package-lock.json yarn.lock
+
   $ npm install
     This installs 531mb of Node JavaScript dependencies
 
@@ -112,12 +112,6 @@ Skull-Island
   $ cordova platform add android@9
 
   $ cordova prepare android
-
-  If you do not want to use Firebase:
-    $ cordova plugin remove cordova-plugin-firebasex
-    
-    $ joe webpack.config.js
-      Line 48: 'cordova-plugin-firebasex' should be removed and the "," of the line just above it.
 
   Compile:
   $ cordova build android
@@ -129,74 +123,74 @@ Skull-Island
        $ npm update --save caniuse-lite browserlist
 
   Install:
-  To install the application, attach your phone to the computer with a USB cable.  
+  To install the application, attach your phone to the computer with a USB cable.
   Ensure under Settings->System->Developer Options that USB Debugging is active for your phone.
   If Developer Options is not visible, you can usually navigate to Settings->System->About Phone
   and click 7 or 8 times rapidly on the 'Build number' field.
   Install the app by executing:
   $ adb install -r ./platforms/android/app/build/outputs/apk/debug/app-debug.apk
-  
-  The icon of the Pirate Lite Wallet will appear under your applications. launch it like any other 
+
+  The icon of the Pirate Lite Wallet will appear under your applications. launch it like any other
   application.
-  
+
   Setup:
   1) Set wallet password
      You have to enter a password that will unlock your wallet in the future. You'll have to type
      this password every time you open the wallet, send some ARRR or want to export the spending
-     key or seed phrase. Choose something that will not be too difficult to type on the keypad, 
+     key or seed phrase. Choose something that will not be too difficult to type on the keypad,
      but difficult for an attacker to guess.
   2.1) New wallet
-     When you choose 'New wallet' a new 24 word random seed phrase (mneumonic) will be generated. 
-     All your Pirate addresses are derived from this single seed phrase. If you ever need to restore 
-     your wallet you'll need this seed phrase. All your Pirate addresses can be restored from this 
-     single seed phrase. If somebody steals your seed phrase, they will be able to access all your 
-     funds and spend it. It is therefore very important that you record this seed phrase securely, 
+     When you choose 'New wallet' a new 24 word random seed phrase (mneumonic) will be generated.
+     All your Pirate addresses are derived from this single seed phrase. If you ever need to restore
+     your wallet you'll need this seed phrase. All your Pirate addresses can be restored from this
+     single seed phrase. If somebody steals your seed phrase, they will be able to access all your
+     funds and spend it. It is therefore very important that you record this seed phrase securely,
      preferably on non-electronic media. Remember, PCs and smart phones will often backup photos
-     and documents to the internet without your knowledge. Once the data leaves your device an 
+     and documents to the internet without your knowledge. Once the data leaves your device an
      attacker may intercept it.
-     
+
      Click on 'New Wallet'
      Click on 'New Seed Phrase'
      The generated seed is displayed in the window. Write it down and store where no unauthorised
      person can access it.
      Click on 'Create Wallet'
-     
-     Sync: The wallet needs to synchronise with the blockchain. This takes approx. 30 minutes. The 
-     initial large number of blocks are only done once. From there only the blocks since last sync 
-     needs to be retrieved. A block is generated about every minute. Each fetch from the server 
+
+     Sync: The wallet needs to synchronise with the blockchain. This takes approx. 30 minutes. The
+     initial large number of blocks are only done once. From there only the blocks since last sync
+     needs to be retrieved. A block is generated about every minute. Each fetch from the server
      retrieves about 10,000 blocks at a time.
-     
-  2.2) Restoring a wallet  
+
+  2.2) Restoring a wallet
      Click on 'Recover wallet'
      Erase the pre-generated seed phrase. Type your stored seed phrase and the recovery height.
      If you've got a QR code of your seed phrase (mneumonic) you can scan it by clicking on
      Scan QR.
      If the wallet accepts the seed phrase, the 'Recover Wallet' button will appear.
      Click 'Recover Wallet' to resume.
-  
+
   3) Layout
      The Wallet button:
-     The wallet page displays your main information: Your balance in the wallet. The balance 
-     will only be accurate after fully synced with the blockchain. The main area shows your 
+     The wallet page displays your main information: Your balance in the wallet. The balance
+     will only be accurate after fully synced with the blockchain. The main area shows your
      transactions history.
-     
+
      The Receive button
-     Your Pirate address on which you receive funds are displayed here. Somebody needs to send 
+     Your Pirate address on which you receive funds are displayed here. Somebody needs to send
      ARRR to your Pirate address, or if you purchase pirate coins on TradeOgre or KuCoin, you can withdraw
      the coins and need to supply the exchange with this pirate address. Remember to send a couple of
      milliARRR (1/1000th) to your address and make sure you receive it before sending large funds, in case
      something went wrong. Once a transaction is initiated it cannot be reversed.
-     
+
      The Send button
      Once synced to the blockchain, you'll be able to access the send button. Here you compile a new
-     transaction by entering the  recipient's Pirate address, the amount and a memo. 
+     transaction by entering the  recipient's Pirate address, the amount and a memo.
      Enter your wallet address to authorise the transaction and then submit it to the blockchain.
      It can take up to 5 minutes for the transaction to conclude.
 
      Explore:
      The block explore function is performed on the Pirate servers. Transaction detail can be explored
      there.
-     
+
      Menu (Top left corner)
        Spending key
        Export the extended spending key of your pirate address. The data can be imported in a full node
@@ -204,12 +198,12 @@ Skull-Island
        from which all your address are derived.
        Once the extended spending key is imported in another wallet, that wallet will have full access
        to the funds received on that address.
-       
+
        Seed Phrase
        Export the 24 word seed phrase (mneumonic) of your wallet. This seed phrase must be kept private
-       to prevent unauthorised parties from spending your funds. You'll need this seed phrase if you 
+       to prevent unauthorised parties from spending your funds. You'll need this seed phrase if you
        want to restore your wallet.
-       
+
        Rescan
        Rescans the full blockchain for funds send to your your Pirate address. This is a huge amount of
        data to scan through. It can take approx 4 hours to complete and cannot be stopped once it was

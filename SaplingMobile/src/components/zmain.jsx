@@ -42,6 +42,11 @@ export const ZMainMenuButton = styled.button`
   }
 `
 
+export const ZMainSVG = styled.svg`
+  width: 25px;
+  height: 25px;
+`
+
 export const ZMainMenuZSynced = styled.div`
   position: absolute;
   top: ${props => ((props.theme.height * 0.015)) + 'px'};
@@ -186,13 +191,13 @@ export const ZMainAddressListHeader = styled.div`
   position: absolute;
   top: 0;
   left: ${props => (props.theme.width * 0.05) + 'px'};
-  height: ${props => ((((props.theme.width * 0.7)/15)*1.5)) + 'px'};
+  height: ${props => ((((props.theme.width * 0.7)/15)*1.25)) + 'px'};
   width: ${props => (props.theme.width * 0.9) + 'px'};
   font-size: ${props => (((props.theme.width * 0.7)/25)*1.5) + 'px'};
   font-weight: bold;
   color: #bb9645;
   background-image: linear-gradient(rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,0), rgba(0,0,0,0));
-  z-index: 2;
+  z-index: 1;
 `
 
 export const ZMainAddressList = styled.div`
@@ -201,7 +206,7 @@ export const ZMainAddressList = styled.div`
   left: 0;
   height: ${props => ((props.theme.height * 0.1625) - (((props.theme.width * 0.7)/15)*1.5)) + 'px'};
   width: ${props => (props.theme.width) + 'px'};
-  z-index: 1;
+  z-index: 3;
 `
 
 export const ZMainAddressListEndCap = styled.div`
@@ -269,14 +274,14 @@ export const ZMainTransactionListHeader = styled.div`
   position: absolute;
   top: 0;
   left: ${props => (props.theme.width * 0.05) + 'px'};
-  height: ${props => ((((props.theme.width * 0.7)/15)*1.5)) + 'px'};
+  height: ${props => ((((props.theme.width * 0.7)/15)*1.25)) + 'px'};
   width: ${props => (props.theme.width * 0.9) + 'px'};
   font-size: ${props => (((props.theme.width * 0.7)/25)*1.5) + 'px'};
   font-weight: bold;
   color: #bb9645;
   left: ${props => (props.theme.width * 0.05) + 'px'};
   background-image: linear-gradient(rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,1), rgba(0,0,0,0), rgba(0,0,0,0));
-  z-index: 5;
+  z-index: 4;
 `
 
 export const ZMainTransactionList = styled.div`
@@ -285,7 +290,7 @@ export const ZMainTransactionList = styled.div`
   left: 0;
   height: ${props => ((props.theme.height * 0.5125) - (((props.theme.width * 0.7)/25)*1.5)) + 'px'};
   width: ${props => (props.theme.width) + 'px'};
-  z-index: 4;
+  z-index: 5;
 `
 
 export const ZMainSyncIndicator = styled.div`

@@ -183,6 +183,10 @@ class ChainOps extends React.Component {
                         bestAmount = zaddr.balance
                     }
 
+                    if (this.props.context.address == zaddr.address) {
+                        this.props.setBalance(zaddr.balance)
+                    }
+
                     zlist.push(zaddr)
                 }
                 this.props.setZAddresses(zlist)
