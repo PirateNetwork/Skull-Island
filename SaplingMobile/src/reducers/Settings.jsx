@@ -13,7 +13,6 @@ import {
   SET_SAVE_DATA,
   SET_CURRENT_COIN,
   SET_MINIMUM_BLOCK,
-  SET_DISPLAY_DIMENSIONS
 } from '../actions/Settings'
 
 import { coins } from '../utils/coins.js'
@@ -29,8 +28,6 @@ const initialSettings = {
   password: null,
   passPhrase: null,
   saveData: false,
-  displayDimensions: {"height" : window.outerHeight, "width" : window.outerWidth},
-
 }
 
 export default function SettingsReducer (state = initialSettings, action) {
@@ -73,11 +70,6 @@ export default function SettingsReducer (state = initialSettings, action) {
     case SET_MINIMUM_BLOCK:
       return Object.assign({}, state, {
         minimumBlock: action.minimumBlock
-      })
-
-    case SET_DISPLAY_DIMENSIONS:
-      return Object.assign({}, state, {
-        displayDimensions: action.displayDimensions
       })
 
     default:

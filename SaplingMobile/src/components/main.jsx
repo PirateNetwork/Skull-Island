@@ -6,7 +6,7 @@ export const MainGrid = styled.div`
   background-image: url(${backgroundImage});
   background-color: #cccccc;
   position: fixed;
-  top: 0;
+  top: ${props => (props.theme.topBuffer) + 'px'};
   left: 0;
   height: ${props => props.theme.height + 'px'};
   width: ${props => props.theme.width + 'px'};

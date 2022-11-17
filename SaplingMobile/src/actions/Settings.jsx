@@ -113,7 +113,6 @@ export const SET_WALLET_PASSPHRASE = 'SET_WALLET_PASSPHRASE'
 export const SET_SAVE_DATA = 'SET_SAVE_DATA'
 export const SET_MINIMUM_BLOCK = 'SET_MINIMUM_BLOCK'
 export const SET_CURRENT_COIN = 'SET_CURRENT_COIN'
-export const SET_DISPLAY_DIMENSIONS = 'SET_DISPLAY_DIMENSIONS'
 export const SET_NOTE_INPUTS= 'SET_CURRENT_NOTE_INPUTS'
 export const SET_PROCESS_TIME = 'SET_CURRENT_PROCESS_TIME'
 
@@ -170,12 +169,5 @@ export function setMinimumBlock (minimumBlock) {
   return {
     type: SET_MINIMUM_BLOCK,
     minimumBlock
-  }
-}
-
-export function setDisplayDimensions (displayDimensions) {
-  return {
-    type: SET_DISPLAY_DIMENSIONS,
-    displayDimensions
   }
 }

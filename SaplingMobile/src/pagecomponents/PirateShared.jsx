@@ -9,7 +9,7 @@ export const BlackBackground = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  height: ${props => props.theme.height + 'px'};
+  height: ${props => (props.theme.height + props.theme.topBuffer + props.theme.bottomBuffer) + 'px'};
   width: ${props => props.theme.width + 'px'};
   padding: 0;
   margin: 0;
@@ -18,12 +18,32 @@ export const BlackBackground = styled.div`
   background-size: cover;
 `
 
+export const AppBody = styled.div`
+  position: absolute;
+  top: ${props => props.theme.topBuffer + 'px'};
+  left: 0;
+  height: ${props => props.theme.height + 'px'};
+  width: ${props => props.theme.width + 'px'};
+  padding: 0;
+  margin: 0;
+`
+
+export const MainBody = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: ${props => props.theme.height + 'px'};
+  width: ${props => props.theme.width + 'px'};
+  padding: 0;
+  margin: 0;
+`
+
 export const BlackBackgroundQR = styled.div`
   background-color: #000000;
   position: fixed;
   top: 0;
   left: 0;
-  height: ${props => props.theme.height + 'px'};
+  height: ${props => (props.theme.height + props.theme.topBuffer + props.theme.bottomBuffer) + 'px'};
   width: ${props => props.theme.width + 'px'};
   padding: 0;
   margin: 0;
@@ -39,7 +59,7 @@ export const GradientBackground = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  height: ${props => props.theme.height + 'px'};
+  height: ${props => (props.theme.height + props.theme.topBuffer + props.theme.bottomBuffer) + 'px'};
   width: ${props => props.theme.width + 'px'};
   padding: 0;
   margin: 0;

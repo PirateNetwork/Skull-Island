@@ -41,7 +41,7 @@ export const AddressDropdownButtonLi = styled.li`
 
 export const AddressDropdownContent = styled.div`
   position: fixed;
-  top: 0;
+  top: ${props => (props.theme.topBuffer) + 'px'};
   left: 0;
   display: ${props => props.visible};
   width: ${props => (props.theme.width) + 'px'};

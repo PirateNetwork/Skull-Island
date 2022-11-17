@@ -8,12 +8,21 @@
     <link href="https://fonts.googleapis.com/css?family=Bai+Jamjuree&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
 
-    <meta name="viewport" content="viewport-fit=cover, width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <meta name="viewport" content="initial-scale=1, width=device-width, height=device-height, viewport-fit=cover">
     <title>Skull Island</title>
     <!--Needed for Cordova/PhoneGap (will be a 404 during development)
 
     <script type="text/javascript" src="cordova_plugins.js"></script> -->
     <script type="text/javascript" src="cordova.js"></script>
+
+    <style>
+      :root {
+        --esat: env(safe-area-inset-top);
+        --csat: constant(safe-area-inset-top);
+        --esab: env(safe-area-inset-bottom);
+        --csab: constant(safe-area-inset-top);
+      }
+    </style>
 
   </head>
   <body>

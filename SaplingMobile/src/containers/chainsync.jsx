@@ -20,6 +20,7 @@ import {
   setWalletInUse } from '../actions/Context'
 
 import {
+  ChainSyncBody,
   ChainSyncDiv,
   ChainSyncCurrentBalance,
   ChainSyncBalanceLogo,
@@ -400,9 +401,9 @@ async updateWallet() {
 
 
       return (
-        <div>
+        <ChainSyncBody>
           {balanceSection}
-        </div>
+        </ChainSyncBody>
       )
     }
 }

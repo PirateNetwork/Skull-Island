@@ -1,5 +1,14 @@
 import styled from 'styled-components'
 
+export const ChainSyncBody = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: ${props => (props.theme.height * 0.10) + 'px' };
+  width: ${props => (props.theme.width) + 'px'};
+  z-index: 4;
+`
+
 export const ChainSyncDiv = styled.div`
   position: absolute;
   top:  ${props => (props.theme.height * 0.05) + 'px' };

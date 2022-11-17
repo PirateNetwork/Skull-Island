@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 export const QrSection= styled.div`
   position: fixed;
-  top: 0;
+  top: ${props => (props.theme.topBuffer) + 'px'};
   left: 0;
   margin: 0;
   padding: 0;

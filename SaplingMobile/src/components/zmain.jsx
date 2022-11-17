@@ -3,7 +3,7 @@ import styled from 'styled-components'
 // , { keyframes }
 
 export const ZMainDiv = styled.div`
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   height: ${props => props.theme.height + 'px'};
@@ -12,10 +12,25 @@ export const ZMainDiv = styled.div`
   transition: 500ms;
 `
 
+export const ZMainBlackBackgroundQR = styled.div`
+  background-color: #000000;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: ${props => props.theme.height + 'px'};
+  width: ${props => props.theme.width + 'px'};
+  padding: 0;
+  margin: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: ${props => props.qrScanning.opacity};
+`
+
 export const ZMainMenu = styled.div`
   position: absolute;
-  top: 0
-  left: 0
+  top: 0;
+  left: 0;
   height: ${props => ((props.theme.height * 0.05)) + 'px'};
   width: ${props => props.theme.width + 'px'};
   display: block;
