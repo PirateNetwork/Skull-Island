@@ -178,7 +178,6 @@ class ReindexPage extends React.Component {
             try {
               //Restore from passphrase
               args = [coins[key].litewallet[0]]
-              args.push(coins[key].addressParams)
               args.push(passPhrase)
               args.push(this.state.birthday.toString())
               seed = await restoreWallet(args)
@@ -211,7 +210,6 @@ class ReindexPage extends React.Component {
                 this.setMsg('Failed, Reverting to Previous State...')
                 args = [coins[key].networkname]
                 args.push(coins[key].litewallet[0])
-                args.push(coins[key].addressParams)
                 seed = await initalizeWallet(args)
 
                 //Check to make sure wallet.dat is encrypted

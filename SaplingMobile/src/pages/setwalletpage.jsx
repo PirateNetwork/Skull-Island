@@ -185,7 +185,6 @@ class SetWalletPage extends React.Component {
     const currentCoin = this.props.settings.currentCoin
     var minHeight = coins[currentCoin].branchHeight['sapling']
     var args = [coins[currentCoin].litewallet[0]]
-    args.push(coins[currentCoin].addressParams)
     var seedCheck = await checkSeedPhrase(this.state.tempSeedPhrase)
     seedCheck = JSON.parse(seedCheck)
 

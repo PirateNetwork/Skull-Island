@@ -146,7 +146,6 @@ class App extends React.Component {
         //Initalize thae wallet
         args = [coins[currentCoin].networkname]
         args.push(coins[currentCoin].litewallet[0])
-        args.push(coins[currentCoin].addressParams)
         await initalizeWallet(args)
 
         //Check to make sure wallet.dat is encrypted
@@ -202,7 +201,6 @@ class App extends React.Component {
       try {
 
         args = [(coins[currentCoin].litewallet[0])]
-        args.push(coins[currentCoin].addressParams)
         seed = await newWallet(args)
 
         seed = JSON.parse(seed)
