@@ -59,6 +59,7 @@ class ChainOps extends React.Component {
       syncWalletTimer: null,
       syncStatus: null,
       saveWalletCounter: 0,
+      firstRun: true,
     }
 
     this.getWalletStatus = this.getWalletStatus.bind(this)
@@ -70,6 +71,10 @@ class ChainOps extends React.Component {
         try {
             this.props.setWalletInUse(true)
             if (!this.props.context.saving) {
+
+                this.setState({
+                  firstRun: false
+                })
 
                 //Check Wallet Info
                 var walletInfo = await info()
@@ -110,30 +115,30 @@ class ChainOps extends React.Component {
 
                 var changed = false
                 var downloaded = 0
-                if (walletStatus.syncing == "true") {
+                if (walletStatus.in_progress == true) {
                     //Check if the sync'd height or balance has changed
-                    if (this.state.synced_blocks != walletStatus.synced_blocks ||
+                    if (this.state.synced_blocks != (walletStatus.end_block + walletStatus.synced_blocks) ||
                       walletBalance.verified_zbalance + walletBalance.tbalance != walletBalance) {
                        changed = true
                     }
 
-                    if (walletStatus.total_blocks > 0) {
-                        downloaded = walletStatus.synced_blocks/walletStatus.total_blocks
+                    if (walletInfo.latest_block_height > 0) {
+                        downloaded = (walletStatus.end_block + walletStatus.synced_blocks)/walletInfo.latest_block_height
                     } else {
                         downloaded = 0
                     }
 
                     this.setState({
                         walletBalance: (walletBalance.verified_zbalance + walletBalance.tbalance).toFixed(8).toString(),
-                        walletHeight: walletStatus.synced_blocks,
-                        chainHeight: walletStatus.total_blocks,
+                        walletHeight: (walletStatus.end_block + walletStatus.synced_blocks),
+                        chainHeight: walletInfo.latest_block_height,
                         DownloadPercentage: downloaded
                     })
 
-                    this.props.setHeight(walletStatus.total_blocks)
-                    this.props.setSyncedBlocks(walletStatus.synced_blocks)
+                    this.props.setHeight(walletInfo.latest_block_height)
+                    this.props.setSyncedBlocks((walletStatus.end_block + walletStatus.synced_blocks))
 
-                    if (walletInfo.latest_block_height > walletStatus.synced_blocks + 10) {
+                    if (walletInfo.latest_block_height > (walletStatus.end_block + walletStatus.synced_blocks) + 10) {
                         //walletStatus will revert back to 'syncing=true' automatically
                         //when the wallet falls far enough behind the block height
                         //For a few blocks, don't show on the GUI that we're syncing in
@@ -146,8 +151,8 @@ class ChainOps extends React.Component {
                     }
                 } else {
                     //Note: walletStatus contains no other fields if syncing==false
-                    //check if the sync'd height or balance has changed
-                    if (this.state.synced_blocks != walletInfo.synced_blocks ||
+                    //Check if the sync'd height or balance has changed
+                    if (this.state.synced_blocks != (walletStatus.end_block + walletStatus.synced_blocks) ||
                       walletBalance.verified_zbalance + walletBalance.tbalance != walletBalance) {
                        changed = true
                     }
@@ -219,7 +224,7 @@ class ChainOps extends React.Component {
                   this.props.setMenuReady(true)
                 }
 
-                if (walletStatus.syncing != "true") {
+                if (walletStatus.in_progress != true) {
                     this.props.setSynced(true)
                     this.setState({
                       syncing: false
@@ -237,7 +242,7 @@ class ChainOps extends React.Component {
 
 
                 //Get the Transaction List if the wallet has changed
-                if (this.state.syncing != "true") {
+                // if (this.state.syncing != true) {
                   if (changed || this.props.context.transactionList == null) {
                     var transactionList = await list()
                     try {
@@ -253,13 +258,16 @@ class ChainOps extends React.Component {
                         })
                     }
                   }
-                }
+                // }
             }
 
             //When the synced blocks get close to the chain hieght, check more often for better GUI response
             var statusTimeout = 10000
-            if (walletStatus.syncing == "true") {
-                if (this.props.context.height - this.props.context.syncedBlocks < 1000) {
+            if (this.state.firstRun == true) {
+                statusTimeout = 500
+            }
+            if (walletStatus.in_progress == true) {
+                if (this.props.context.height - this.props.context.syncedBlocks > 1000) {
                   statusTimeout = 1000
                 }
             }
