@@ -37,12 +37,14 @@ class ZAddressList extends React.Component {
 
     this.state = {
       addressList: <div></div>,
-      zlist: []
+      zlist: [],
+      addressTimer: null,
     }
 
     this.setAddressList = this.setAddressList.bind(this)
     this.createAddressList = this.createAddressList.bind(this)
     this.setZList = this.setZList.bind(this)
+    this.updateAddresses = this.updateAddresses.bind(this)
   }
 
     setAddressList (b) {this.setState({addressList: b})}
@@ -92,19 +94,29 @@ class ZAddressList extends React.Component {
 
     }
 
-    componentDidMount() {
-
-    }
-
-    componentWillUnmount() {
-    }
-
-    render () {
-
+    updateAddresses() {
         if (this.state.zlist != this.props.context.zAddresses) {
             this.createAddressList()
         }
 
+        const addressTimerIDLong = setTimeout(
+          () => {
+            this.updateAddresses()
+          },
+          50
+        )
+        this.setState({addressTimer: addressTimerIDLong})
+    }
+
+    componentDidMount() {
+        this.updateAddresses()
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.state.addressTimer)
+    }
+
+    render () {
         return (
           <ZAddressListMain>
             <ZAddressListOverScroll>

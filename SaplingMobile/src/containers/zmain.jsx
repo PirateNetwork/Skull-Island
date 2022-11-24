@@ -117,19 +117,25 @@ class ZMain extends React.Component {
     getZerPrice() {
       if (this.props.mainSubPage.mainPage != 'none') {
         var cmcZerInfoURL = 'https://api.coingecko.com/api/v3/simple/price?ids=pirate-chain&vs_currencies=usd'
-        axios.get(cmcZerInfoURL)
-          .then((resp) => {
-            try {
-              const coinmarketcapData = resp.data
-              const priceCurrency = parseFloat(coinmarketcapData['pirate-chain'].usd)
-              this.props.setZerInCurrencyValue(priceCurrency)
+        try {
+          axios.get(cmcZerInfoURL)
+            .then((resp) => {
+              try {
+                const coinmarketcapData = resp.data
+                const priceCurrency = parseFloat(coinmarketcapData['pirate-chain'].usd)
+                this.props.setZerInCurrencyValue(priceCurrency)
 
-            } catch (err) {
-              if (process.env.NODE_ENV != 'production') {
-                console.log(err)
+              } catch (err) {
+                if (process.env.NODE_ENV != 'production') {
+                  console.log(err)
+                }
               }
-            }
-        })
+          })
+        } catch (err) {
+          if (process.env.NODE_ENV != 'production') {
+            console.log(err)
+          }
+        }
 
         cmcZerInfoURL = 'https://api.coingecko.com/api/v3/simple/price?ids=pirate-chain&vs_currencies=btc'
         axios.get(cmcZerInfoURL)

@@ -57,6 +57,7 @@ class ChainOps extends React.Component {
       walletError: false,
       errorMsg: '',
       syncWalletTimer: null,
+      updateTimer: null,
       syncStatus: null,
       saveWalletCounter: 0,
       firstRun: true,
@@ -152,7 +153,7 @@ class ChainOps extends React.Component {
                 } else {
                     //Note: walletStatus contains no other fields if syncing==false
                     //Check if the sync'd height or balance has changed
-                    if (this.state.synced_blocks != (walletStatus.end_block + walletStatus.synced_blocks) ||
+                    if (this.state.synced_blocks != walletInfo.latest_block_height ||
                       walletBalance.verified_zbalance + walletBalance.tbalance != walletBalance) {
                        changed = true
                     }

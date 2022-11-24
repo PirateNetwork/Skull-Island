@@ -53,7 +53,8 @@ class ZTransactionList extends React.Component {
       transactionList: null,
       txList: null,
       address: '',
-      txType: 0
+      txType: 0,
+      transactionTimer: null,
     }
 
     this.scrollRef = React.createRef()
@@ -64,6 +65,7 @@ class ZTransactionList extends React.Component {
     this.createTransactionList = this.createTransactionList.bind(this)
     this.setTxType = this.setTxType.bind(this)
     this.setTxLocal = this.setTxLocal.bind(this)
+    this.updateTransactions = this.updateTransactions.bind(this)
   }
 
     setTransactionList (b) {this.setState({transactionList: b})}
@@ -89,53 +91,55 @@ class ZTransactionList extends React.Component {
       var transactionList = this.props.context.txList
       this.setTxList(transactionList)
 
-      try {
+      if (transactionList != null) {
+          try {
 
-          for (var t = 0; t < transactionList.length; t++) {
-              var md
-              var meta
-              if (transactionList[t].incoming_metadata != null) {
-                  meta = transactionList[t].incoming_metadata
-                  for (md = 0; md < meta.length; md++) {
-                      var itransaction = {
-                            id: transactionList[t].txid + '-imd' + '-' + md,
-                            txid: transactionList[t].txid,
-                            address: meta[md].address,
-                            value: meta[md].value,
-                            memo: meta[md].memo == null ? '' : meta[md].memo,
-                            block: transactionList[t].block_height == null ? -1 : transactionList[t].block_height,
-                            type: 0,
-                            index: index
+              for (var t = 0; t < transactionList.length; t++) {
+                  var md
+                  var meta
+                  if (transactionList[t].incoming_metadata != null) {
+                      meta = transactionList[t].incoming_metadata
+                      for (md = 0; md < meta.length; md++) {
+                          var itransaction = {
+                                id: transactionList[t].txid + '-imd' + '-' + md,
+                                txid: transactionList[t].txid,
+                                address: meta[md].address,
+                                value: meta[md].value,
+                                memo: meta[md].memo == null ? '' : meta[md].memo,
+                                block: transactionList[t].block_height == null ? -1 : transactionList[t].block_height,
+                                type: 0,
+                                index: index
+                          }
+                          index++
+                          transactions.push(itransaction)
                       }
-                      index++
-                      transactions.push(itransaction)
                   }
-              }
 
-              if (transactionList[t].outgoing_metadata != null) {
-                  meta = transactionList[t].outgoing_metadata
-                  for (md = 0; md < meta.length; md++) {
-                      var otransaction = {
-                            id: transactionList[t].txid + '-omd' + '-' + md,
-                            txid: transactionList[t].txid,
-                            address: meta[md].address,
-                            value: meta[md].value * (-1),
-                            memo: meta[md].memo == null ? '' : meta[md].memo,
-                            block: transactionList[t].block_height == null ? -1 : transactionList[t].block_height,
-                            type: 1,
-                            index: index
+                  if (transactionList[t].outgoing_metadata != null) {
+                      meta = transactionList[t].outgoing_metadata
+                      for (md = 0; md < meta.length; md++) {
+                          var otransaction = {
+                                id: transactionList[t].txid + '-omd' + '-' + md,
+                                txid: transactionList[t].txid,
+                                address: meta[md].address,
+                                value: meta[md].value * (-1),
+                                memo: meta[md].memo == null ? '' : meta[md].memo,
+                                block: transactionList[t].block_height == null ? -1 : transactionList[t].block_height,
+                                type: 1,
+                                index: index
+                          }
+                          index++
+                          transactions.push(otransaction)
                       }
-                      index++
-                      transactions.push(otransaction)
                   }
-              }
 
+              }
+          } catch (err) {
+              if (process.env.NODE_ENV != 'production') {
+                console.log(err)
+              }
           }
-        } catch (err) {
-          if (process.env.NODE_ENV != 'production') {
-            console.log(err)
-          }
-        }
+      }
 
       var transactionDisplay = transactions.map((tx) => (
         <ZTransactionListUl key={tx.id} header={false}>
@@ -179,27 +183,33 @@ class ZTransactionList extends React.Component {
         </ZTransactionListUl>
         ))
 
-        if (this.state.transactionList != transactionDisplay) {
-          this.setTransactionList(transactionDisplay)
-        }
-
+        this.setTransactionList(transactionDisplay)
     }
 
-    componentDidMount() {
-        this.createTransactionList()
-    }
-
-    componentWillUnmount() {
-
-    }
-
-
-    render () {
-
+    updateTransactions() {
         if (this.state.txList != this.props.context.txList) {
             this.createTransactionList()
         }
 
+        const transactionTimerIDLong = setTimeout(
+          () => {
+            this.updateTransactions()
+          },
+          50
+        )
+        this.setState({transactionTimer: transactionTimerIDLong})
+    }
+
+    componentDidMount() {
+        this.updateTransactions()
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.state.transactionTimer)
+    }
+
+
+    render () {
         return (
           <ZTransactionListMain>
             <ZTransactionListOverScroll>
