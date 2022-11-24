@@ -26,10 +26,29 @@ import pirateChain from '../assets/svg/pirate_chain.svg'
 import mobileWallet from '../assets/svg/mobile_wallet.svg'
 import footer from '../assets/svg/footer.svg'
 
+import {appVersion} from '../utils/version'
+
 class SplashPage extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
 
+    this.state = {
+      version: "",
+    }
+
+    this.setAppVersion = this.setAppVersion.bind(this)
+  }
+
+  async setAppVersion() {
+    var version = await appVersion()
+
+    this.setState({
+      version: version
+    })
+  }
+
+  componentDidMount() {
+    this.setAppVersion()
   }
 
   render() {
@@ -51,11 +70,11 @@ class SplashPage extends React.Component {
           <SplashFooter>
             <SplashCopyright>
               <span>
-                © Copyright 2022 Pirate Chain
+                © Copyright 2023 Pirate Chain
                 <br/>
                 • All rights reserved •
                 <br/>
-                Version 2.1.0
+                {'Version ' + this.state.version}
               </span>
             </SplashCopyright>
           </SplashFooter>
