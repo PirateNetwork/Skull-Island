@@ -34,6 +34,7 @@ import pirateLogo from '../assets/svg/pirate_logo.svg'
 import { coins } from '../utils/coins.js'
 
 import {
+  checkServer,
   balance,
   list,
   sync,
@@ -58,13 +59,16 @@ class ChainOps extends React.Component {
       errorMsg: '',
       syncWalletTimer: null,
       updateTimer: null,
+      syncAddressesTimer: null,
       syncStatus: null,
       saveWalletCounter: 0,
       firstRun: true,
+      syncTime: 0
     }
 
     this.getWalletStatus = this.getWalletStatus.bind(this)
     this.updateWallet = this.updateWallet.bind(this)
+    this.updateAddresses = this.updateAddresses.bind(this)
   }
 
   async getWalletStatus() {
@@ -72,10 +76,6 @@ class ChainOps extends React.Component {
         try {
             this.props.setWalletInUse(true)
             if (!this.props.context.saving) {
-
-                this.setState({
-                  firstRun: false
-                })
 
                 //Check Wallet Info
                 var walletInfo = await info()
@@ -118,7 +118,7 @@ class ChainOps extends React.Component {
                 var downloaded = 0
                 if (walletStatus.in_progress == true) {
                     //Check if the sync'd height or balance has changed
-                    if (this.state.synced_blocks != (walletStatus.end_block + walletStatus.synced_blocks) ||
+                    if (this.props.context.syncedBlocks != (walletStatus.end_block + walletStatus.synced_blocks) ||
                       walletBalance.verified_zbalance + walletBalance.tbalance != walletBalance) {
                        changed = true
                     }
@@ -144,28 +144,42 @@ class ChainOps extends React.Component {
                         //when the wallet falls far enough behind the block height
                         //For a few blocks, don't show on the GUI that we're syncing in
                         //the background:
-
                         this.props.setSynced(false)
-                        this.setState({
-                          syncing: true
-                        })
+                    } else {
+                        this.props.setSynced(true)
                     }
                 } else {
                     //Note: walletStatus contains no other fields if syncing==false
                     //Check if the sync'd height or balance has changed
-                    if (this.state.synced_blocks != walletInfo.latest_block_height ||
+                    if (this.props.context.syncedBlocks != walletStatus.scanned_height ||
                       walletBalance.verified_zbalance + walletBalance.tbalance != walletBalance) {
                        changed = true
                     }
 
+                    if (walletInfo.latest_block_height > 0) {
+                        downloaded = walletStatus.scanned_block/walletInfo.latest_block_height
+                    } else {
+                        downloaded = 0
+                    }
+
                     this.setState({
                         walletBalance: (walletBalance.verified_zbalance + walletBalance.tbalance).toFixed(8).toString(),
-                        walletHeight: walletInfo.latest_block_height,
+                        walletHeight: walletStatus.scanned_height,
                         chainHeight:  walletInfo.latest_block_height,
-                        DownloadPercentage: 1
+                        DownloadPercentage: downloaded
                     })
                     this.props.setHeight(walletInfo.latest_block_height)
-                    this.props.setSyncedBlocks(walletInfo.latest_block_height)
+                    this.props.setSyncedBlocks(walletStatus.scanned_height)
+
+                    if (walletInfo.latest_block_height > (walletStatus.scanned_height) + 10) {
+                        //walletStatus will revert back to 'syncing=true' automatically
+                        //when the wallet falls far enough behind the block height
+                        //For a few blocks, don't show on the GUI that we're syncing in
+                        //the background:
+                        this.props.setSynced(false)
+                    } else {
+                        this.props.setSynced(true)
+                    }
                 }
 
 
@@ -185,7 +199,7 @@ class ChainOps extends React.Component {
                     }
 
                     if (zaddr.balance > bestAmount) {
-                        bestAddress =  zaddr.address
+                        bestAddress = zaddr.address
                         bestAmount = zaddr.balance
                     }
 
@@ -225,26 +239,15 @@ class ChainOps extends React.Component {
                   this.props.setMenuReady(true)
                 }
 
-                if (walletStatus.in_progress != true) {
-                    this.props.setSynced(true)
+                if (walletStatus.in_progress != true && this.state.syncing == true) {
                     this.setState({
-                      syncing: false
+                      syncing: false,
+                      syncTime: Date.now()
                     })
-                } else {
-                    if (walletStatus.total_blocks > walletStatus.synced_blocks + 6) {
-                        //Syncing does occur, but do not show it on the GUI unless
-                        //we're more than 6 minutes behind.
-                        this.props.setSynced(false)
-                        this.setState({
-                          syncing: true
-                        })
-                    }
                 }
 
-
                 //Get the Transaction List if the wallet has changed
-                // if (this.state.syncing != true) {
-                  if (changed || this.props.context.transactionList == null) {
+                if (changed || this.state.firstRun == true ) {
                     var transactionList = await list()
                     try {
                         transactionList = JSON.parse(transactionList)
@@ -258,8 +261,8 @@ class ChainOps extends React.Component {
                           errorMsg: transactionList
                         })
                     }
-                  }
-                // }
+                }
+
             }
 
             //When the synced blocks get close to the chain hieght, check more often for better GUI response
@@ -294,14 +297,19 @@ class ChainOps extends React.Component {
         }
 
         this.props.setWalletInUse(false)
+
+        this.setState({
+          firstRun: false
+        })
+
     }
 
 async updateWallet() {
 
       try {
-          if (!this.props.context.saving) {
+          this.props.setWalletInUse(true)
+          if (!this.props.context.saving && this.state.syncTime < Date.now() + 30000) {
 
-            this.props.setWalletInUse(true)
             if (!this.state.syncing) {
               sync()
             }
@@ -328,6 +336,7 @@ async updateWallet() {
               30000
             )
             this.setState({updateTimer: updateTimerIDLong})
+
           }
       } catch {
 
@@ -335,6 +344,8 @@ async updateWallet() {
             walletError: true,
             errorMsg: 'updateWallet Failed!'
           })
+
+          clearTimeout(this.state.updateTimer)
 
           const updateTimerIDLong = setTimeout(
             () => {
@@ -344,30 +355,43 @@ async updateWallet() {
             },
             10000
           )
-          this.setState({updateTimer: updateTimerIDLong})
 
+          this.setState({updateTimer: updateTimerIDLong})
       }
+
+      this.props.setWalletInUse(false)
+  }
+
+  async updateAddresses() {
+
+    if (this.props.context.refreshAddresses) {
+      this.updateWallet()
+      this.getWalletStatus()
+      this.props.setRefreshAddresses(false)
+    }
+
+    const syncAddressesTimerIDShort = setTimeout(
+      () => {
+        this.updateAddresses()
+      }, 50)
+    this.setState({syncAddressesTimer: syncAddressesTimerIDShort})
+
   }
 
     componentDidMount() {
       this.getWalletStatus()
       this.updateWallet()
+      this.updateAddresses()
     }
 
     componentWillUnmount() {
       clearTimeout(this.state.updateTimer)
       clearTimeout(this.state.syncWalletTimer)
+      clearTimeout(this.state.syncAddressesTimer)
     }
 
 
     render () {
-
-      if (this.props.context.refreshAddresses) {
-        this.updateWallet()
-        this.getWalletStatus()
-        this.props.setRefreshAddresses(false)
-      }
-
 
       var balanceSection
       if (this.state.walletError) {
