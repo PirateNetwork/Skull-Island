@@ -1,3 +1,14 @@
+export function checkServer(args) {
+          return new Promise((resolve, reject) => {
+            LiteWallet.checkserver(args, (successResponse) => {
+              resolve(successResponse)
+            }, (errorResonse) =>{
+              reject(errorResonse)
+            })
+          })
+        }
+
+
 export function walletExists(args) {
           return new Promise((resolve, reject) => {
             LiteWallet.exists(args, (successResponse) => {
