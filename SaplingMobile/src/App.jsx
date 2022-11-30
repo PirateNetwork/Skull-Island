@@ -5,6 +5,8 @@ import { ThemeProvider } from 'styled-components';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
+import axios from 'axios'
+
 import { setDimensions, setWalletLoaded} from './actions/Context'
 
 import { setSeedPhrase, setBirthday } from './actions/Secrets'
@@ -104,6 +106,37 @@ class App extends React.Component {
   }
 
   async initalize() {
+    const coin = 'pirate'
+
+    try {
+      axios.get(coins[coin].serversURL, {responseType: 'blob'}, {headers: {'Access-Control-Allow-Origin': '*'}})
+        .then((resp) => {
+          try {
+            const servers = resp.data
+            console.log(servers)
+
+          } catch (err) {
+            if (process.env.NODE_ENV != 'production') {
+              console.log(err)
+            }
+          }
+      })
+    } catch (err) {
+      if (process.env.NODE_ENV != 'production') {
+        console.log(err)
+      }
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     const keyHash = saltHashPassword(this.props.context.activePassword, KeySalt)
 
@@ -125,7 +158,6 @@ class App extends React.Component {
 
       //reset to Zero
       if (!this.state.hasExistingWallet) {
-        const coin = 'pirate'
         const apiSelection = Math.floor(Math.random()*coins[coin].explorer.length)
         this.props.setCurrentCoin(coin)
         this.props.setInsightExplorer(coins[coin].explorer[apiSelection])

@@ -52,7 +52,12 @@ const initialContext = {
   tx: null,
   txList: null,
   viewingTx: false,
-  menuReady: false
+  menuReady: false,
+  activeserver:[],
+  userdefinedservers:[],
+  servers:[],
+  backupservers:[],
+  disconnected: true,
 }
 
 export default function ContextReducer (state = initialContext, action) {

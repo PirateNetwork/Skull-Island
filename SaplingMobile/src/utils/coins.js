@@ -7,6 +7,7 @@ export const coins = {
     coinGeckoId: 'pirate-chain',
     icon: pirateLogo,
     qrlogo: pirateQrLogo,
+    serversURL: '',
     explorer: ['https://explorer.pirate.black/'],
     litewallet: ['https://lightd1.pirate.black:443/','https://piratelightd.cryptoforge.cc:443/'],
     backupservers:['https://piratelightd1.cryptoforge.cc:443/','https://piratelightd2.cryptoforge.cc:443/','https://piratelightd3.cryptoforge.cc:443/','https://piratelightd4.cryptoforge.cc:443/'],
