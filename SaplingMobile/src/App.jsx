@@ -24,7 +24,6 @@ import {
   setReceivePage,
   setPrivateKeyPage,
   setPassPhrasePage,
-  setGraphOpen,
   setReindexPage,
   setTransactionPage} from './actions/MainSubPage'
 
@@ -246,7 +245,6 @@ class App extends React.Component {
   backButtonHandler () {
     if (this.props.mainSubPage.mainPage != 'visible') {
       this.props.setMainPage('visible')
-      this.props.setGraphOpen(true)
       this.props.setSendPage('none')
       this.props.setReceivePage('none')
       this.props.setPrivateKeyPage('none')
@@ -380,7 +378,6 @@ class App extends React.Component {
 
 
 App.propTypes = {
-  setGraphOpen: PropTypes.func.isRequired,
   setWalletLoaded: PropTypes.func.isRequired,
   setMainPage: PropTypes.func.isRequired,
   setSendPage: PropTypes.func.isRequired,
@@ -418,7 +415,6 @@ function mapStateToProps (state) {
 function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
-      setGraphOpen,
       setWalletLoaded,
       setMainPage,
       setSendPage,

@@ -20,15 +20,12 @@ import {
   setReceivePage,
   setPassPhrasePage,
   setReindexPage,
-  setGraphOpen,
   setTransactionScroll,} from '../actions/MainSubPage'
 
   import {
     setSendToAddress,} from '../actions/SendTo'
 
 import Qr from '../containers/qr'
-
-import {GraphOpenPos, GraphClosedPos} from '../reducers/MainSubPage'
 
 import {
     BlackBackgroundQR,
@@ -67,52 +64,13 @@ class ZMain extends React.Component {
     super(props)
 
     this.state = {
-      menuOpen: 'none',
       scrollPosition: 0,
-      graphPosition: GraphClosedPos,
-      localGraphState : true,
       tick: null,
       tickTimer: null,
     }
 
     this.getZerPrice = this.getZerPrice.bind(this)
-    this.closeMenu = this.closeMenu.bind(this)
-    this.toggleMenu = this.toggleMenu.bind(this)
-    this.setGraphPosition = this.setGraphPosition.bind(this)
-    this.setLocalGraphState = this.setLocalGraphState.bind(this)
-    // this.handleQRScan = this.handleQRScan.bind(this)
-    // this.safeReleaseCamera = this.safeReleaseCamera.bind(this)
   }
-
-    setLocalGraphState (b) {
-      this.setState({localGraphState: b})
-    }
-
-    closeMenu () {
-      this.setState({menuOpen: 'none'})
-      this.props.setGraphOpen(this.state.localGraphState)
-      this.setGraphPosition()
-    }
-
-    toggleMenu () {
-      if (this.state.menuOpen == 'none') {
-        this.props.setGraphOpen(false)
-        this.setGraphPosition()
-        this.setState({menuOpen: 'block'})
-      } else {
-        this.props.setGraphOpen(this.state.localGraphState)
-        this.setGraphPosition()
-        this.setState({menuOpen: 'none'})
-      }
-    }
-
-    setGraphPosition () {
-      if (this.props.mainSubPage.graphOpen) {
-        this.setState({graphPosition : GraphOpenPos})
-      } else {
-        this.setState({graphPosition : GraphClosedPos})
-      }
-    }
 
     getZerPrice() {
       if (this.props.mainSubPage.mainPage != 'none') {
@@ -153,62 +111,6 @@ class ZMain extends React.Component {
       }
     }
 
-    // handleQRScan () {
-    //   this.props.setAddressScanning(false)
-    //   this.props.setQrScanning(true)
-    //   // Prepare QR Scanner
-    //   QRScanner.prepare(function (err, status) {
-    //     // Oh no!
-    //     if (err) {
-    //       alert(JSON.stringify(err))
-    //     }
-    //
-    //     // If we are authorized to scan, then only do we invoke
-    //     // the scan method
-    //     if (status.authorized) {
-    //       // Start scanning
-    //       QRScanner.scan(function (err, address) {
-    //         // an error occurred, or the scan was canceled (error code `6`)
-    //         if (err) {
-    //           alert(JSON.stringify(err))
-    //         } else {
-    //           // The scan completed, display the contents of the QR code
-    //           this.props.setMainPage('none')
-    //           this.props.setSendPage('visible')
-    //           this.props.setSendToAddress(address)
-    //         }
-    //
-    //         // Set finished scanning
-    //         this.props.setQrScanning(false)
-    //         QRScanner.destroy()
-    //       }.bind(this))
-    //
-    //       // Show scanning preview
-    //       QRScanner.show()
-    //
-    //       // Set transparency
-    //       this.props.setQrScanning(true)
-    //     } else if (status.denied) {
-    //       // const CUR_LANG = this.props.settings.language
-    //       // alert(TRANSLATIONS[CUR_LANG].SendPage.noCameraPermissions)
-    //       QRScanner.openSettings()
-    //     } else {
-    //       // we didn't get permission, but we didn't get permanently denied. (On
-    //       // Android, a denial isn't permanent unless the user checks the "Don't
-    //       // ask again" box.) We can ask again at the next relevant opportunity.
-    //     }
-    //   }.bind(this))
-    // }
-    //
-    // safeReleaseCamera () {
-    //   // Destroy QR scanner if user goes back
-    //   // while scanning
-    //   if (this.props.context.qrScanning) {
-    //     QRScanner.destroy()
-    //     this.props.setQrScanning(false)
-    //   }
-    // }
-
     componentDidMount() {
       window.addEventListener("click", this.closeMenu)
 
@@ -228,15 +130,10 @@ class ZMain extends React.Component {
     componentWillUnmount() {
       window.removeEventListener("click", this.closeMenu)
       clearInterval(this.PriceID)
-      // this.safeReleaseCamera()
       clearInterval(this.state.tickTimer)
     }
 
     render () {
-
-      // if (this.props.context.addrScanning) {
-      //    this.handleQRScan()
-      // }
 
       var syncedIndicator
 
@@ -255,30 +152,19 @@ class ZMain extends React.Component {
       }
 
       var syncIndicatorText
-
       var downloaded
       var remainingBlocks
-      // var refreshRemaining
+
       try {
         if (this.props.context.syncedBlocks == 0) {
           downloaded = 0
           remainingBlocks = -1
-          // refreshRemaining = 0.0
         } else {
           downloaded = (this.props.context.syncedBlocks / this.props.context.height * 100).toFixed(2)
           remainingBlocks =  this.props.context.height - this.props.context.syncedBlocks
           if ((remainingBlocks>0) && (downloaded==100))	{
             downloaded=99.99
           }
-
-          //Timeout in milliseconds
-          // var refreshTimeout = this.props.context.refreshSecondsRemaining
-          // var now = Date.now()
-          // if (refreshTimeout>now) {
-          //   refreshRemaining = ((refreshTimeout - now)/1000).toFixed(0)
-          // } else {
-          //   refreshRemaining = 0.0
-          // }
 
         }
       } catch (err) {
@@ -408,7 +294,6 @@ ZMain.propTypes = {
   setPassPhrasePage: PropTypes.func.isRequired,
   setQrScanning: PropTypes.func.isRequired,
   setAddressScanning: PropTypes.func.isRequired,
-  setGraphOpen: PropTypes.func.isRequired,
   setTransactionScroll: PropTypes.func.isRequired,
   setSendToAddress:  PropTypes.func.isRequired,
   settings: PropTypes.object.isRequired,
@@ -436,7 +321,6 @@ function matchDispatchToProps (dispatch) {
       setPassPhrasePage,
       setQrScanning,
       setAddressScanning,
-      setGraphOpen,
       setTransactionScroll,
       setSendToAddress,
     },

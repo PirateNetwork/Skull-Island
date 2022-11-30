@@ -9,15 +9,11 @@ import {
   SET_SUB_PAGE_PRIVATE_KEY,
   SET_SUB_PAGE_PASSPHRASE,
   SET_SUB_PAGE_REINDEX,
-  SET_SUB_PAGE_GRAPH_OPEN,
   SET_SUB_PAGE_TRANSACTION_SCOLL,
   SET_SUB_PAGE_TRANSACTION_SCOLL_POS,
   SET_SUB_PAGE_ADDRESSLIST,
   SET_SUB_PAGE_TRANSACTION,
 } from '../actions/MainSubPage'
-
-export const GraphOpenPos = 0.0
-export const GraphClosedPos = 0.235
 
 const initialMainSubPage= {
   mainPage: 'visible',
@@ -26,7 +22,6 @@ const initialMainSubPage= {
   privateKeyPage: 'none',
   passPhrasePage: 'none',
   reindexPage: 'none',
-  graphOpen: true,
   transactionScroll: false,
   transactionScrollPos: 0,
   addressList: 'visible',
@@ -63,11 +58,6 @@ export default function MainSubPageReducer (state = initialMainSubPage, action) 
     case SET_SUB_PAGE_REINDEX:
       return Object.assign({}, state, {
         reindexPage: action.reindexPage
-      })
-
-    case SET_SUB_PAGE_GRAPH_OPEN:
-      return Object.assign({}, state, {
-        graphOpen: action.graphOpen
       })
 
     case SET_SUB_PAGE_TRANSACTION_SCOLL:
