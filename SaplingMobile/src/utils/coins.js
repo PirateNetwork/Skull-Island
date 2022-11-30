@@ -8,13 +8,14 @@ export const coins = {
     icon: pirateLogo,
     qrlogo: pirateQrLogo,
     explorer: ['https://explorer.pirate.black/'],
-    litewallet: ['https://piratelightd.cryptoforge.cc:443/'],
+    litewallet: ['https://lightd1.pirate.black:443/','https://piratelightd.cryptoforge.cc:443/'],
+    backupservers:['https://piratelightd1.cryptoforge.cc:443/','https://piratelightd2.cryptoforge.cc:443/','https://piratelightd3.cryptoforge.cc:443/','https://piratelightd4.cryptoforge.cc:443/'],
     tEnabled: false,
     branchHeight: {
       default: 0,
       unused: 0,
       overwinter: 0,
-      sapling: 600000
+      sapling: 152855
     }
   }
 }
