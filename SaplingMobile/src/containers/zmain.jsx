@@ -64,12 +64,15 @@ class ZMain extends React.Component {
     super(props)
 
     this.state = {
+      menuOpen: 'none',
       scrollPosition: 0,
       tick: null,
       tickTimer: null,
     }
 
     this.getZerPrice = this.getZerPrice.bind(this)
+    this.closeMenu = this.closeMenu.bind(this)
+    this.toggleMenu = this.toggleMenu.bind(this)
   }
 
     getZerPrice() {
@@ -108,6 +111,18 @@ class ZMain extends React.Component {
               }
             }
         })
+      }
+    }
+
+    closeMenu () {
+      this.setState({menuOpen: 'none'})
+    }
+
+    toggleMenu () {
+      if (this.state.menuOpen == 'none') {
+        this.setState({menuOpen: 'block'})
+      } else {
+        this.setState({menuOpen: 'none'})
       }
     }
 
