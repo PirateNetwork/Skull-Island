@@ -21,6 +21,11 @@ export const SET_TX_LIST = 'SET_CURRENT_TX_LIST'
 export const SET_VIEWING_TX = 'SET_CURRENT_VIEWING_TX'
 export const SET_MENU_READY = 'SET_CURRENT_MENU_READY'
 export const SET_ADDRESS_SCANNING = 'SET_CURRENT_ADDRESS_SCANNING'
+export const SET_ACTIVE_SERVER = 'SET_CURRENT_ACTIVE_SERVER'
+export const SET_USER_SERVERS = 'SET_CURRENT_USER_SERVERS'
+export const SET_PRIMARY_SERVERS = 'SET_CURRENT_PRIMARY_SERVERS'
+export const SET_BACKUP_SERVERS = 'SET_CURRENT_BACKUP_SERVERS'
+export const SET_DISCONNECTED = 'SET_CURRENT_DISCONNECTED'
 
 export function setActivePassword (activePassword) {
   return {
@@ -180,5 +185,40 @@ export function setMenuReady (menuReady) {
   return {
     type: SET_MENU_READY,
     menuReady
+  }
+}
+
+export function setActiveServer (activeServer) {
+  return {
+    type: SET_ACTIVE_SERVER,
+    activeServer
+  }
+}
+
+export function setUserServers (userServers) {
+  return {
+    type: SET_USER_SERVERS,
+    userServers
+  }
+}
+
+export function setPrimaryServers (primaryServers) {
+  return {
+    type: SET_PRIMARY_SERVERS,
+    primaryServers
+  }
+}
+
+export function setBackupServers (backupServers) {
+  return {
+    type: SET_BACKUP_SERVERS,
+    backupServers
+  }
+}
+
+export function setDisconnected (disconnected) {
+  return {
+    type: SET_DISCONNECTED,
+    disconnected
   }
 }

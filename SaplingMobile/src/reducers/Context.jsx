@@ -25,7 +25,12 @@ import {
   SET_TX_LIST,
   SET_VIEWING_TX,
   SET_MENU_READY,
-  SET_ADDRESS_SCANNING
+  SET_ADDRESS_SCANNING,
+  SET_ACTIVE_SERVER,
+  SET_USER_SERVERS,
+  SET_PRIMARY_SERVERS,
+  SET_BACKUP_SERVERS,
+  SET_DISCONNECTED
 
 } from '../actions/Context'
 
@@ -53,10 +58,10 @@ const initialContext = {
   txList: null,
   viewingTx: false,
   menuReady: false,
-  activeserver:[],
-  userdefinedservers:[],
-  servers:[],
-  backupservers:[],
+  activeServer: null,
+  userServers:[],
+  primaryServers:[],
+  backupServers:[],
   disconnected: true,
 }
 
@@ -177,6 +182,32 @@ export default function ContextReducer (state = initialContext, action) {
       return Object.assign({}, state, {
         menuReady: action.menuReady
       })
+
+    case SET_ACTIVE_SERVER:
+      return Object.assign({}, state, {
+        activeServer: action.activeServer
+      })
+
+    case SET_USER_SERVERS:
+      return Object.assign({}, state, {
+        userServers: action.userServers
+      })
+
+    case SET_PRIMARY_SERVERS:
+      return Object.assign({}, state, {
+        primaryServers: action.primaryServers
+      })
+
+    case SET_BACKUP_SERVERS:
+      return Object.assign({}, state, {
+        backupServers: action.backupServers
+      })
+
+    case SET_DISCONNECTED:
+      return Object.assign({}, state, {
+        disconnected: action.disconnected
+      })
+
 
     default:
       return state

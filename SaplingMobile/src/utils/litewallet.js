@@ -1,6 +1,6 @@
-export function checkServer(args) {
+export function checkServer(arg) {
           return new Promise((resolve, reject) => {
-            LiteWallet.checkserver(args, (successResponse) => {
+            LiteWallet.checkserver([arg], (successResponse) => {
               resolve(successResponse)
             }, (errorResponse) =>{
               reject(errorResponse)

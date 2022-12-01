@@ -5,9 +5,14 @@ import { ThemeProvider } from 'styled-components';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import axios from 'axios'
-
-import { setDimensions, setWalletLoaded} from './actions/Context'
+import {
+  setDimensions,
+  setWalletLoaded,
+  setActiveServer,
+  setUserServers,
+  setPrimaryServers,
+  setBackupServers,
+  setDisconnected} from './actions/Context'
 
 import { setSeedPhrase, setBirthday } from './actions/Secrets'
 import {
@@ -39,11 +44,19 @@ import { walletExists,
          unlock,
          checkSeedPhrase,
          walletSeed,
+         checkServer,
          save} from './utils/litewallet'
 
 import {encrypt, decrypt, saltHashPassword, KeySalt} from './utils/hash.js'
 
-import { PIRATE_MOBILE_SAVE_PATH, readFromFile, getLocalFileSystemURL, getFileEntry, writeDataToFile } from './utils/persistentStorage'
+import {
+  PIRATE_MOBILE_SAVE_PATH,
+  SERVERS_SAVE_PATH,
+  downloadServerList,
+  readFromFile,
+  getLocalFileSystemURL,
+  getFileEntry,
+  writeDataToFile } from './utils/persistentStorage'
 
 import { GlobalDiv } from './pagecomponents/PirateShared'
 
@@ -67,14 +80,20 @@ class App extends React.Component {
       readSavedFile: false,
       parseError: false,
       stringData: '',
-      data: null
+      data: null,
+      downloadComplete: false,
     }
     this.initalize = this.initalize.bind(this)
     this.runInitalize = this.runInitalize.bind(this)
+    this.runInitalizeServers = this.runInitalizeServers.bind(this)
     this.setScreenSize = this.setScreenSize.bind(this)
     this.setRotate = this.setRotate.bind(this)
     this.backButtonHandler = this.backButtonHandler.bind(this)
     this.saveData = this.saveData.bind(this)
+    this.getServerList = this.getServerList.bind(this)
+    this.selectServer = this.selectServer.bind(this)
+    this.checkServers = this.checkServers.bind(this)
+    this.initalizeServers = this.initalizeServers.bind(this)
   }
 
   setScreenSize() {
@@ -95,7 +114,7 @@ class App extends React.Component {
   runInitalize() {
     clearInterval(this.InitId)
 
-    if (this.props.context.activePassword == '') {
+    if (this.props.context.activePassword == '' || this.props.context.activeServer == null) {
       this.InitId = setInterval(
         () => this.runInitalize(),
         10
@@ -105,38 +124,95 @@ class App extends React.Component {
     }
   }
 
-  async initalize() {
-    const coin = 'pirate'
+  runInitalizeServers() {
+    clearInterval(this.InitServerId)
 
-    try {
-      axios.get(coins[coin].serversURL, {responseType: 'blob'}, {headers: {'Access-Control-Allow-Origin': '*'}})
-        .then((resp) => {
-          try {
-            const servers = resp.data
-            console.log(servers)
+    if (!this.state.downloadComplete) {
+      this.InitServerId = setInterval(
+        () => this.runInitalizeServers(),
+        10
+      )
+    } else {
+      this.selectServer()
+    }
+  }
 
-          } catch (err) {
-            if (process.env.NODE_ENV != 'production') {
-              console.log(err)
-            }
-          }
+  async getServerList() {
+      //Get server file or create it.
+      const serverFolder = await getLocalFileSystemURL()
+      const serverFile = await getFileEntry(serverFolder, SERVERS_SAVE_PATH)
+
+      // Download new file from github
+      var fileTransfer = new FileTransfer();
+      await downloadServerList(fileTransfer, serverFile.nativeURL)
+
+      readFromFile(SERVERS_SAVE_PATH, (data) => {
+        // If errors while we're reading the Json
+        // then just assume its empty
+        try {
+            data = JSON.parse(data)
+            this.props.setPrimaryServers(data.primaryservers)
+            this.props.setBackupServers(data.backupservers)
+        } catch (err) {
+            const coin = 'pirate'
+            this.props.setPrimaryServers(coins[coin].primaryservers)
+            this.props.setBackupServers(coins[coin].backupservers)
+        }
+
+        this.setState({downloadComplete: true})
       })
-    } catch (err) {
-      if (process.env.NODE_ENV != 'production') {
-        console.log(err)
+  }
+
+  async checkServers(serverList) {
+      //Pick random starting spot so not every client picks the same servers
+      var startServer = Math.floor(Math.random() * serverList.length)
+      var workingServer = startServer
+      //Check first section
+      while (workingServer < serverList.length && this.props.context.activeServer == null) {
+          let serverReady1 = await checkServer(serverList[workingServer])
+          if (serverReady1) {
+              this.props.setActiveServer(serverList[workingServer])
+          } else {
+             workingServer++
+          }
       }
+
+      //check second section
+      workingServer = 0
+      while (workingServer < startServer && this.props.context.activeServer == null) {
+          var serverReady2 = await checkServer(serverList[workingServer])
+          if (serverReady2) {
+              this.props.setActiveServer(serverList[workingServer])
+          } else {
+             workingServer++
+          }
+      }
+  }
+
+  async selectServer() {
+    //Primary priority user defined servers -- not yet implemented
+    // if (this.props.context.activeServer == null) {
+    //     await this.checkServers(this.props.context.userservers)
+    // }
+
+    //Secondary prioity primary team servers
+    if (this.props.context.activeServer == null) {
+        await this.checkServers(this.props.context.primaryServers)
     }
 
+    //Tertiary prioity backup team servers
+    if (this.props.context.activeServer == null) {
+        await this.checkServers(this.props.context.backupServers)
+    }
+  }
 
+  async initalizeServers() {
+      await this.getServerList()
+      this.runInitalizeServers()
+  }
 
-
-
-
-
-
-
-
-
+  async initalize() {
+    const coin = 'pirate'
 
     const keyHash = saltHashPassword(this.props.context.activePassword, KeySalt)
 
@@ -176,7 +252,7 @@ class App extends React.Component {
 
         //Initalize thae wallet
         args = [coins[currentCoin].networkname]
-        args.push(coins[currentCoin].litewallet[0])
+        args.push(this.props.context.activeServer)
         await initalizeWallet(args)
 
         //Check to make sure wallet.dat is encrypted
@@ -231,7 +307,7 @@ class App extends React.Component {
     } else {
       try {
 
-        args = [(coins[currentCoin].litewallet[0])]
+        args = [(this.props.context.activeServer)]
         seed = await newWallet(args)
 
         seed = JSON.parse(seed)
@@ -295,6 +371,8 @@ class App extends React.Component {
     this.setScreenSize()
 
     document.addEventListener('backbutton', this.backButtonHandler, false)
+
+    this.initalizeServers()
 
     readFromFile(PIRATE_MOBILE_SAVE_PATH, (data) => {
       // If errors while we're reading the JSOn
@@ -429,6 +507,11 @@ App.propTypes = {
   setDimensions: PropTypes.func.isRequired,
   setBirthday: PropTypes.func.isRequired,
   setSeedPhrase: PropTypes.func.isRequired,
+  setActiveServer: PropTypes.func.isRequired,
+  setUserServers: PropTypes.func.isRequired,
+  setPrimaryServers: PropTypes.func.isRequired,
+  setBackupServers: PropTypes.func.isRequired,
+  setDisconnected: PropTypes.func.isRequired,
   context: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
   secrets: PropTypes.object.isRequired,
@@ -466,6 +549,11 @@ function matchDispatchToProps (dispatch) {
       setBirthday,
       setSeedPhrase,
       setDimensions,
+      setActiveServer,
+      setUserServers,
+      setPrimaryServers,
+      setBackupServers,
+      setDisconnected,
     },
     dispatch
   )

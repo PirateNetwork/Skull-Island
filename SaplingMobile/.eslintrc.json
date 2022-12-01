@@ -17,8 +17,8 @@
     },
     "globals": {
         "LiteWallet" : true,
+        "FileTransfer" : true,
         "FileError": true,
-        "downloader": true,
         "cordova": true,
         "md5chksum": true,
         "LocalFileSystem": true,

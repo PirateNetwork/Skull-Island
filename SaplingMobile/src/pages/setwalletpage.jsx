@@ -184,7 +184,7 @@ class SetWalletPage extends React.Component {
   async restoreWallet(s) {
     const currentCoin = this.props.settings.currentCoin
     var minHeight = coins[currentCoin].branchHeight['sapling']
-    var args = [coins[currentCoin].litewallet[0]]
+    var args = [this.props.context.activeServer]
     var seedCheck = await checkSeedPhrase(this.state.tempSeedPhrase)
     seedCheck = JSON.parse(seedCheck)
 

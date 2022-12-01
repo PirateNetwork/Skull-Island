@@ -1,6 +1,22 @@
 export const PIRATE_MOBILE_SAVE_PATH = 'zero_wallet.json'
 export const PIRATE_MOBILE_CONTACTS_PATH = 'zero_wallet_contacts.json'
 
+export const SERVERS_SAVE_PATH = 'liteservers.json'
+export const SERVERS_DOWNLOAD_PATH ="https://raw.githubusercontent.com/PirateNetwork/Skull-Island/litewallet_rebase/options/liteservers.json"
+
+
+
+export function downloadServerList(fileTransfer, savePath) {
+  return new Promise((resolve, reject) => {
+      var uri = encodeURI(SERVERS_DOWNLOAD_PATH);
+      fileTransfer.download(uri, savePath, (successResponse) => {
+      resolve(successResponse)
+    }, (errorResponse) =>{
+      reject(errorResponse)
+    })
+  })
+}
+
 export function readFromFile (fileName, onSuccess, onFail) {
   const pathToFile = cordova.file.dataDirectory + fileName
   window.resolveLocalFileSystemURL(
