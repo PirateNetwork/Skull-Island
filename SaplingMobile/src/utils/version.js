@@ -7,8 +7,8 @@ export function appVersion() {
           return new Promise((resolve, reject) => {
             cordova.getAppVersion.getVersionNumber((successResponse) => {
               resolve(successResponse)
-            }, (errorResonse) =>{
-              reject(errorResonse)
+            }, (errorResponse) =>{
+              reject(errorResponse)
             })
           })
         }
