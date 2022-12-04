@@ -9,7 +9,7 @@ Pirate Chain mobile app built using Redux, React and Webpack.
 Use Node v12, installed with nvm
 https://github.com/nvm-sh/nvm
 
-Use Cordova v10
+Use Cordova v11 with Java Version 11
 https://cordova.apache.org/docs/en/latest/guide/cli/
 
 
@@ -26,15 +26,13 @@ npm install
 ```
 
 ## Android
-Requires Android SDK (Recommend Full Studio) and Oracle Java to be installed
+Requires Android SDK (Recommend Full Studio) and Oracle Java 11 to be installed
 ```
 cordova platform add android@9
 npx webpack
 cordova prepare android
 cordova run android
 ```
-
-Note: Cordova-cli fails when passing the --release flag. Release builds must be compiled using Android Studio.
 
 
 ## iOS
