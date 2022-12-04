@@ -103,7 +103,6 @@ class ChainOps extends React.Component {
 
           //Check Wallet Info
           var walletInfo = await info()
-          console.log(walletInfo)
           try {
             walletInfo = JSON.parse(walletInfo)
             this.setState({
