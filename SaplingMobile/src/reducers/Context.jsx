@@ -62,7 +62,7 @@ const initialContext = {
   userServers:[],
   primaryServers:[],
   backupServers:[],
-  disconnected: true,
+  disconnected: false,
 }
 
 export default function ContextReducer (state = initialContext, action) {

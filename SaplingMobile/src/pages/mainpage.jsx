@@ -7,7 +7,6 @@ import { connect } from 'react-redux'
 import ChainOps from '../containers/chainsync'
 import LowerBar from '../containers/lowerbar'
 import ZMain from '../containers/zmain'
-// import TMain from '../containers/tmain'
 import Send from '../containers/send'
 import Receive from '../containers/receive'
 import PrivateKey from '../containers/privatekey'
@@ -15,6 +14,7 @@ import PassPhrase from '../containers/passphrase'
 import Reindex from '../containers/reindex'
 import Qr from '../containers/qr'
 import ZTransaction from '../containers/ztransaction'
+import Reconnect from '../containers/reconnect'
 
 import {BlackBackground} from '../pagecomponents/PirateShared'
 
@@ -45,6 +45,8 @@ class MainPage extends React.Component {
         page = <Reindex />
       } else if (this.props.mainSubPage.transactionPage == 'visible') {
         page = <ZTransaction />
+      } else if (this.props.mainSubPage.reconnectPage == 'visible') {
+        page = <Reconnect />
       }
 
 

@@ -82,6 +82,42 @@ export const ChainSyncBalance = styled.div`
   background-color: #000000;
 `
 
+export const ChainSyncBalanceError = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * (0.0175)) + 'px' };
+  left: ${props => ((props.theme.height * 0.079) + (props.theme.width * 0.05)) + 'px' };
+  height: ${props => (props.theme.height * 0.030) + 'px' };
+  width: ${props => ((props.theme.width * 0.90) - (props.theme.height * 0.079)) + 'px' };
+  font-size: ${props => (props.theme.height * 0.02) + 'px' };
+  color: #bb9645;
+  text-align: center;
+  background-color: #000000;
+`
+
+export const ChainSyncBalanceErrorMsg1 = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * (0.03 + 0.0175)) + 'px' };
+  left: ${props => ((props.theme.height * 0.079) + (props.theme.width * 0.05)) + 'px' };
+  height: ${props => (props.theme.height * 0.030) + 'px' };
+  width: ${props => ((props.theme.width * 0.90) - (props.theme.height * 0.079)) + 'px' };
+  font-size: ${props => (props.theme.height * 0.0175) + 'px' };
+  color: #bb9645;
+  text-align: center;
+  background-color: #000000;
+`
+
+export const ChainSyncBalanceErrorMsg2 = styled.div`
+  position: absolute;
+  top: ${props => (props.theme.height * (0.03 + 0.03 + 0.0175)) + 'px' };
+  left: ${props => ((props.theme.height * 0.079) + (props.theme.width * 0.05)) + 'px' };
+  height: ${props => (props.theme.height * 0.030) + 'px' };
+  width: ${props => ((props.theme.width * 0.90) - (props.theme.height * 0.079)) + 'px' };
+  font-size: ${props => (props.theme.height * 0.0175) + 'px' };
+  color: #bb9645;
+  text-align: center;
+  background-color: #000000;
+`
+
 export const ChainSyncBalanceUnits = styled.div`
   position: absolute;
   top: ${props => (props.theme.height * (0.0175 + 0.0125)) + 'px' };

@@ -170,7 +170,9 @@ class App extends React.Component {
       //Check first section
       while (workingServer < serverList.length && this.props.context.activeServer == null) {
           let serverReady1 = await checkServer(serverList[workingServer])
-          if (serverReady1) {
+          serverReady1 = JSON.parse(serverReady1)
+          serverReady1 = serverReady1.server_ready
+          if (serverReady1 == true) {
               this.props.setActiveServer(serverList[workingServer])
           } else {
              workingServer++
@@ -181,7 +183,9 @@ class App extends React.Component {
       workingServer = 0
       while (workingServer < startServer && this.props.context.activeServer == null) {
           var serverReady2 = await checkServer(serverList[workingServer])
-          if (serverReady2) {
+          serverReady2 = JSON.parse(serverReady2)
+          serverReady2 = serverReady2.server_ready
+          if (serverReady2 == true) {
               this.props.setActiveServer(serverList[workingServer])
           } else {
              workingServer++

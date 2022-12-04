@@ -8,6 +8,7 @@ export const SET_SUB_PAGE_TRANSACTION_SCOLL = 'SET_CURRENT_SUB_PAGE_TRANSACTION_
 export const SET_SUB_PAGE_TRANSACTION_SCOLL_POS = 'SET_CURRENT_SUB_PAGE_TRANSACTION_SCOLL_POS'
 export const SET_SUB_PAGE_ADDRESSLIST = 'SET_CURRENT_SUB_PAGE_ADDRESSLIST'
 export const SET_SUB_PAGE_TRANSACTION = 'SET_CURRENT_SUB_PAGE_TRANSACTION'
+export const SET_SUB_PAGE_RECONNECT = 'SET_CURRENT_SUB_PAGE_RECONNECT'
 
 export function setMainPage (mainPage) {
   return {
@@ -76,5 +77,12 @@ export function setTransactionPage (transactionPage) {
   return {
     type: SET_SUB_PAGE_TRANSACTION,
     transactionPage
+  }
+}
+
+export function setReconnectPage (reconnectPage) {
+  return {
+    type: SET_SUB_PAGE_RECONNECT,
+    reconnectPage
   }
 }

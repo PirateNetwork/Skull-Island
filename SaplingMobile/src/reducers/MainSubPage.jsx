@@ -13,6 +13,7 @@ import {
   SET_SUB_PAGE_TRANSACTION_SCOLL_POS,
   SET_SUB_PAGE_ADDRESSLIST,
   SET_SUB_PAGE_TRANSACTION,
+  SET_SUB_PAGE_RECONNECT,
 } from '../actions/MainSubPage'
 
 const initialMainSubPage= {
@@ -25,7 +26,8 @@ const initialMainSubPage= {
   transactionScroll: false,
   transactionScrollPos: 0,
   addressList: 'visible',
-  transactionPage: 'none'
+  transactionPage: 'none',
+  reconnectPage: 'none'
 }
 
 export default function MainSubPageReducer (state = initialMainSubPage, action) {
@@ -78,6 +80,11 @@ export default function MainSubPageReducer (state = initialMainSubPage, action) 
     case SET_SUB_PAGE_TRANSACTION:
           return Object.assign({}, state, {
             transactionPage: action.transactionPage
+          })
+
+    case SET_SUB_PAGE_RECONNECT:
+          return Object.assign({}, state, {
+            reconnectPage: action.reconnectPage
           })
 
     default:
