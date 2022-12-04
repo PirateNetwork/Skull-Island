@@ -38,6 +38,7 @@ import {
 } from '../actions/MainSubPage'
 
 import {
+  ChainSyncBody,
   ChainSyncDiv,
   ChainSyncCurrentBalance,
   ChainSyncBalanceLogo,
@@ -508,9 +509,9 @@ class ChainOps extends React.Component {
 
 
       return (
-        <div>
+        <ChainSyncBody>
           {balanceSection}
-        </div>
+        </ChainSyncBody>
       )
     }
 }

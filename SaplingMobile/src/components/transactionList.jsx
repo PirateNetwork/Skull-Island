@@ -180,8 +180,6 @@ export const Col6Div = styled.div`
   grid-column-end: 6;
 `
 
-
-
 export const Col7Div = styled.div`
   display: flex;
   align-items: center;
@@ -189,6 +187,7 @@ export const Col7Div = styled.div`
   grid-column-start: 7;
   grid-column-end: 7;
 `
+
 export const Col7All = styled.div`
   display: flex;
   align-items: center;
@@ -232,6 +231,7 @@ export const ZTransactionMemoButton = styled.button`
   border: 0px;
   margin: 0;
   padding: 0;
+  text-decoration: none;
 
   :focus{
     outline: none;

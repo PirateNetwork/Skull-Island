@@ -130,15 +130,15 @@ class SetPasswordPage extends React.Component {
     }
 
     render () {
-      var height = this.props.context.dimensions.height
-      var width = this.props.context.dimensions.width
+      var height = this.props.context.dimensionsHeight
+      var width = this.props.context.dimensionsWidth
 
       var loginbutton = this.state.confirmPasswordValid == true ? <LoginSetPWButton
                                                                   onClick={() => this.handleSetPassword()}>
                                                                     {'Set Password'}
                                                                   </LoginSetPWButton>
                                                     : ''
-                                                    
+
       return (
 
         <BlackBackground>

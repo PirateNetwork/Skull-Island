@@ -11,7 +11,10 @@ import {
   SET_REFRESH_SECONDS_REMAINING,
   SET_SYNCED,
   SET_BALANCE,
-  SET_DIMENSIONS,
+  SET_DIMENSIONS_HEIGHT,
+  SET_DIMENSIONS_WIDTH,
+  SET_DIMENSIONS_TOP,
+  SET_DIMENSIONS_BOTTOM,
   SET_IN_BTC_VALUE,
   SET_IN_CURRENCY_VALUE,
   SET_QR_SCANNING,
@@ -43,7 +46,10 @@ const initialContext = {
   setRefreshSecondsRemaining: 0,
   synced: false,
   balance: 0,
-  dimensions: {"height" : window.outerHeight, "width" : window.outerWidth},
+  dimensionsHeight: 0,
+  dimensionsWidth: 0,
+  dimensionsTop: 0,
+  dimensionsBottom: 0,
   BTCValue: 0,
   currencyValue: 0,
   qrScanning: false,
@@ -108,9 +114,24 @@ export default function ContextReducer (state = initialContext, action) {
         balance: action.balance
       })
 
-    case SET_DIMENSIONS:
+    case SET_DIMENSIONS_HEIGHT:
       return Object.assign({}, state, {
-        dimensions: action.dimensions
+        dimensionsHeight: action.dimensionsHeight
+      })
+
+    case SET_DIMENSIONS_WIDTH:
+      return Object.assign({}, state, {
+        dimensionsWidth: action.dimensionsWidth
+      })
+
+    case SET_DIMENSIONS_TOP:
+      return Object.assign({}, state, {
+        dimensionsTop: action.dimensionsTop
+      })
+
+    case SET_DIMENSIONS_BOTTOM:
+      return Object.assign({}, state, {
+        dimensionsBottom: action.dimensionsBottom
       })
 
     case SET_IN_BTC_VALUE:

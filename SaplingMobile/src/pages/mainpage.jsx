@@ -16,7 +16,7 @@ import Qr from '../containers/qr'
 import ZTransaction from '../containers/ztransaction'
 import Reconnect from '../containers/reconnect'
 
-import {BlackBackground} from '../pagecomponents/PirateShared'
+import {BlackBackground, AppBody, MainBody} from '../pagecomponents/PirateShared'
 
 class MainPage extends React.Component {
 
@@ -31,10 +31,10 @@ class MainPage extends React.Component {
       var page
 
       if (this.props.mainSubPage.mainPage == 'visible') {
-        page = <div>
+        page = <MainBody>
                 <ChainOps />
                 <ZMain />
-              </div>
+              </MainBody>
       } else if (this.props.mainSubPage.receivePage == 'visible') {
         page = <Receive />
       } else if (this.props.mainSubPage.privateKeyPage == 'visible') {
@@ -54,9 +54,11 @@ class MainPage extends React.Component {
         <div>
           <div style={mainStyle}>
             <BlackBackground>
-              {page}
-              <Send />
-              <LowerBar />
+              <AppBody>
+                {page}
+                <Send />
+                <LowerBar />
+              </AppBody>
             </BlackBackground>
           </div>
           <Qr />

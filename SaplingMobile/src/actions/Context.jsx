@@ -6,7 +6,10 @@ export const SET_SYNCED_BLOCKS = 'SET_CURRENT_SYNCED_BLOCKS'
 export const SET_REFRESH_SECONDS_REMAINING = 'SET_CURRENT_REFRESH_SECONDS_REMINAING'
 export const SET_SYNCED = 'SET_CURRENT_SYNCED'
 export const SET_BALANCE = 'SET_CURRENT_BALANCE'
-export const SET_DIMENSIONS = 'SET_CURRENT_DIMENSIONS'
+export const SET_DIMENSIONS_HEIGHT = 'SET_CURRENT_DIMENSIONS_HEIGHT'
+export const SET_DIMENSIONS_WIDTH = 'SET_CURRENT_DIMENSIONS_WIDTH'
+export const SET_DIMENSIONS_TOP = 'SET_CURRENT_DIMENSIONS_TOP'
+export const SET_DIMENSIONS_BOTTOM = 'SET_CURRENT_DIMENSIONS_BOTTOM'
 export const SET_IN_BTC_VALUE = 'SET_IN_BTC_VALUE'
 export const SET_IN_CURRENCY_VALUE = 'SET_IN_CURRENCY_VALUE'
 export const SET_QR_SCANNING = 'SET_QR_SCANNING'
@@ -83,10 +86,31 @@ export function setBalance (balance) {
   }
 }
 
-export function setDimensions (dimensions) {
+export function setDimensionsHeight (dimensionsHeight) {
   return {
-    type: SET_DIMENSIONS,
-    dimensions
+    type: SET_DIMENSIONS_HEIGHT,
+    dimensionsHeight
+  }
+}
+
+export function setDimensionsWidth (dimensionsWidth) {
+  return {
+    type: SET_DIMENSIONS_WIDTH,
+    dimensionsWidth
+  }
+}
+
+export function setDimensionsTop (dimensionsTop) {
+  return {
+    type: SET_DIMENSIONS_TOP,
+    dimensionsTop
+  }
+}
+
+export function setDimensionsBottom (dimensionsBottom) {
+  return {
+    type: SET_DIMENSIONS_BOTTOM,
+    dimensionsBottom
   }
 }
 

@@ -28,11 +28,8 @@ import {
 import Qr from '../containers/qr'
 
 import {
-    BlackBackgroundQR,
-  }  from '../pagecomponents/PirateShared'
-
-import {
   ZMainDiv,
+  ZMainBlackBackgroundQR,
   ZMainMenu,
   ZMainSVG,
   ZMainMenuZSynced,
@@ -224,7 +221,7 @@ class ZMain extends React.Component {
 
       return (
         <ZMainDiv visible={this.props.mainSubPage.mainPage}>
-          <BlackBackgroundQR qrScanning = {scanning}>
+          <ZMainBlackBackgroundQR qrScanning = {scanning}>
             <ZMainMenu>
               <ZMainMenuButton
                 onClick={ e => {
@@ -289,7 +286,7 @@ class ZMain extends React.Component {
               </ZMainTransactionList>
             </ZMainLowerSection>
 
-          </BlackBackgroundQR>
+          </ZMainBlackBackgroundQR>
           <Qr />
 
         </ZMainDiv>

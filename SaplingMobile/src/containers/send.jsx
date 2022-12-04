@@ -407,8 +407,8 @@ class Send extends React.Component {
            this.handleQRScan()
         }
 
-        var height = this.props.context.dimensions.height
-        var width = this.props.context.dimensions.width
+        var height = this.props.context.dimensionsHeight
+        var width = this.props.context.dimensionsWidth
 
         var hsize = 0.875
         if (this.state.transactionInput == 'visible') {
@@ -668,7 +668,7 @@ class Send extends React.Component {
                       <AddressDropdown/>
                     </SelectAddressDashedArea>
                     <SendAddressTitle>
-                      {'Send to address:'}
+                      {'Send to Address:'}
                     </SendAddressTitle>
                     <SendDashedArea>
                       <SendGradientCapLeft/>

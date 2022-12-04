@@ -56,7 +56,7 @@ export const SelectAddressTitle = styled.div`
   left: ${props => (props.theme.width * 0.05) + 'px'};
   color: #bb9645;
   height: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
-  width: ${props => (props.theme.width * 0.90) + 'px'};
+  width: ${props => (props.theme.width) + 'px'};
   font-size: ${props => (props.theme.width * SectionTitleFontSize) + 'px'};
   text-align: left;
 `

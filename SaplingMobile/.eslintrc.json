@@ -23,6 +23,7 @@
         "md5chksum": true,
         "LocalFileSystem": true,
         "QRScanner": true,
-        "SQLitePlugin": true
+        "SQLitePlugin": true,
+        "StatusBar": true
     }
 }

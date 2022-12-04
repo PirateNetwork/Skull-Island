@@ -6,7 +6,10 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import {
-  setDimensions,
+  setDimensionsHeight,
+  setDimensionsWidth,
+  setDimensionsTop,
+  setDimensionsBottom,
   setWalletLoaded,
   setActiveServer,
   setUserServers,
@@ -22,7 +25,6 @@ import {
   setWalletPassword,
   setWalletPassPhrase,
   setInsightExplorer,
-  setDisplayDimensions,
   setSaveData} from './actions/Settings'
 
 import {
@@ -87,7 +89,7 @@ class App extends React.Component {
     this.runInitalize = this.runInitalize.bind(this)
     this.runInitalizeServers = this.runInitalizeServers.bind(this)
     this.setScreenSize = this.setScreenSize.bind(this)
-    this.setRotate = this.setRotate.bind(this)
+    //this.setRotate = this.setRotate.bind(this)
     this.backButtonHandler = this.backButtonHandler.bind(this)
     this.saveData = this.saveData.bind(this)
     this.getServerList = this.getServerList.bind(this)
@@ -98,17 +100,40 @@ class App extends React.Component {
 
   setScreenSize() {
     screen.orientation.lock('portrait');
-    this.props.setDimensions({"height" : window.outerHeight, "width" : window.outerWidth})
-    this.props.setDisplayDimensions({"height" : window.outerHeight, "width" : window.outerWidth})
-  }
 
-  setRotate() {
+    console.log("Getting computed styles")
 
-    if (screen.height > screen.width && this.props.context.dimensions.height < this.props.context.dimensions.width ||
-        screen.height < screen.width && this.props.context.dimensions.height > this.props.context.dimensions.width ) {
-        this.props.setDimensions({"height" : this.props.context.dimensions.width, "width" : this.props.context.dimensions.height})
-        this.props.setDisplayDimensions({"height" : this.props.context.dimensions.width, "width" : this.props.context.dimensions.height})
-    }
+    var topBufferEsat = parseInt(window.getComputedStyle(document.documentElement).getPropertyValue("--esat"))
+    var topBufferCsat = parseInt(window.getComputedStyle(document.documentElement).getPropertyValue("--csat"))
+    var bottomBufferEsab = parseInt(window.getComputedStyle(document.documentElement).getPropertyValue("--esab"))
+    var bottomBufferCsab = parseInt(window.getComputedStyle(document.documentElement).getPropertyValue("--csab"))
+
+    if (isNaN(topBufferEsat)) {topBufferEsat = 0}
+    if (isNaN(topBufferCsat)) {topBufferCsat = 0}
+    if (isNaN(bottomBufferEsab)) {bottomBufferEsab = 0}
+    if (isNaN(bottomBufferCsab)) {bottomBufferCsab = 0}
+
+    var topBuffer = topBufferEsat + topBufferCsat
+    var bottomBuffer = bottomBufferEsab + bottomBufferCsab
+    var height = window.outerHeight - topBuffer - bottomBuffer
+
+        console.log(topBufferEsat)
+        console.log(topBufferCsat)
+        console.log(bottomBufferEsab)
+        console.log(bottomBufferCsab)
+
+        console.log(topBuffer)
+        console.log(bottomBuffer)
+
+    if (this.props.context.dimensionsHeight != height) {this.props.setDimensionsHeight(height)}
+    if (this.props.context.dimensionsWidth != window.outerWidth) {this.props.setDimensionsWidth(window.outerWidth)}
+    if (this.props.context.dimensionsTop != topBuffer) {this.props.setDimensionsTop(topBuffer)}
+    if (this.props.context.dimensionsBottom != bottomBuffer) {this.props.setDimensionsBottom(bottomBuffer)}
+
+    console.log(this.props.context)
+    console.log(this.props.settings)
+    console.log(window.outerHeight)
+
   }
 
   runInitalize() {
@@ -372,7 +397,6 @@ class App extends React.Component {
 
 
   componentDidMount() {
-    this.setScreenSize()
 
     document.addEventListener('backbutton', this.backButtonHandler, false)
 
@@ -439,13 +463,24 @@ class App extends React.Component {
 
     this.props.setSaveData(true)
 
+    StatusBar.styleLightContent();
+    StatusBar.overlaysWebView(true);
+    this.setScreenSize()
   }
 
   render() {
 
     this.saveData()
+    this.setScreenSize()
 
-    var screenDim = this.props.context.dimensions
+    var screenDim = {
+      "height":this.props.context.dimensionsHeight,
+      "width":this.props.context.dimensionsWidth,
+      "topBuffer":this.props.context.dimensionsTop,
+      "bottomBuffer":this.props.context.dimensionsBottom
+    }
+
+    console.log(screenDim)
 
     var app
 
@@ -506,9 +541,11 @@ App.propTypes = {
   setWalletPassword: PropTypes.func.isRequired,
   setWalletPassPhrase: PropTypes.func.isRequired,
   setInsightExplorer: PropTypes.func.isRequired,
-  setDisplayDimensions: PropTypes.func.isRequired,
   setSaveData: PropTypes.func.isRequired,
-  setDimensions: PropTypes.func.isRequired,
+  setDimensionsHeight: PropTypes.func.isRequired,
+  setDimensionsWidth: PropTypes.func.isRequired,
+  setDimensionsTop: PropTypes.func.isRequired,
+  setDimensionsBottom: PropTypes.func.isRequired,
   setBirthday: PropTypes.func.isRequired,
   setSeedPhrase: PropTypes.func.isRequired,
   setActiveServer: PropTypes.func.isRequired,
@@ -548,11 +585,13 @@ function matchDispatchToProps (dispatch) {
       setWalletPassword,
       setWalletPassPhrase,
       setInsightExplorer,
-      setDisplayDimensions,
       setSaveData,
       setBirthday,
       setSeedPhrase,
-      setDimensions,
+      setDimensionsHeight,
+      setDimensionsWidth,
+      setDimensionsTop,
+      setDimensionsBottom,
       setActiveServer,
       setUserServers,
       setPrimaryServers,

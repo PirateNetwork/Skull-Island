@@ -275,8 +275,8 @@ class PrivateKey extends React.Component {
                 <PrivateKeyQRBase>
                   <PrivateKeyQR>
                     <QRCode value={this.props.context.privateKey}
-                           quietZone = {(this.props.context.dimensions.width * 0.025)}
-                           size = {(this.props.context.dimensions.width * 0.850)}
+                           quietZone = {(this.props.context.dimensionsWidth * 0.025)}
+                           size = {(this.props.context.dimensionsWidth * 0.850)}
                            bgColor = {'rgba(187,150,69,1)'}
                            logoImage = {logo}
                            ecLevel = "H"
