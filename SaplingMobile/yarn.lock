@@ -2349,9 +2349,9 @@
   "version" "1.0.0"
 
 "caniuse-lite@^1.0.30001286":
-  "integrity" "sha512-jnT4Tq0Q4ma+6nncYQVe7d73kmDmE9C3OGTx3MvW7lBM/eY1S1DZTMBON7dqV481RhNiS5OxD7k9JQvmDOTirw=="
-  "resolved" "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001292.tgz"
-  "version" "1.0.30001292"
+  "integrity" "sha512-ZmWkKsnC2ifEPoWUvSAIGyOYwT+keAaaWPHiQ9DfMqS1t6tfuyFYoWR78TeZtznkEQ64+vGXH9cZrElwR2Mrxg=="
+  "resolved" "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001436.tgz"
+  "version" "1.0.30001436"
 
 "chalk@^2.0.0":
   "integrity" "sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ=="
@@ -2671,11 +2671,6 @@
   "integrity" "sha512-nzkeWeyLA6+1FryzO0aeB6NS8MZ45gnBYeq2VZqfdNbddZEgtpI4XPYdBVxvm9NhcVoJ3tdA1OBnQD9JryoV0Q=="
   "resolved" "https://registry.npmjs.org/cordova-plugin-statusbar/-/cordova-plugin-statusbar-3.0.0.tgz"
   "version" "3.0.0"
-
-"cordova-plugin-wkwebview-engine@^1.2.2":
-  "integrity" "sha512-6RWrxKRUXBBQq/6fk/eYas51ReVkQWVXSzTSYoRsldn1ByT5iCrpzcnBdzH+NyWS2FTWX74SV0/fA59+Ij9x+w=="
-  "resolved" "https://registry.npmjs.org/cordova-plugin-wkwebview-engine/-/cordova-plugin-wkwebview-engine-1.2.2.tgz"
-  "version" "1.2.2"
 
 "core-js-compat@^3.18.0", "core-js-compat@^3.19.1":
   "integrity" "sha512-AVhKZNpqMV3Jz8hU0YEXXE06qoxtQGsAqU0u1neUngz5IusDJRX/ZJ6t3i7mS7QxNyEONbCo14GprkBrxPlTZA=="
