@@ -96,6 +96,7 @@ class App extends React.Component {
     this.selectServer = this.selectServer.bind(this)
     this.checkServers = this.checkServers.bind(this)
     this.initalizeServers = this.initalizeServers.bind(this)
+    this.runHeartBeat = this.runHeartBeat.bind(this)
   }
 
   setScreenSize() {
@@ -134,6 +135,17 @@ class App extends React.Component {
     console.log(this.props.settings)
     console.log(window.outerHeight)
 
+  }
+
+  runHeartBeat() {
+    clearInterval(this.InitId)
+      this.InitId = setInterval(
+        () => {
+          this.saveData()
+          this.runHeartBeat()
+        },
+        5000
+      )
   }
 
   runInitalize() {
@@ -402,6 +414,16 @@ class App extends React.Component {
 
     this.initalizeServers()
 
+    StatusBar.styleLightContent();
+
+    if (cordova.platformId == 'android') {
+      StatusBar.overlaysWebView(false);
+    } else {
+      StatusBar.overlaysWebView(true);
+    }
+
+
+
     readFromFile(PIRATE_MOBILE_SAVE_PATH, (data) => {
       // If errors while we're reading the JSOn
       // then just assume its empty
@@ -449,6 +471,11 @@ class App extends React.Component {
           readSavedFile: true
         })
       }
+
+      this.props.setSaveData(true)
+      this.runHeartBeat()
+      this.setScreenSize()
+
     }, (err) => {
 
       if (this.state.parseError === false) {
@@ -459,19 +486,16 @@ class App extends React.Component {
       if (process.env.NODE_ENV != 'production') {
         console.log(err)
       }
+
+      this.props.setSaveData(true)
+      this.runHeartBeat()
+      this.setScreenSize()
+
     })
 
-    this.props.setSaveData(true)
-
-    StatusBar.styleLightContent();
-    StatusBar.overlaysWebView(true);
-    this.setScreenSize()
   }
 
   render() {
-
-    this.saveData()
-    this.setScreenSize()
 
     var screenDim = {
       "height":this.props.context.dimensionsHeight,

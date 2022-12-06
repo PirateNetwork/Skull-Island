@@ -28,7 +28,7 @@
         <splash src="src/assets/png/splash.png" density="port-xhdpi"/>
         <splash src="src/assets/png/splash.png" density="port-xxhdpi"/>
         <preference name="android-targetSdkVersion" value="30" />
-        <preference name="FadeSplashScreenDuration" value="750"/>
+        <preference name="FadeSplashScreenDuration" value="1000"/>
         <preference name="AutoHideSplashScreen" value="true" />
         <preference name="SplashScreenDelay" value="5000" />
         <preference name="ShowSplashScreenSpinner" value="false"/>
@@ -48,7 +48,7 @@
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
         <splash src="src/assets/png/splash.png"/>
-        <preference name="FadeSplashScreenDuration" value="750"/>
+        <preference name="FadeSplashScreenDuration" value="1000"/>
         <preference name="AutoHideSplashScreen" value="true" />
         <preference name="SplashScreenDelay" value="10000" />
         <preference name="ShowSplashScreenSpinner" value="false"/>
@@ -62,7 +62,6 @@
         <preference name="EnableViewportScale" value="true" />
     </platform>
     <preference name="KeepRunning" value="true" />
-    <preference name="BackgroundColor" value="0x00000000"/>
     <preference name="Orientation" value="portrait" />
     <preference name="UIWebViewDecelerationSpeed" value="fast" />
 </widget>
