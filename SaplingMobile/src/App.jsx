@@ -49,6 +49,7 @@ import { walletExists,
          checkServer,
          save} from './utils/litewallet'
 
+import {getStatusBarHeight} from './utils/statusbar.js'
 import {encrypt, decrypt, saltHashPassword, KeySalt} from './utils/hash.js'
 
 import {
@@ -89,20 +90,26 @@ class App extends React.Component {
     this.runInitalize = this.runInitalize.bind(this)
     this.runInitalizeServers = this.runInitalizeServers.bind(this)
     this.setScreenSize = this.setScreenSize.bind(this)
-    //this.setRotate = this.setRotate.bind(this)
     this.backButtonHandler = this.backButtonHandler.bind(this)
     this.saveData = this.saveData.bind(this)
     this.getServerList = this.getServerList.bind(this)
     this.selectServer = this.selectServer.bind(this)
     this.checkServers = this.checkServers.bind(this)
     this.initalizeServers = this.initalizeServers.bind(this)
-    this.runHeartBeat = this.runHeartBeat.bind(this)
   }
 
-  setScreenSize() {
+  async setScreenSize() {
     screen.orientation.lock('portrait');
 
-    console.log("Getting computed styles")
+    var statusBarHeight = 0
+    await StatusBar.styleLightContent();
+    if (cordova.platformId == 'android') {
+      await StatusBar.overlaysWebView(false);
+      statusBarHeight = await getStatusBarHeight()
+    } else {
+      await StatusBar.overlaysWebView(true);
+    }
+
 
     var topBufferEsat = parseInt(window.getComputedStyle(document.documentElement).getPropertyValue("--esat"))
     var topBufferCsat = parseInt(window.getComputedStyle(document.documentElement).getPropertyValue("--csat"))
@@ -116,36 +123,13 @@ class App extends React.Component {
 
     var topBuffer = topBufferEsat + topBufferCsat
     var bottomBuffer = bottomBufferEsab + bottomBufferCsab
-    var height = window.outerHeight - topBuffer - bottomBuffer
-
-        console.log(topBufferEsat)
-        console.log(topBufferCsat)
-        console.log(bottomBufferEsab)
-        console.log(bottomBufferCsab)
-
-        console.log(topBuffer)
-        console.log(bottomBuffer)
+    var height = window.outerHeight - topBuffer - bottomBuffer - statusBarHeight
 
     if (this.props.context.dimensionsHeight != height) {this.props.setDimensionsHeight(height)}
     if (this.props.context.dimensionsWidth != window.outerWidth) {this.props.setDimensionsWidth(window.outerWidth)}
     if (this.props.context.dimensionsTop != topBuffer) {this.props.setDimensionsTop(topBuffer)}
     if (this.props.context.dimensionsBottom != bottomBuffer) {this.props.setDimensionsBottom(bottomBuffer)}
 
-    console.log(this.props.context)
-    console.log(this.props.settings)
-    console.log(window.outerHeight)
-
-  }
-
-  runHeartBeat() {
-    clearInterval(this.InitId)
-      this.InitId = setInterval(
-        () => {
-          this.saveData()
-          this.runHeartBeat()
-        },
-        5000
-      )
   }
 
   runInitalize() {
@@ -414,21 +398,15 @@ class App extends React.Component {
 
     this.initalizeServers()
 
-    StatusBar.styleLightContent();
-
-    if (cordova.platformId == 'android') {
-      StatusBar.overlaysWebView(false);
-    } else {
-      StatusBar.overlaysWebView(true);
-    }
-
-
+    this.setScreenSize()
 
     readFromFile(PIRATE_MOBILE_SAVE_PATH, (data) => {
       // If errors while we're reading the JSOn
       // then just assume its empty
 
       this.setState({stringData: 'JSON file ' + data})
+
+
 
       try {
         data = JSON.parse(data)
@@ -473,8 +451,6 @@ class App extends React.Component {
       }
 
       this.props.setSaveData(true)
-      this.runHeartBeat()
-      this.setScreenSize()
 
     }, (err) => {
 
@@ -488,8 +464,6 @@ class App extends React.Component {
       }
 
       this.props.setSaveData(true)
-      this.runHeartBeat()
-      this.setScreenSize()
 
     })
 
@@ -497,14 +471,14 @@ class App extends React.Component {
 
   render() {
 
+    this.saveData()
+
     var screenDim = {
       "height":this.props.context.dimensionsHeight,
       "width":this.props.context.dimensionsWidth,
       "topBuffer":this.props.context.dimensionsTop,
       "bottomBuffer":this.props.context.dimensionsBottom
     }
-
-    console.log(screenDim)
 
     var app
 

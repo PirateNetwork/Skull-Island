@@ -24,6 +24,7 @@
         "LocalFileSystem": true,
         "QRScanner": true,
         "SQLitePlugin": true,
-        "StatusBar": true
+        "StatusBar": true,
+        "StatusBarHeight": true
     }
 }

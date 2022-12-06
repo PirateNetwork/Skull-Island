@@ -1,6 +1,6 @@
-export function appVersion() {
+export function getStatusBarHeight() {
           return new Promise((resolve, reject) => {
-            cordova.getAppVersion.getVersionNumber((successResponse) => {
+            StatusBarHeight.getValue((successResponse) => {
               resolve(successResponse)
             }, (errorResponse) =>{
               reject(errorResponse)
