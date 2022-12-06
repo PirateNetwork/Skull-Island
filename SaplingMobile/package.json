@@ -45,7 +45,7 @@
     "cordova-plugin-crypto-file": "git+https://github.com/secretmoo35/cordova-plugin-crypto-file.git#950d7003ac0274b03eb0abf684978b5b39b63ac6",
     "cordova-plugin-file": "^7.0.0",
     "cordova-plugin-insomnia": "github:EddyVerbruggen/Insomnia-PhoneGap-Plugin",
-    "cordova-plugin-litewallet": "file:../../cordova-plugin-litewallet",
+    "cordova-plugin-litewallet": "file:../cordova-plugin-litewallet",
     "cordova-plugin-ns0m-file-transfer": "^2.0.0-7",
     "cordova-plugin-qrscanner": "github:nosoloforks/cordova-plugin-qrscanner",
     "cordova-plugin-screen-orientation": "^3.0.2",
