@@ -8,7 +8,7 @@ import { coins } from '../utils/coins.js'
 import { encrypt, saltHashPassword, KeySalt } from '../utils/hash.js'
 import { setSeedPhrase, setBirthday } from '../actions/Secrets'
 import { setMinimumBlock, setWalletPassPhrase } from '../actions/Settings'
-import { setQrScanning, setWalletLoaded } from '../actions/Context'
+import { setQrScanning, setWalletLoaded, setHasExistingWallet } from '../actions/Context'
 
 import Qr from '../containers/qr'
 import RingSpinner from '../containers/spinner'
@@ -470,6 +470,7 @@ function mapStateToProps (state) {
 function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
+      setHasExistingWallet,
       setWalletPassPhrase,
       setWalletLoaded,
       setQrScanning,

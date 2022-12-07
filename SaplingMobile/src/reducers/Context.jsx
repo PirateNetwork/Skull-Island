@@ -3,6 +3,7 @@
 import '@babel/polyfill'
 
 import {
+  SET_HAS_EXISTING_WALLET,
   SET_ACTIVE_PASSWORD,
   SET_ADDRESS,
   SET_PRIVATE_KEY,
@@ -38,6 +39,7 @@ import {
 } from '../actions/Context'
 
 const initialContext = {
+  hasExistingWallet: false,
   activePassword: '',
   address: '',
   privateKey: '',
@@ -73,6 +75,11 @@ const initialContext = {
 
 export default function ContextReducer (state = initialContext, action) {
   switch (action.type) {
+
+    case SET_HAS_EXISTING_WALLET:
+      return Object.assign({}, state, {
+        hasExistingWallet: action.hasExistingWallet
+      })
 
     case SET_ACTIVE_PASSWORD:
       return Object.assign({}, state, {

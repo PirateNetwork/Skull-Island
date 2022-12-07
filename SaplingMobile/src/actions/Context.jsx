@@ -1,3 +1,4 @@
+export const SET_HAS_EXISTING_WALLET = 'SET_CURRENT_HAS_EXISTING_WALLET'
 export const SET_ACTIVE_PASSWORD = 'SET_CURRENT_ACTIVE_PASSWORD'
 export const SET_ADDRESS = 'SET_CURRENT_ADDRESS'
 export const SET_PRIVATE_KEY = 'SET_CURRENT_PRIVATE_KEY'
@@ -29,6 +30,13 @@ export const SET_USER_SERVERS = 'SET_CURRENT_USER_SERVERS'
 export const SET_PRIMARY_SERVERS = 'SET_CURRENT_PRIMARY_SERVERS'
 export const SET_BACKUP_SERVERS = 'SET_CURRENT_BACKUP_SERVERS'
 export const SET_DISCONNECTED = 'SET_CURRENT_DISCONNECTED'
+
+export function setHasExistingWallet (hasExistingWallet) {
+  return {
+    type: SET_HAS_EXISTING_WALLET,
+    hasExistingWallet
+  }
+}
 
 export function setActivePassword (activePassword) {
   return {

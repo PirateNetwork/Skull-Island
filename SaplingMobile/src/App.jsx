@@ -15,7 +15,8 @@ import {
   setUserServers,
   setPrimaryServers,
   setBackupServers,
-  setDisconnected} from './actions/Context'
+  setDisconnected,
+  setHasExistingWallet} from './actions/Context'
 
 import { setSeedPhrase, setBirthday } from './actions/Secrets'
 import {
@@ -77,7 +78,6 @@ class App extends React.Component {
     this.state = {
       tempPin: '',
       Initalized: true,
-      hasExistingWallet: false,
       hasExistingPin: false,
       hasInputPin: false,
       readSavedFile: false,
@@ -250,15 +250,13 @@ class App extends React.Component {
         seedCheck = JSON.parse(seedCheck)
         if (seedCheck.checkSeedPhrase == 'Ok') {
             this.props.setWalletPassPhrase(data.settings.passPhrase)
-            this.setState({
-              hasExistingWallet: true
-            })
+            this.props.setHasExistingWallet(true)
           }
         }
       }
 
       //reset to Zero
-      if (!this.state.hasExistingWallet) {
+      if (!this.props.context.hasExistingWallet) {
         const apiSelection = Math.floor(Math.random()*coins[coin].explorer.length)
         this.props.setCurrentCoin(coin)
         this.props.setInsightExplorer(coins[coin].explorer[apiSelection])
@@ -313,9 +311,7 @@ class App extends React.Component {
           if (this.props.settings.passPhrase == null) {
             var pass = encrypt(seed.seed, keyHash)
             this.props.setWalletPassPhrase(pass)
-            this.setState({
-              hasExistingWallet: true
-            })
+            this.props.setHasExistingWallet(true)
           } else {
             var pp = decrypt(this.props.settings.passPhrase, keyHash)
             if (pp != seed.seed) {
@@ -504,8 +500,8 @@ class App extends React.Component {
             this.runInitalize()
           }} />
         } else {
-          if(!this.state.hasExistingWallet) {
-            app = <SetWalletPage setHasExistingWallet={(v) => this.setState({ hasExistingWallet: v })}/>
+          if(!this.props.context.hasExistingWallet) {
+            app = <SetWalletPage />
           } else {
             app = <MainPage />
           }
@@ -525,6 +521,7 @@ class App extends React.Component {
 
 
 App.propTypes = {
+  setHasExistingWallet: PropTypes.func.isRequired,
   setWalletLoaded: PropTypes.func.isRequired,
   setMainPage: PropTypes.func.isRequired,
   setSendPage: PropTypes.func.isRequired,
@@ -569,6 +566,7 @@ function mapStateToProps (state) {
 function matchDispatchToProps (dispatch) {
   return bindActionCreators(
     {
+      setHasExistingWallet,
       setWalletLoaded,
       setMainPage,
       setSendPage,

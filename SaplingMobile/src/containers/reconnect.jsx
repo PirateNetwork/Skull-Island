@@ -221,9 +221,6 @@ class Reconnect extends React.Component {
           if (this.props.settings.passPhrase == null) {
             var pass = encrypt(seed.seed, keyHash)
             this.props.setWalletPassPhrase(pass)
-            this.setState({
-              hasExistingWallet: true
-            })
           } else {
             var pp = decrypt(this.props.settings.passPhrase, keyHash)
             if (pp != seed.seed) {
