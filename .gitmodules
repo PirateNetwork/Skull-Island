@@ -1,0 +1,3 @@
+[submodule "cordova-plugin-litewallet"]
+	path = cordova-plugin-litewallet
+	url = https://github.com/piratenetwork/cordova-plugin-litewallet.git
