@@ -39,7 +39,7 @@ npm install
 ## Android
 Requires Android SDK (Recommend Full Studio) and Oracle Java 11 to be installed
 ```
-cordova platform add android@9
+cordova platform add android@10
 npx webpack
 cordova prepare android
 cordova run android
