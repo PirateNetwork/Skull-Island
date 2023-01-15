@@ -2644,9 +2644,10 @@ cordova-plugin-file@^7.0.0:
   resolved "https://registry.npmjs.org/cordova-plugin-file/-/cordova-plugin-file-7.0.0.tgz"
   integrity sha512-mSwy9GE5pHq2ZHhu/wYk/VhrwR5VLk+XQsk3+IiiFmDgcPsrVIyELkM2FZKX09cC6i+bJVTFVKUlwteSStj3ow==
 
-"cordova-plugin-insomnia@github:EddyVerbruggen/Insomnia-PhoneGap-Plugin":
+"cordova-plugin-insomnia@github:EddyVerbruggen/Insomnia-PhoneGap-Plugin#f83de3ac8ff1bd9ce48652091e8d183c6dcb9e06":
   version "4.3.0"
   resolved "git+ssh://git@github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git#f83de3ac8ff1bd9ce48652091e8d183c6dcb9e06"
+  integrity sha512-oIwdobc7C4FD/xuCKM7pWB8Esv9cZ+jrCMj1FNIav1fjJNLOIuUKwHqDBYvHfHuySCDK0/voN8I+uqtbsiIPOA==
 
 "cordova-plugin-litewallet@file:../cordova-plugin-litewallet":
   version "0.1.1"
@@ -2657,9 +2658,10 @@ cordova-plugin-ns0m-file-transfer@^2.0.0-7:
   resolved "https://registry.npmjs.org/cordova-plugin-ns0m-file-transfer/-/cordova-plugin-ns0m-file-transfer-2.0.0-7.tgz"
   integrity sha512-IrezwzlTyoFXIAwerBEbS+bzCAMme/qVS5qDFTPUNmglTvRwGaN35rYXZ7UVcnUIUSoNL53bq276rZlIj+086A==
 
-"cordova-plugin-qrscanner@github:nosoloforks/cordova-plugin-qrscanner":
+"cordova-plugin-qrscanner@github:nosoloforks/cordova-plugin-qrscanner#8f4b060665537346c1c3cf788cbb6b93ad3de19a":
   version "4.0.1"
   resolved "git+ssh://git@github.com/nosoloforks/cordova-plugin-qrscanner.git#8f4b060665537346c1c3cf788cbb6b93ad3de19a"
+  integrity sha512-GW8UZbXH3ncobpbZ96CQjVdzMzQLhfxdLjJ+ZD/fMUiONcUSqLLPVC3WVvA1t9cgBKHaXTGUSHWk2rylrAsvmQ==
   dependencies:
     qrcode-reader "^1.0.4"
     webrtc-adapter "^3.1.4"
@@ -2959,9 +2961,10 @@ detect-node@^2.0.4:
   resolved "https://registry.npmjs.org/detect-node/-/detect-node-2.1.0.tgz"
   integrity sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==
 
-"dfocus-fm-cordova-plugin-statusbar-height@github:zhushiyao/cordova-plugin-statusbar-height":
+"dfocus-fm-cordova-plugin-statusbar-height@github:zhushiyao/cordova-plugin-statusbar-height#c9ff671248a8acbe6b054295ceb924180f098d54":
   version "1.0.0"
   resolved "git+ssh://git@github.com/zhushiyao/cordova-plugin-statusbar-height.git#c9ff671248a8acbe6b054295ceb924180f098d54"
+  integrity sha512-PR8dvz36x06TfpfTQFr31IQTpOhIOhAnoauNhWts5rm3eIbgRWPT7ibl84ZHoYb9F9Q6xQA2onGQsAYYKHuCbA==
 
 diffie-hellman@^5.0.0:
   version "5.0.3"
