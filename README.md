@@ -6,19 +6,30 @@ The Pirate Chain mobile wallet is unaudited code, and developed by Forge. We wel
 
 Pirate Chain mobile app built using Redux, React and Webpack.
 
-Use Node v12, installed with nvm
+Use Node v14, installed with nvm, npm version 9.1.3
 https://github.com/nvm-sh/nvm
 
 Use Cordova v11 with Java Version 11
 https://cordova.apache.org/docs/en/latest/guide/cli/
 
 
+## Setup Instuctions
+1. Clone the repository
+```
+git clone https://github.com/PirateNetwork/Skull-Island.git
+cd Skull-Island
+git checkout master
+```
 
-## Setup instructions
+2.cordova-plugin-litewallet
+This plugin has been added as a submodule due to the need to compile the library binaries for ios.
+```
+git submodule init
+```
 
+## Build instructions
 ```
 npm install -g cordova
-git clone https://github.com/PirateNetwork/Skull-Island.git
 cd Skull-Island
 git checkout master
 cd SaplingMobile
