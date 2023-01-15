@@ -27,7 +27,7 @@
         <splash src="src/assets/png/splash.png" density="port-mdpi"/>
         <splash src="src/assets/png/splash.png" density="port-xhdpi"/>
         <splash src="src/assets/png/splash.png" density="port-xxhdpi"/>
-        <preference name="android-targetSdkVersion" value="30" />
+        <preference name="android-targetSdkVersion" value="31" />
         <preference name="FadeSplashScreenDuration" value="1000"/>
         <preference name="AutoHideSplashScreen" value="true" />
         <preference name="SplashScreenDelay" value="5000" />
