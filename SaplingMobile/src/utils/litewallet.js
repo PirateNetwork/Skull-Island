@@ -70,6 +70,16 @@ export function syncStatus() {
           })
         }
 
+export function syncStop() {
+          return new Promise((resolve, reject) => {
+            LiteWallet.syncStop((successResponse) => {
+              resolve(successResponse)
+            }, (errorResponse) =>{
+              reject(errorResponse)
+            })
+          })
+        }
+
 export function rescan() {
           return new Promise((resolve, reject) => {
             LiteWallet.rescan((successResponse) => {
