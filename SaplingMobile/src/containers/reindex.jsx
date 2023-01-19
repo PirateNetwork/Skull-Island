@@ -25,7 +25,7 @@ import { decrypt, saltHashPassword, KeySalt } from '../utils/hash.js'
 
 import Loader from '../containers/loader'
 
-import { sync,
+import { syncStop,
          syncStatus,
          privateKey,
          newZAddress,
@@ -72,7 +72,9 @@ class ReindexPage extends React.Component {
         password: '',
         birthday: 0,
         spinnerMsg: 'Completing Operations...',
-        reset: true
+        reset: true,
+        syncing: true,
+        syncTimer: 0
       }
 
       this.scrollRef = React.createRef()
@@ -84,6 +86,7 @@ class ReindexPage extends React.Component {
 
       this.setTempBirthday = this.setTempBirthday.bind(this)
       this.reInitalize = this.reInitalize.bind(this)
+      this.stopWalletSync = this.stopWalletSync.bind(this)
     }
 
     setMsg(m) {
@@ -177,7 +180,7 @@ class ReindexPage extends React.Component {
 
             try {
               //Restore from passphrase
-              args = [coins[key].litewallet[0]]
+              args = [this.props.context.activeServer]
               args.push(passPhrase)
               args.push(this.state.birthday.toString())
               seed = await restoreWallet(args)
@@ -190,8 +193,6 @@ class ReindexPage extends React.Component {
                     await newZAddress()
                 }
 
-                sync()
-                await syncStatus()
                 this.props.setSynced(false)
                 this.props.setSeedPhrase(seed.seed)
                 this.props.setBirthday(seed.birthday)
@@ -209,7 +210,7 @@ class ReindexPage extends React.Component {
               } else {
                 this.setMsg('Failed, Reverting to Previous State...')
                 args = [coins[key].networkname]
-                args.push(coins[key].litewallet[0])
+                args.push(this.props.context.activeServer)
                 seed = await initalizeWallet(args)
 
                 //Check to make sure wallet.dat is encrypted
@@ -237,8 +238,7 @@ class ReindexPage extends React.Component {
                 seed = await walletSeed()
                 seed = JSON.parse(seed)
                 if (seed.seed != null) {
-                  sync()
-                  await syncStatus()
+
                   this.props.setSynced(false)
                   this.props.setSeedPhrase(seed.seed)
                   this.props.setBirthday(seed.birthday)
@@ -269,8 +269,42 @@ class ReindexPage extends React.Component {
           }
         }
 
-    componentDidMount() {
+    async stopWalletSync() {
 
+      var walletStatus = await syncStatus()
+      walletStatus = JSON.parse(walletStatus)
+      console.log(walletStatus)
+      if (walletStatus.in_progress == true) {
+        syncStop()
+        this.setState({
+          syncing: true
+        })
+      } else {
+        this.setState({
+          syncing: false
+        })
+      }
+
+      clearTimeout(this.state.syncTimer)
+
+        const syncTimerIDShort = setTimeout(
+          () => {
+            this.stopWalletSync()
+          }, 1000)
+
+        this.setState({
+          syncTimer: syncTimerIDShort
+        })
+
+
+    }
+
+    componentDidMount() {
+      this.stopWalletSync()
+    }
+
+    componentWillUnmount() {
+      clearTimeout(this.state.syncTimer)
     }
 
     render () {
@@ -283,7 +317,7 @@ class ReindexPage extends React.Component {
 
       var reindexBody
 
-      if (this.props.context.saving) {
+      if (this.props.context.saving || this.state.syncing) {
         reindexBody =
             <div>
               <ReindexTitle>
