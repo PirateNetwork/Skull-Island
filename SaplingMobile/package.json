@@ -100,8 +100,8 @@
       "dfocus-fm-cordova-plugin-statusbar-height": {}
     },
     "platforms": [
-      "android",
-      "ios"
+      "ios",
+      "android"
     ]
   }
 }
