@@ -220,6 +220,17 @@ export function decryptWallet(password) {
           })
         }
 
+//Bug in versions prior to 2.2.0
+export function decryptOldWallet(password) {
+          return new Promise((resolve, reject) => {
+            LiteWallet.decryptOldWallet(password, (successResponse) => {
+              resolve(successResponse)
+            }, (errorResponse) =>{
+              reject(errorResponse)
+            })
+          })
+        }
+
 export function lock() {
           return new Promise((resolve, reject) => {
             LiteWallet.lock((successResponse) => {
@@ -233,6 +244,17 @@ export function lock() {
 export function unlock(password) {
           return new Promise((resolve, reject) => {
             LiteWallet.unlock(password, (successResponse) => {
+              resolve(successResponse)
+            }, (errorResponse) =>{
+              reject(errorResponse)
+            })
+          })
+        }
+
+//Bug in versions prior to 2.2.0
+export function unlockOldWallet(password) {
+          return new Promise((resolve, reject) => {
+            LiteWallet.unlockOldWallet(password, (successResponse) => {
               resolve(successResponse)
             }, (errorResponse) =>{
               reject(errorResponse)

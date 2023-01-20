@@ -44,6 +44,7 @@ import { walletExists,
          newWallet,
          encryptionstatus,
          encryptWallet,
+         decryptOldWallet,
          unlock,
          checkSeedPhrase,
          walletSeed,
@@ -289,6 +290,18 @@ class App extends React.Component {
         await unlock(this.props.context.activePassword)
         encryptStatus = await encryptionstatus()
         encryptStatus = JSON.parse(encryptStatus)
+
+        if (encryptStatus.locked) {
+            //fix password encryption prior to 2.2.0
+            await decryptOldWallet(this.props.context.activePassword)
+            await encryptWallet(this.props.context.activePassword)
+
+            //Unlock the wallet so it can be used
+            await unlock(this.props.context.activePassword)
+            encryptStatus = await encryptionstatus()
+            encryptStatus = JSON.parse(encryptStatus)
+        }
+
         if (encryptStatus.locked) {
           alert("WARNING!!! wallet.dat failed to unlock, restart app.")
           if (confirm("Exit App?")) {
